@@ -3,232 +3,240 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VIVOgift — Crea Regalos Mágicos con IA</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<title>GrowiBooks — Crea tu Cuento Mágico</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#080808;--bg2:#0e0e0e;--bg3:#161616;--bg4:#1e1e1e;--bg5:#262626;
-  --lime:#e8ff47;--lime10:#e8ff4718;--lime20:#e8ff4730;
-  --gold:#ffd700;--gold10:#ffd70020;
-  --text:#f0ede8;--text2:#a09e99;--text3:#5a5a5a;
-  --r:14px;--rs:8px;
-  --fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
+  --bg:#f7f9f4;--bg2:#eef3e8;--bg3:#ffffff;--bg4:#f0f5eb;--bg5:#e4ecdc;
+  --lime:#2daa5f;--lime10:#2daa5f18;--lime20:#2daa5f35;
+  --green:#2daa5f;--green-dark:#1d8047;
+  --gold:#ff7b2c;--gold10:#ff7b2c18;
+  --text:#1a2e1a;--text2:#4a6741;--text3:#8aaa82;
+  --r:18px;--rs:12px;
+  --fd:'Nunito',sans-serif;--fb:'Quicksand',sans-serif;
+  --shadow:0 4px 20px rgba(45,170,95,.12);
+  --shadow-lg:0 12px 40px rgba(45,170,95,.18);
 }
-body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;
+  background-image:
+    radial-gradient(circle at 10% 15%,#2daa5f08 0%,transparent 50%),
+    radial-gradient(circle at 90% 85%,#ff7b2c08 0%,transparent 50%);
+}
 
 /* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(24px);background:rgba(8,8,8,.85);border-bottom:1px solid #ffffff08}
-.logo{display:flex;align-items:center;font-family:var(--fd);font-size:21px;font-weight:800;letter-spacing:-.5px;text-decoration:none;color:var(--text)}
-.logo-o{width:24px;height:24px;border:2px solid var(--lime);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin:0 1px}
-.logo-o svg{width:9px;height:9px;fill:var(--lime)}
-.logo-gift{color:var(--lime);font-weight:300;font-size:19px}
-.nav-links{display:flex;gap:20px;align-items:center}
-.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;transition:.2s}
-.nav-links a:hover{color:var(--lime)}
-.cart-btn{background:var(--lime10);border:1px solid var(--lime20);padding:8px 16px;border-radius:20px;color:var(--lime);font-size:12px;cursor:pointer;transition:.2s}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(247,249,244,.92);backdrop-filter:blur(20px);border-bottom:2px solid #2daa5f20;box-shadow:0 2px 20px rgba(45,170,95,.08)}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-size:22px;font-weight:900;text-decoration:none;color:var(--text);letter-spacing:-.5px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#2daa5f,#1d8047);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(45,170,95,.35)}
+.logo .growi{color:#2daa5f}
+.nav-links{display:flex;gap:6px;align-items:center}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;font-weight:600;padding:8px 14px;border-radius:20px;transition:.2s;font-family:var(--fd)}
+.nav-links a:hover{background:var(--lime10);color:var(--lime)}
+.cart-btn{background:var(--lime10);border:1.5px solid var(--lime20);padding:8px 16px;border-radius:20px;color:var(--lime);font-size:12px;font-weight:700;cursor:pointer;transition:.2s;font-family:var(--fd)}
 .cart-btn:hover{background:var(--lime20)}
 
 /* MAIN */
 .main{padding:100px 20px 60px;max-width:1200px;margin:0 auto}
 
-/* STEPS INDICATOR */
-.steps-container{display:flex;justify-content:center;gap:8px;margin-bottom:40px}
-.step-dot{width:12px;height:12px;border-radius:50%;background:var(--bg4);border:2px solid var(--bg5);transition:.3s}
-.step-dot.active{background:var(--lime);border-color:var(--lime);box-shadow:0 0 15px var(--lime20)}
-.step-dot.completed{background:var(--lime);border-color:var(--lime)}
+/* STEPS */
+.steps-container{display:flex;justify-content:center;gap:10px;margin-bottom:44px;align-items:center}
+.step-dot{width:14px;height:14px;border-radius:50%;background:var(--bg5);border:2.5px solid var(--bg5);transition:.3s}
+.step-dot.active{background:var(--green);border-color:var(--green);box-shadow:0 0 16px #2daa5f40;transform:scale(1.2)}
+.step-dot.completed{background:var(--green);border-color:var(--green)}
 
 /* PANELS */
 .panel{display:none;animation:fadeIn .4s ease}
 .panel.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
 /* PANEL 1 */
 .create-panel{display:grid;grid-template-columns:1fr 400px;gap:40px;align-items:start}
 @media(max-width:900px){.create-panel{grid-template-columns:1fr}}
 
-.form-section{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:32px}
-.form-section h2{font-family:var(--fd);font-size:24px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:10px}
-.form-section p.sub{font-size:13px;color:var(--text2);margin-bottom:28px}
+.form-section{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:32px;box-shadow:var(--shadow)}
+.form-section h2{font-family:var(--fd);font-size:24px;font-weight:900;margin-bottom:8px;display:flex;align-items:center;gap:10px;color:var(--text)}
+.form-section p.sub{font-size:13px;color:var(--text2);margin-bottom:28px;font-weight:500}
 
 .input-group{margin-bottom:18px}
-label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;font-family:var(--fd)}
-input,select,textarea{width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid #ffffff12;border-radius:var(--rs);color:var(--text);font-family:var(--fb);font-size:13px;outline:none;transition:.2s}
-input:focus,select:focus,textarea:focus{border-color:var(--lime)}
+label{display:block;font-size:11px;font-weight:800;color:var(--text2);margin-bottom:6px;letter-spacing:.8px;text-transform:uppercase;font-family:var(--fd)}
+input,select,textarea{width:100%;padding:12px 14px;background:var(--bg);border:2px solid var(--bg5);border-radius:var(--rs);color:var(--text);font-family:var(--fb);font-size:13px;font-weight:500;outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 4px var(--lime10)}
 textarea{resize:vertical;min-height:90px}
+select{cursor:pointer}
 
 .row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
 /* STYLE GRID */
-.style-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.style-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
 @media(max-width:600px){.style-grid{grid-template-columns:repeat(3,1fr)}}
-.style-option{padding:10px 6px;background:var(--bg);border:1.5px solid #ffffff12;border-radius:var(--rs);cursor:pointer;text-align:center;transition:.2s;font-size:10px}
+.style-option{padding:10px 6px;background:var(--bg);border:2px solid var(--bg5);border-radius:var(--rs);cursor:pointer;text-align:center;transition:.2s;font-size:10px}
 .style-option:hover{border-color:var(--lime20);background:var(--bg4)}
-.style-option.selected{border-color:var(--lime);background:var(--lime10)}
+.style-option.selected{border-color:var(--green);background:var(--lime10);box-shadow:0 2px 8px var(--lime20)}
 .style-option .icon{font-size:18px;margin-bottom:3px;display:block}
-.style-option .name{font-weight:600;color:var(--text)}
+.style-option .name{font-weight:700;color:var(--text);font-family:var(--fd)}
 
 /* PREVIEW SIDEBAR */
 .preview-section{position:sticky;top:100px}
-.book-preview-card{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:24px;text-align:center}
-.book-preview-card h3{font-family:var(--fd);font-size:14px;margin-bottom:16px;color:var(--text2)}
+.book-preview-card{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:24px;text-align:center;box-shadow:var(--shadow)}
+.book-preview-card h3{font-family:var(--fd);font-size:14px;font-weight:800;margin-bottom:16px;color:var(--text2)}
 
 .mini-book{width:180px;height:240px;margin:0 auto 20px;perspective:800px}
 .mini-book-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transform:rotateY(-10deg);transition:.3s}
 .mini-book:hover .mini-book-inner{transform:rotateY(-5deg)}
-.mini-book-cover{position:absolute;width:100%;height:100%;background:linear-gradient(145deg,#2a2520,#1a1815);border-radius:0 8px 8px 0;box-shadow:-3px 3px 15px rgba(0,0,0,.4);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:12px}
-.mini-book-cover img{width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0}
+.mini-book-cover{position:absolute;width:100%;height:100%;background:linear-gradient(145deg,#d4edc9,#a8d5a2);border-radius:0 10px 10px 0;box-shadow:-4px 4px 16px rgba(45,170,95,.25);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;font-weight:600}
+.mini-book-cover img{width:100%;height:100%;object-fit:cover;border-radius:0 10px 10px 0}
 
-.btn-generate{width:100%;padding:14px;background:var(--lime);color:var(--bg);font-family:var(--fd);font-size:13px;font-weight:800;border:none;border-radius:var(--rs);cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:.5px}
-.btn-generate:hover{box-shadow:0 8px 30px #e8ff4725;transform:translateY(-2px)}
-.btn-generate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-generate{width:100%;padding:14px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;font-family:var(--fd);font-size:13px;font-weight:800;border:none;border-radius:var(--rs);cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:.5px;box-shadow:0 4px 14px rgba(45,170,95,.3)}
+.btn-generate:hover{box-shadow:0 8px 24px rgba(45,170,95,.4);transform:translateY(-2px)}
+.btn-generate:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 
 /* PANEL 2 */
 .format-options{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:0 auto}
 @media(max-width:700px){.format-options{grid-template-columns:1fr}}
 
-.format-card{background:var(--bg3);border:2px solid #ffffff10;border-radius:var(--r);padding:32px;cursor:pointer;transition:.3s;position:relative;overflow:hidden}
-.format-card:hover{border-color:var(--lime20);transform:translateY(-4px)}
-.format-card.selected{border-color:var(--lime);background:var(--lime10)}
-.format-card.premium{border-color:var(--gold);background:linear-gradient(145deg,#1a1815,#0e0e0e)}
-.format-card.premium::before{content:'⭐ RECOMENDADO';position:absolute;top:12px;right:-30px;background:var(--gold);color:#000;font-size:9px;font-weight:800;padding:4px 40px;transform:rotate(45deg);font-family:var(--fd)}
+.format-card{background:var(--bg3);border:2.5px solid var(--bg5);border-radius:var(--r);padding:32px;cursor:pointer;transition:.3s;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.format-card:hover{border-color:var(--lime20);transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+.format-card.selected{border-color:var(--green);background:var(--lime10)}
+.format-card.premium{border-color:var(--gold);background:linear-gradient(145deg,#fff8f4,#fff)}
+.format-card.premium::before{content:'⭐ RECOMENDADO';position:absolute;top:14px;right:-28px;background:var(--gold);color:#fff;font-size:9px;font-weight:900;padding:5px 40px;transform:rotate(45deg);font-family:var(--fd);letter-spacing:.5px}
 
 .format-icon{font-size:48px;margin-bottom:16px}
-.format-card h3{font-family:var(--fd);font-size:20px;font-weight:800;margin-bottom:8px}
-.format-card p{color:var(--text2);font-size:13px;line-height:1.5;margin-bottom:20px}
+.format-card h3{font-family:var(--fd);font-size:20px;font-weight:900;margin-bottom:8px;color:var(--text)}
+.format-card p{color:var(--text2);font-size:13px;line-height:1.6;margin-bottom:20px;font-weight:500}
 .format-features{list-style:none}
-.format-features li{font-size:12px;color:var(--text);padding:6px 0;border-bottom:1px solid #ffffff08;display:flex;align-items:center;gap:8px}
-.format-features li::before{content:'✓';color:var(--lime);font-weight:bold}
-.format-price{margin-top:20px;font-family:var(--fd);font-size:24px;font-weight:800}
-.format-price span{font-size:13px;font-weight:400;color:var(--text2)}
-.format-price.free{color:var(--lime)}
+.format-features li{font-size:12px;color:var(--text);padding:6px 0;border-bottom:1px solid var(--bg5);display:flex;align-items:center;gap:8px;font-weight:600}
+.format-features li::before{content:'✓';color:var(--green);font-weight:900;font-size:14px}
+.format-price{margin-top:20px;font-family:var(--fd);font-size:26px;font-weight:900;color:var(--text)}
+.format-price span{font-size:13px;font-weight:500;color:var(--text2)}
+.format-price.free{color:var(--green)}
 
 /* PANEL 3 */
 .gift-sections{display:flex;flex-direction:column;gap:24px;max-width:800px;margin:0 auto}
-.gift-section{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:28px}
-.gift-section h3{font-family:var(--fd);font-size:16px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.gift-section{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:28px;box-shadow:var(--shadow)}
+.gift-section h3{font-family:var(--fd);font-size:16px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:10px;color:var(--text)}
 .gift-section h3 .emoji{font-size:24px}
-.gift-section>p{font-size:12px;color:var(--text2);margin-bottom:20px}
+.gift-section>p{font-size:12px;color:var(--text2);margin-bottom:20px;font-weight:500}
 
-.voice-recorder{background:var(--bg);border:1px solid #ffffff10;border-radius:var(--rs);padding:24px}
+.voice-recorder{background:var(--bg);border:2px solid var(--bg5);border-radius:var(--rs);padding:24px}
 .recorder-status{text-align:center;margin-bottom:20px}
 .recorder-status .icon{font-size:48px;margin-bottom:10px}
-.recorder-status p{color:var(--text2);font-size:13px}
-.recorder-timer{font-family:var(--fd);font-size:32px;font-weight:800;color:var(--lime);margin:10px 0}
+.recorder-status p{color:var(--text2);font-size:13px;font-weight:600}
+.recorder-timer{font-family:var(--fd);font-size:32px;font-weight:900;color:var(--green);margin:10px 0}
 
 .recorder-controls{display:flex;justify-content:center;gap:16px}
 .rec-btn{width:64px;height:64px;border-radius:50%;border:none;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;font-size:24px}
-.rec-btn.record{background:linear-gradient(145deg,#ff4444,#cc0000);color:#fff}
+.rec-btn.record{background:linear-gradient(145deg,#ff4444,#cc0000);color:#fff;box-shadow:0 4px 16px rgba(255,68,68,.3)}
 .rec-btn.record:hover{box-shadow:0 0 30px rgba(255,0,0,.4)}
 .rec-btn.record.recording{animation:pulse-rec 1s infinite}
 @keyframes pulse-rec{0%,100%{box-shadow:0 0 0 0 rgba(255,0,0,.4)}50%{box-shadow:0 0 0 15px rgba(255,0,0,0)}}
 .rec-btn.stop{background:var(--bg4);color:var(--text)}
-.rec-btn.play{background:var(--lime);color:var(--bg)}
+.rec-btn.play{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff}
 .rec-btn:disabled{opacity:.3;cursor:not-allowed}
 
 .audio-preview{margin-top:20px;display:none}
 .audio-preview.show{display:block}
 .audio-preview audio{width:100%;border-radius:var(--rs)}
 .audio-actions{display:flex;gap:10px;margin-top:12px;justify-content:center}
-.audio-actions button{padding:8px 16px;border-radius:var(--rs);font-size:11px;font-family:var(--fd);font-weight:600;cursor:pointer;transition:.2s}
-.btn-rerecord{background:transparent;border:1px solid #ffffff20;color:var(--text)}
-.btn-rerecord:hover{border-color:var(--lime);color:var(--lime)}
-.btn-use-audio{background:var(--lime);border:none;color:var(--bg)}
+.audio-actions button{padding:8px 16px;border-radius:var(--rs);font-size:11px;font-family:var(--fd);font-weight:700;cursor:pointer;transition:.2s}
+.btn-rerecord{background:transparent;border:2px solid var(--bg5);color:var(--text2)}
+.btn-rerecord:hover{border-color:var(--green);color:var(--green)}
+.btn-use-audio{background:linear-gradient(135deg,var(--green),var(--green-dark));border:none;color:#fff;box-shadow:0 3px 10px rgba(45,170,95,.3)}
 
 .dedicatoria-textarea{min-height:120px;font-style:italic}
-.dedicatoria-chars{text-align:right;font-size:11px;color:var(--text3);margin-top:6px}
+.dedicatoria-chars{text-align:right;font-size:11px;color:var(--text3);margin-top:6px;font-weight:600}
 
 .shipping-type{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.ship-option{padding:16px;background:var(--bg);border:1.5px solid #ffffff12;border-radius:var(--rs);cursor:pointer;transition:.2s;text-align:center}
+.ship-option{padding:16px;background:var(--bg);border:2px solid var(--bg5);border-radius:var(--rs);cursor:pointer;transition:.2s;text-align:center}
 .ship-option:hover{border-color:var(--lime20)}
-.ship-option.selected{border-color:var(--lime);background:var(--lime10)}
+.ship-option.selected{border-color:var(--green);background:var(--lime10)}
 .ship-option .icon{font-size:24px;margin-bottom:6px}
-.ship-option h4{font-size:12px;font-weight:600;margin-bottom:2px}
-.ship-option p{font-size:10px;color:var(--text2)}
+.ship-option h4{font-size:12px;font-weight:800;margin-bottom:2px;font-family:var(--fd);color:var(--text)}
+.ship-option p{font-size:10px;color:var(--text2);font-weight:500}
 
 /* PANEL 4 */
 .checkout-grid{display:grid;grid-template-columns:1fr 380px;gap:32px;max-width:900px;margin:0 auto}
 @media(max-width:800px){.checkout-grid{grid-template-columns:1fr}}
 
-.checkout-form{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:28px}
-.checkout-form h3{font-family:var(--fd);font-size:16px;margin-bottom:20px}
+.checkout-form{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:28px;box-shadow:var(--shadow)}
+.checkout-form h3{font-family:var(--fd);font-size:16px;font-weight:800;margin-bottom:20px;color:var(--text)}
 
-.order-summary{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:28px;position:sticky;top:100px}
-.order-summary h3{font-family:var(--fd);font-size:16px;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.order-summary{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:28px;position:sticky;top:100px;box-shadow:var(--shadow)}
+.order-summary h3{font-family:var(--fd);font-size:16px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:8px;color:var(--text)}
 
-.summary-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ffffff08;font-size:13px}
-.summary-item.total{border-bottom:none;padding-top:16px;margin-top:8px;font-family:var(--fd);font-size:18px;font-weight:800}
-.summary-item.total .price{color:var(--lime)}
+.summary-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bg5);font-size:13px;font-weight:600;color:var(--text2)}
+.summary-item.total{border-bottom:none;padding-top:16px;margin-top:8px;font-family:var(--fd);font-size:18px;font-weight:900;color:var(--text)}
+.summary-item.total .price{color:var(--green)}
 
-.btn-pay{width:100%;padding:16px;background:var(--lime);color:var(--bg);font-family:var(--fd);font-size:14px;font-weight:800;border:none;border-radius:var(--rs);cursor:pointer;margin-top:20px;transition:.2s;text-transform:uppercase}
-.btn-pay:hover{box-shadow:0 8px 30px #e8ff4725}
+.btn-pay{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;font-family:var(--fd);font-size:14px;font-weight:900;border:none;border-radius:var(--rs);cursor:pointer;margin-top:20px;transition:.2s;text-transform:uppercase;letter-spacing:.5px;box-shadow:0 6px 20px rgba(45,170,95,.3)}
+.btn-pay:hover{box-shadow:0 10px 30px rgba(45,170,95,.4);transform:translateY(-2px)}
 
-.secure-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;font-size:11px;color:var(--text3)}
+.secure-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;font-size:11px;color:var(--text3);font-weight:600}
 
 /* PANEL 5 */
 .confirm-panel{max-width:600px;margin:0 auto;text-align:center}
 .confirm-icon{font-size:80px;margin-bottom:20px;animation:bounce 1s ease}
-@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.confirm-panel h2{font-family:var(--fd);font-size:32px;font-weight:800;margin-bottom:12px}
-.confirm-panel>p{color:var(--text2);font-size:14px;margin-bottom:32px}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.confirm-panel h2{font-family:var(--fd);font-size:32px;font-weight:900;margin-bottom:12px;color:var(--text)}
+.confirm-panel>p{color:var(--text2);font-size:14px;margin-bottom:32px;font-weight:500}
 
-.order-details{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:28px;text-align:left;margin-bottom:24px}
-.order-details h4{font-family:var(--fd);margin-bottom:16px}
-.order-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #ffffff08;font-size:13px}
+.order-details{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:28px;text-align:left;margin-bottom:24px;box-shadow:var(--shadow)}
+.order-details h4{font-family:var(--fd);margin-bottom:16px;font-weight:800;color:var(--text)}
+.order-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bg5);font-size:13px;font-weight:600;color:var(--text2)}
 
 .download-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .download-buttons button{padding:14px 28px;border-radius:var(--rs);font-family:var(--fd);font-size:13px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:8px}
-.btn-download-pdf{background:var(--lime);border:none;color:var(--bg)}
-.btn-download-doc{background:transparent;border:1.5px solid #ffffff20;color:var(--text)}
-.btn-download-doc:hover{border-color:var(--lime);color:var(--lime)}
+.btn-download-pdf{background:linear-gradient(135deg,var(--green),var(--green-dark));border:none;color:#fff;box-shadow:0 4px 14px rgba(45,170,95,.3)}
+.btn-download-pdf:hover{box-shadow:0 8px 24px rgba(45,170,95,.4);transform:translateY(-2px)}
+.btn-download-doc{background:transparent;border:2px solid var(--bg5);color:var(--text2);font-weight:700}
+.btn-download-doc:hover{border-color:var(--green);color:var(--green)}
 
 /* FOOTER NAV */
-.panel-footer{display:flex;justify-content:space-between;margin-top:40px;padding-top:24px;border-top:1px solid #ffffff10}
-.btn-back{padding:12px 24px;background:transparent;border:1.5px solid #ffffff15;color:var(--text);font-family:var(--fd);font-size:12px;font-weight:600;border-radius:var(--rs);cursor:pointer;transition:.2s}
-.btn-back:hover{border-color:var(--lime);color:var(--lime)}
-.btn-next{padding:12px 32px;background:var(--lime);border:none;color:var(--bg);font-family:var(--fd);font-size:13px;font-weight:800;border-radius:var(--rs);cursor:pointer;transition:.2s;text-transform:uppercase}
-.btn-next:hover{box-shadow:0 6px 25px #e8ff4730}
-.btn-next:disabled{opacity:.5;cursor:not-allowed}
+.panel-footer{display:flex;justify-content:space-between;margin-top:40px;padding-top:24px;border-top:2px solid var(--bg5)}
+.btn-back{padding:12px 24px;background:transparent;border:2px solid var(--bg5);color:var(--text2);font-family:var(--fd);font-size:12px;font-weight:700;border-radius:var(--rs);cursor:pointer;transition:.2s}
+.btn-back:hover{border-color:var(--green);color:var(--green)}
+.btn-next{padding:12px 32px;background:linear-gradient(135deg,var(--green),var(--green-dark));border:none;color:#fff;font-family:var(--fd);font-size:13px;font-weight:800;border-radius:var(--rs);cursor:pointer;transition:.2s;text-transform:uppercase;box-shadow:0 4px 14px rgba(45,170,95,.3)}
+.btn-next:hover{box-shadow:0 8px 24px rgba(45,170,95,.4);transform:translateY(-1px)}
+.btn-next:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 
-/* SECTION HEADERS (paneles 2-5) */
-.section-title{font-family:var(--fd);font-size:28px;font-weight:800;text-align:center;margin-bottom:8px}
-.section-sub{text-align:center;color:var(--text2);margin-bottom:40px}
+/* SECTION HEADERS */
+.section-title{font-family:var(--fd);font-size:30px;font-weight:900;text-align:center;margin-bottom:8px;color:var(--text)}
+.section-sub{text-align:center;color:var(--text2);margin-bottom:40px;font-weight:500}
 
-/* LOADING OVERLAY */
-.loading-overlay{position:fixed;inset:0;background:rgba(8,8,8,.95);z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:.3s}
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(247,249,244,.97);z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:.3s}
 .loading-overlay.active{opacity:1;visibility:visible}
-
-.loading-spinner{width:76px;height:76px;border-radius:50%;background:conic-gradient(from 0deg,transparent 20%,#00f3ff 40%,#ff00ea 70%,var(--lime) 100%);position:relative;animation:spin 1.2s linear infinite;margin-bottom:24px;box-shadow:0 0 25px var(--lime20),0 0 15px rgba(255,0,234,.2)}
-.loading-spinner::after{content:"";position:absolute;inset:4px;background:rgba(8,8,8,.95);border-radius:50%}
+.loading-spinner{width:80px;height:80px;border-radius:50%;background:conic-gradient(from 0deg,transparent 20%,#2daa5f 50%,#ff7b2c 75%,#2daa5f 100%);position:relative;animation:spin 1.2s linear infinite;margin-bottom:24px;box-shadow:0 0 30px rgba(45,170,95,.3)}
+.loading-spinner::after{content:"";position:absolute;inset:5px;background:rgba(247,249,244,.97);border-radius:50%}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-family:var(--fd);font-size:18px;margin-bottom:8px;z-index:2}
-.loading-sub{color:var(--text2);font-size:13px;z-index:2}
+.loading-text{font-family:var(--fd);font-size:20px;font-weight:800;margin-bottom:8px;color:var(--text);z-index:2}
+.loading-sub{color:var(--text2);font-size:13px;z-index:2;font-weight:600}
 
-/* ERROR TOAST */
-.error-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1010;border:1px solid #ff444440;color:#ff6b6b;padding:14px 24px;border-radius:var(--rs);font-size:13px;font-family:var(--fb);z-index:4000;transition:transform .3s ease;max-width:90vw;text-align:center}
+/* ERROR */
+.error-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#fff;border:2px solid #ef5350;color:#c62828;padding:14px 24px;border-radius:var(--rs);font-size:13px;font-family:var(--fd);font-weight:700;z-index:4000;transition:transform .3s ease;max-width:90vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.1)}
 .error-toast.show{transform:translateX(-50%) translateY(0)}
 
-/* ZOOM MODAL */
-.zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);z-index:5000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s ease;cursor:zoom-out}
+/* ZOOM */
+.zoom-overlay{position:fixed;inset:0;background:rgba(26,46,26,.92);backdrop-filter:blur(16px);z-index:5000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s ease;cursor:zoom-out}
 .zoom-overlay.active{opacity:1;visibility:visible}
-.zoom-overlay img{max-width:90vw;max-height:85vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--lime10);transform:scale(.85);transition:transform .35s cubic-bezier(.22,1,.36,1);object-fit:contain}
+.zoom-overlay img{max-width:90vw;max-height:85vh;border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,.4);transform:scale(.85);transition:transform .35s cubic-bezier(.22,1,.36,1);object-fit:contain}
 .zoom-overlay.active img{transform:scale(1)}
-.zoom-close{position:absolute;top:20px;right:24px;width:40px;height:40px;background:var(--bg4);border:1px solid #ffffff20;border-radius:50%;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;z-index:5001}
-.zoom-close:hover{border-color:var(--lime);color:var(--lime);transform:scale(1.1)}
-.zoom-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:var(--text3);font-size:12px;font-family:var(--fd)}
+.zoom-close{position:absolute;top:20px;right:24px;width:40px;height:40px;background:#fff;border:none;border-radius:50%;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;z-index:5001;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.zoom-close:hover{background:var(--green);color:#fff;transform:scale(1.1)}
+.zoom-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;font-family:var(--fd);font-weight:600}
 .mini-book-cover{cursor:pointer}
-.mini-book-cover:hover{opacity:.9}
 </style>
 </head>
 <body>
 
 <nav class="nav">
   <a href="/" class="logo">
-    VIV<span class="logo-o"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg></span><span class="logo-gift">gift</span>
+    <div class="logo-icon">📚</div>
+    <span class="growi">Growi</span>Books
   </a>
   <div class="nav-links">
     <a href="/">Inicio</a>
-    <a href="/ebooks.html">Mis Ebooks</a>
+    <a href="/ebooks.html">Mi Biblioteca</a>
     <button class="cart-btn" id="cartBtn">🛒 Carrito (0)</button>
   </div>
 </nav>
@@ -262,14 +270,14 @@ textarea{resize:vertical;min-height:90px}
 
         <div class="input-group">
            <label>📸 Foto del Protagonista ( Para personalizar su rostro)</label>
-           <input type="file" id="protagonistPhoto" accept="image/png, image/jpeg, image/jpg" style="padding: 8px; background: var(--bg); border: 1.5px dashed var(--lime20); border-radius: var(--rs); color: var(--text2); cursor: pointer; width: 100%; font-family: var(--fb); font-size: 12px;">
-           <p style="font-size: 10px; color: var(--text2); margin-top: 6px;">Sube una foto clara donde se vea bien el rostro (Máximo 2MB).</p>
+           <input type="file" id="protagonistPhoto" accept="image/png, image/jpeg, image/jpg" style="padding: 8px; background: var(--bg); border: 2px dashed var(--lime20); border-radius: var(--rs); color: var(--text2); cursor: pointer; width: 100%; font-family: var(--fb); font-size: 12px;">
+           <p style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight:600;">Sube una foto clara donde se vea bien el rostro (Máximo 2MB).</p>
         </div>
 
         <div class="input-group">
           <label style="display:flex;justify-content:space-between;align-items:center">
             Descripción
-            <button type="button" id="btnMagicDesc" style="background:var(--lime10);color:var(--lime);border:1px solid var(--lime20);padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer;font-family:var(--fd)">✨ Generar con IA</button>
+            <button type="button" id="btnMagicDesc" style="background:var(--lime10);color:var(--green);border:1.5px solid var(--lime20);padding:5px 12px;border-radius:8px;font-size:10px;cursor:pointer;font-family:var(--fd);font-weight:800">✨ Generar con IA</button>
           </label>
           <textarea id="storyDescription" placeholder="Describe la aventura, el mundo mágico, los personajes..."></textarea>
         </div>
@@ -289,7 +297,6 @@ textarea{resize:vertical;min-height:90px}
   <div class="style-option" data-style="steampunk"><span class="icon">⚙️</span><span class="name">Steampunk</span></div>
   <div class="style-option" data-style="kawaii"><span class="icon">🍡</span><span class="name">Kawaii</span></div>
   <div class="style-option" data-style="realistic"><span class="icon">📷</span><span class="name">Realista</span></div>
-  
   <div class="style-option" data-style="hyperreal"><span class="icon">👁️</span><span class="name">Hiperrealista</span></div>
   <div class="style-option" data-style="vangogh"><span class="icon">🌌</span><span class="name">Noche Estrellada</span></div>
   <div class="style-option" data-style="picasso"><span class="icon">🔺</span><span class="name">Cubismo</span></div>
@@ -318,6 +325,7 @@ textarea{resize:vertical;min-height:90px}
             </select>
           </div>
         </div>
+        </div>
       </div>
 
       <div class="preview-section">
@@ -331,9 +339,9 @@ textarea{resize:vertical;min-height:90px}
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:10px">
-           <button class="btn-generate" id="btnPreviewCover" style="background:transparent;border:1px solid var(--lime);color:var(--lime)">✨ Preview de Portada</button>
-           <button class="btn-generate" id="btnDownloadCover" style="display:none; background:var(--bg4); border:1px solid #ffffff20; color:var(--text); margin-top: 10px; margin-bottom: 10px;">⬇️ Descargar Portada</button>
-           <button class="btn-generate" id="btnGenerateEbook">✨ Crear Mi Ebook</button>
+           <button class="btn-generate" id="btnDownloadCover" style="background:transparent;border:2px solid var(--green);color:var(--green);box-shadow:none">✨ Preview de Portada</button>
+           <button class="btn-generate" id="btnDownloadCoverFinal" style="background:transparent;border:2px solid var(--bg5);color:var(--text2);box-shadow:none;font-size:11px">⬇️ Descargar Portada</button>
+           <button class="btn-generate" id="btnDownloadPdf">✨ Crear Mi Ebook</button>
           </div>
         </div>
       </div>
@@ -515,34 +523,34 @@ textarea{resize:vertical;min-height:90px}
 
       <div style="display:flex;gap:24px;justify-content:center;align-items:flex-start;flex-wrap:wrap;margin:24px 0 32px;">
         <div style="text-align:center;">
-          <div id="ebookPreviewCover" style="width:200px;height:280px;margin:0 auto 12px;background:linear-gradient(145deg,#2a2520,#1a1815);border-radius:0 10px 10px 0;box-shadow:-4px 4px 20px rgba(0,0,0,.5);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-            <span style="color:var(--text2);font-size:12px;">Portada</span>
+          <div id="ebookPreviewCover" style="width:200px;height:280px;margin:0 auto 12px;background:linear-gradient(145deg,#d4edc9,#a8d5a2);border-radius:0 12px 12px 0;box-shadow:-4px 4px 20px rgba(45,170,95,.2);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <span style="color:var(--text3);font-size:12px;font-weight:600;">Portada</span>
           </div>
-          <p style="font-size:11px;color:var(--text2);font-family:var(--fd);">Click para ampliar</p>
+          <p style="font-size:11px;color:var(--text3);font-family:var(--fd);font-weight:600;">Click para ampliar</p>
         </div>
 
         <div style="text-align:left;max-width:340px;">
-          <h3 style="font-family:var(--fd);font-size:18px;font-weight:800;margin-bottom:8px;color:var(--lime);" id="ebookResultTitle">-</h3>
-          <div style="font-size:13px;color:var(--text2);line-height:1.6;">
+          <h3 style="font-family:var(--fd);font-size:18px;font-weight:900;margin-bottom:8px;color:var(--green);" id="ebookResultTitle">-</h3>
+          <div style="font-size:13px;color:var(--text2);line-height:1.7;font-weight:500;">
             <div>📖 <span id="ebookResultPages">10</span> páginas ilustradas</div>
             <div>🎨 Estilo: <span id="ebookResultStyle">-</span></div>
             <div>👤 Protagonista: <span id="ebookResultProtagonist">-</span></div>
 
-            <div style="margin-top:15px; padding:15px; background:var(--bg4); border-radius:var(--rs); border:1px solid var(--lime20); color:var(--text);">
+            <div style="margin-top:15px;padding:16px;background:var(--lime10);border-radius:var(--rs);border:2px solid var(--lime20);color:var(--text);">
               ⚙️ <b>Estado: Procesando en el servidor...</b><br><br>
-              Tu libro aparecerá automáticamente en la sección de <b>Mis Ebooks</b> en unos 10 a 20 minutos.
+              Tu libro aparecerá automáticamente en la sección de <b>Mi Biblioteca</b> en unos 10 a 20 minutos.
             </div>
           </div>
         </div>
       </div>
 
       <div class="download-buttons">
-        <a href="/ebooks.html" class="btn-download-pdf" style="text-decoration:none;">📁 Ir a Mis Ebooks</a>
-        <button class="btn-generate" id="btnDownloadCoverFinal" style="max-width:240px;background:var(--bg4);border:1px solid #ffffff20;color:var(--text);font-size:12px;">⬇️ Descargar Portada</button>
+        <a href="/ebooks.html" class="btn-download-pdf" style="text-decoration:none;">📁 Ir a Mi Biblioteca</a>
+        <button class="btn-generate" id="btnDownloadCoverFinal" style="max-width:240px;background:var(--bg3);border:2px solid var(--bg5);color:var(--text2);font-size:12px;box-shadow:none;">⬇️ Descargar Portada</button>
       </div>
 
       <div style="margin-top:32px;">
-        <button class="btn-back" onclick="location.reload()" style="border-color:var(--lime);color:var(--lime);">✨ Crear otro Ebook</button>
+        <button class="btn-back" onclick="location.reload()" style="border-color:var(--green);color:var(--green);">✨ Crear otro Ebook</button>
       </div>
     </div>
 </div>
@@ -554,10 +562,10 @@ textarea{resize:vertical;min-height:90px}
   <div class="loading-sub" id="loadingSub">Esto puede tomar unos minutos</div>
   
   <div id="progressContainer" style="display:none; width: 80%; max-width: 400px; margin-top: 20px; text-align: center;">
-    <div style="width: 100%; height: 12px; background: #262626; border-radius: 10px; overflow: hidden; border: 1px solid #ffffff20;">
-      <div id="progressBarFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff00ff, #00ffff); border-radius: 10px; transition: width 0.5s ease;"></div>
+    <div style="width: 100%; height: 14px; background: var(--bg5); border-radius: 10px; overflow: hidden; border: 2px solid var(--lime20);">
+      <div id="progressBarFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #2daa5f, #ff7b2c); border-radius: 10px; transition: width 0.5s ease;"></div>
     </div>
-    <p id="progressPercent" style="color: var(--lime); font-family: var(--fd); font-weight: bold; margin-top: 8px;">0%</p>
+    <p id="progressPercent" style="color: var(--green); font-family: var(--fd); font-weight: 900; margin-top: 8px;">0%</p>
   </div>
 </div>
 
@@ -568,7 +576,6 @@ textarea{resize:vertical;min-height:90px}
   <img id="zoomImage" src="" alt="Portada ampliada">
   <div class="zoom-hint">Click en cualquier sitio para cerrar</div>
 </div>
-
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
