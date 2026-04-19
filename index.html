@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowiBooks — Creación de Cuentos y Cuadernos Educativos</title>
+<meta name="description" content="Plataforma líder en creación de cuentos mágicos y cuadernos didácticos personalizados con IA para niños, padres y educadores.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f7f9f4;--bg2:#eef3e8;--bg3:#ffffff;--bg4:#f0f5eb;--bg5:#e4ecdc;
+  --lime:#2daa5f;--lime10:#2daa5f18;--lime20:#2daa5f35;
+  --green:#2daa5f;--green-dark:#1d8047;
+  --gold:#ff7b2c;--gold10:#ff7b2c18;
+  --purple:#7c4dff;--purple10:#7c4dff18;
+  --text:#1a2e1a;--text2:#4a6741;--text3:#8aaa82;
+  --r:24px;--rs:14px;
+  --fd:'Nunito',sans-serif;--fb:'Quicksand',sans-serif;
+  --shadow:0 10px 30px rgba(45,170,95,.08);
+  --shadow-hover:0 20px 40px rgba(45,170,95,.15);
+}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;
+  background-image:
+    radial-gradient(circle at 10% 15%,#2daa5f08 0%,transparent 50%),
+    radial-gradient(circle at 90% 85%,#ff7b2c08 0%,transparent 50%);
+  overflow-x: hidden;
+}
+
+/* NAV (Idéntico a tus otras páginas para mantener consistencia) */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(247,249,244,.92);backdrop-filter:blur(20px);border-bottom:2px solid var(--lime20);box-shadow:0 2px 20px rgba(45,170,95,.05)}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-size:22px;font-weight:900;text-decoration:none;color:var(--text);letter-spacing:-.5px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--green),var(--green-dark));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(45,170,95,.3)}
+.logo .growi{color:var(--green)}
+.nav-links{display:flex;gap:6px;align-items:center}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:700;padding:8px 16px;border-radius:20px;transition:.2s;font-family:var(--fd)}
+.nav-links a:hover{background:var(--lime10);color:var(--green)}
+
+/* HERO SECTION */
+.hero{padding:160px 20px 80px;text-align:center;max-width:900px;margin:0 auto;position:relative}
+.hero-badge{display:inline-block;background:var(--lime10);color:var(--green-dark);font-family:var(--fd);font-size:12px;font-weight:800;padding:8px 20px;border-radius:30px;text-transform:uppercase;letter-spacing:1px;margin-bottom:24px;border:2px solid var(--lime20);animation:fadeUp .6s ease both}
+.hero h1{font-family:var(--fd);font-size:clamp(40px, 6vw, 64px);font-weight:900;line-height:1.1;letter-spacing:-1px;margin-bottom:24px;color:var(--text);animation:fadeUp .6s .1s ease both}
+.hero h1 span{color:var(--green)}
+.hero h1 span.magic{color:var(--purple)}
+.hero p{font-size:clamp(16px, 2vw, 20px);color:var(--text2);font-weight:500;line-height:1.6;max-width:700px;margin:0 auto 48px;animation:fadeUp .6s .2s ease both}
+
+/* MAIN CHOICES (Las 2 vías principales) */
+.choices-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;max-width:1000px;margin:0 auto 100px;padding:0 20px;animation:fadeUp .6s .3s ease both}
+@media(max-width:768px){.choices-grid{grid-template-columns:1fr}}
+
+.choice-card{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:40px;text-align:center;text-decoration:none;transition:all .3s cubic-bezier(.22,1,.36,1);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.choice-card:hover{transform:translateY(-8px);border-color:var(--green);box-shadow:var(--shadow-hover)}
+.choice-card::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;transition:.3s}
+.choice-card.story:hover::before{background:linear-gradient(90deg, var(--green), var(--gold))}
+.choice-card.workbook:hover::before{background:linear-gradient(90deg, var(--purple), var(--green))}
+
+.choice-icon{width:80px;height:80px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 24px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.choice-card.story .choice-icon{background:var(--lime10);border:2px solid var(--lime20)}
+.choice-card.workbook .choice-icon{background:var(--purple10);border:2px solid rgba(124,77,255,.15)}
+
+.choice-card h2{font-family:var(--fd);font-size:24px;font-weight:900;color:var(--text);margin-bottom:12px}
+.choice-card p{color:var(--text2);font-size:15px;line-height:1.6;font-weight:500;margin-bottom:32px}
+
+.btn-choice{display:inline-block;padding:14px 32px;border-radius:30px;font-family:var(--fd);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:1px;transition:.2s}
+.choice-card.story .btn-choice{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;box-shadow:0 4px 14px rgba(45,170,95,.3)}
+.choice-card.workbook .btn-choice{background:linear-gradient(135deg,var(--purple),#5e35b1);color:#fff;box-shadow:0 4px 14px rgba(124,77,255,.3)}
+.choice-card:hover .btn-choice{transform:scale(1.05)}
+
+/* FEATURES */
+.features-section{background:var(--bg3);border-top:2px solid var(--bg5);border-bottom:2px solid var(--bg5);padding:100px 20px}
+.features-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:40px;max-width:1100px;margin:0 auto}
+@media(max-width:800px){.features-grid{grid-template-columns:1fr}}
+.feature{text-align:center}
+.feature-icon{font-size:40px;margin-bottom:16px}
+.feature h3{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--text);margin-bottom:12px}
+.feature p{color:var(--text2);font-size:14px;line-height:1.6;font-weight:500}
+
+/* DECO DOTS */
+.deco-dots{position:absolute;top:150px;left:5%;display:grid;grid-template-columns:repeat(3,6px);gap:8px;opacity:.2;pointer-events:none}
+.deco-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="logo">
+    <div class="logo-icon">📚</div>
+    <span class="growi">Growi</span>Books
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Inicio</a>
+    <a href="ebooks.html">Mi Biblioteca</a>
+  </div>
+</nav>
+
+<div class="deco-dots">
+  <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+  <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+  <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+</div>
+
+<section class="hero">
+  <div class="hero-badge">✨ Inteligencia Artificial Educativa</div>
+  <h1>Historias que inspiran.<br><span>Aprendizaje</span> que <span class="magic">divierte.</span></h1>
+  <p>GrowiBooks es la plataforma líder para padres y educadores. Crea libros de lectura inmersivos o cuadernos de actividades 100% personalizados en menos de 60 segundos.</p>
+</section>
+
+<section class="choices-grid">
+  <a href="generador-ebooks.html" class="choice-card story">
+    <div class="choice-icon">📖</div>
+    <h2>Cuentos Mágicos</h2>
+    <p>Crea historias ilustradas donde el niño es el protagonista. Desarrolla la imaginación, el hábito de lectura y la retención con narrativas envolventes y diálogos.</p>
+    <div class="btn-choice">Crear Cuento</div>
+  </a>
+
+  <a href="generador-didactico.html" class="choice-card workbook">
+    <div class="choice-icon">✏️</div>
+    <h2>Cuadernos Didácticos</h2>
+    <p>Diseña ejercicios interactivos (laberintos, trazos, matemáticas). El niño usa el lápiz para ayudar al personaje a resolver problemas integrados en ilustraciones 3D.</p>
+    <div class="btn-choice">Crear Cuaderno</div>
+  </a>
+</section>
+
+<section class="features-section">
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon">🧠</div>
+      <h3>Neuromarketing Educativo</h3>
+      <p>Diseños y narrativas estructuradas científicamente para captar la atención del alumno y fomentar la concentración plena.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <h3>Generación Instantánea</h3>
+      <p>Ideal para el aula. ¿Los niños necesitan un reto sobre el espacio? El profesor lo genera e imprime en menos de un minuto.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🎨</div>
+      <h3>Estilos Fotorrealistas</h3>
+      <p>Olvídate de los dibujos aburridos. Desde 3D estilo Pixar hasta ilustraciones tipo Acuarela, todo renderizado en alta definición.</p>
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center; padding: 40px 20px; color:var(--text3); font-size:13px; font-weight:600;">
+  &copy; 2026 GrowiBooks — Transformando la educación con imaginación.
+</footer>
+
+</body>
+</html>
