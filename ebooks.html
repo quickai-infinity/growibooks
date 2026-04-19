@@ -428,7 +428,10 @@ function downloadPdf(pdfUrl, btn) {
 }
 renderPage();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+  // 1. Lógica de la Hamburguesa (Intacta)
   const hamburger = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
 
@@ -438,26 +441,34 @@ renderPage();
       hamburger.classList.toggle('toggle');
     });
   }
-  // Este script gestiona el botón del Nav dinámicamente
-async function checkUser() {
-  const { data: { session } } = await supabase.auth.getSession();
-  const authBtn = document.getElementById('authButton'); // Asegúrate que el botón tenga este ID
-  const libLink = document.getElementById('linkBiblioteca');
 
-  if (session) {
-    authBtn.textContent = 'Cerrar Sesión';
-    authBtn.onclick = async () => { 
-      await supabase.auth.signOut(); 
-      window.location.reload(); 
-    };
-    if(libLink) libLink.style.display = 'block';
-  } else {
-    authBtn.textContent = 'Ingresar';
-    authBtn.onclick = () => { window.location.href = 'login.html'; };
-    if(libLink) libLink.style.display = 'none';
+  // 3. La magia del botón
+  async function checkUser() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const authBtn = document.getElementById('authButton');
+    const libLink = document.getElementById('linkBiblioteca');
+
+    if (session) {
+      // SI YA INGRESÓ: Mostramos la biblioteca y cambiamos el botón a "Cerrar Sesión"
+      if(libLink) libLink.style.display = 'block'; 
+      authBtn.textContent = 'Cerrar Sesión';
+      authBtn.style.background = 'transparent';
+      authBtn.style.color = 'var(--text2)';
+      authBtn.style.border = '2px solid var(--bg5)';
+      
+      authBtn.onclick = async () => { 
+        await supabase.auth.signOut(); 
+        window.location.reload(); 
+      };
+    } else {
+      // SI NO HA INGRESADO: Ocultamos biblioteca y lo mandamos a login
+      if(libLink) libLink.style.display = 'none'; 
+      authBtn.textContent = 'Ingresar';
+      authBtn.onclick = () => { window.location.href = 'login.html'; };
+    }
   }
-}
-checkUser();
+  
+  checkUser();
 </script>
 </body>
 </html>

@@ -202,8 +202,9 @@ select{cursor:pointer}
 
   <div class="nav-links" id="navLinks">
     <a href="index.html">Inicio</a>
-    <a href="ebooks.html">Mi Biblioteca</a>
-    </div>
+    <a href="ebooks.html" id="linkBiblioteca" style="display:none;">Mi Biblioteca</a>
+    <button id="authButton" style="background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#fff; border:none; padding:8px 16px; border-radius:20px; font-family:var(--fd); font-weight:800; cursor:pointer; font-size:13px;">Ingresar</button>
+  </div>
 </nav>
 
 <main class="main">
@@ -521,6 +522,7 @@ document.getElementById('btnMagicDesc').addEventListener('click', async () => {
     title: title,
     protagonist: document.getElementById('protagonistName').value.trim() || 'el protagonista',
     activityType: activityText, // Enviamos el nombre del ejercicio (ej: "Laberintos")
+  
     age: age,
     style: state.ebook.style,
     instruction: `Genera una sinopsis creativa para un cuaderno didáctico. El tema es "${title}" y el tipo de ejercicio principal son "${activityText}". No escribas un cuento pasivo, escribe una trama donde el protagonista necesite resolver estos retos para avanzar.`
@@ -741,7 +743,10 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
   goToStep(3); 
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+  // 1. Lógica de la Hamburguesa (Intacta)
   const hamburger = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
 
@@ -751,26 +756,39 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
       hamburger.classList.toggle('toggle');
     });
   }
-  // Este script gestiona el botón del Nav dinámicamente
-async function checkUser() {
-  const { data: { session } } = await supabase.auth.getSession();
-  const authBtn = document.getElementById('authButton'); // Asegúrate que el botón tenga este ID
-  const libLink = document.getElementById('linkBiblioteca');
 
-  if (session) {
-    authBtn.textContent = 'Cerrar Sesión';
-    authBtn.onclick = async () => { 
-      await supabase.auth.signOut(); 
-      window.location.reload(); 
-    };
-    if(libLink) libLink.style.display = 'block';
-  } else {
-    authBtn.textContent = 'Ingresar';
-    authBtn.onclick = () => { window.location.href = 'login.html'; };
-    if(libLink) libLink.style.display = 'none';
+  // 2. Conectar a tu Base de Datos Supabase
+  const SUPABASE_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // 3. La magia del botón
+  async function checkUser() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const authBtn = document.getElementById('authButton');
+    const libLink = document.getElementById('linkBiblioteca');
+
+    if (session) {
+      // SI YA INGRESÓ: Mostramos la biblioteca y cambiamos el botón a "Cerrar Sesión"
+      if(libLink) libLink.style.display = 'block'; 
+      authBtn.textContent = 'Cerrar Sesión';
+      authBtn.style.background = 'transparent';
+      authBtn.style.color = 'var(--text2)';
+      authBtn.style.border = '2px solid var(--bg5)';
+      
+      authBtn.onclick = async () => { 
+        await supabase.auth.signOut(); 
+        window.location.reload(); 
+      };
+    } else {
+      // SI NO HA INGRESADO: Ocultamos biblioteca y lo mandamos a login
+      if(libLink) libLink.style.display = 'none'; 
+      authBtn.textContent = 'Ingresar';
+      authBtn.onclick = () => { window.location.href = 'login.html'; };
+    }
   }
-}
-checkUser();
+  
+  checkUser();
 </script>
 </body>
 </html>
