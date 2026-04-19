@@ -190,10 +190,9 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-  // 1. Lógica de la Hamburguesa (Intacta)
+  // 1. LÓGICA DE HAMBURGUESA
   const hamburger = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
-
   if (hamburger) {
     hamburger.addEventListener('click', () => {
       navLinks.classList.toggle('nav-active');
@@ -201,19 +200,24 @@ body{
     });
   }
 
-  // 2. Conectar a tu Base de Datos Supabase
-  const SUPABASE_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  // 2. CONEXIÓN SUPABASE BLINDADA
+  const DB_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
+  const DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY';
+  
+  if (!window.supabaseClient) {
+    window.supabaseClient = window.supabase.createClient(DB_URL, DB_KEY);
+  }
 
-  // 3. La magia del botón
+  // 3. LÓGICA DEL BOTÓN DE SESIÓN
   async function checkUser() {
-    const { data: { session } } = await supabase.auth.getSession();
     const authBtn = document.getElementById('authButton');
     const libLink = document.getElementById('linkBiblioteca');
+    
+    if (!authBtn) return; // Si no hay botón en esta página, aborta sin dar error
+
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
 
     if (session) {
-      // SI YA INGRESÓ: Mostramos la biblioteca y cambiamos el botón a "Cerrar Sesión"
       if(libLink) libLink.style.display = 'block'; 
       authBtn.textContent = 'Cerrar Sesión';
       authBtn.style.background = 'transparent';
@@ -221,11 +225,10 @@ body{
       authBtn.style.border = '2px solid var(--bg5)';
       
       authBtn.onclick = async () => { 
-        await supabase.auth.signOut(); 
+        await window.supabaseClient.auth.signOut(); 
         window.location.reload(); 
       };
     } else {
-      // SI NO HA INGRESADO: Ocultamos biblioteca y lo mandamos a login
       if(libLink) libLink.style.display = 'none'; 
       authBtn.textContent = 'Ingresar';
       authBtn.onclick = () => { window.location.href = 'login.html'; };
@@ -233,6 +236,5 @@ body{
   }
   
   checkUser();
-</script>
 </script>
 </html>

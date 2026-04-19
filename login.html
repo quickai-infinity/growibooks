@@ -33,7 +33,10 @@
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-  const supabase = createClient('TU_SUPABASE_URL', 'TU_SUPABASE_ANON_KEY');
+  
+  const DB_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
+  const DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY';
+  const supabase = createClient(DB_URL, DB_KEY);
 
   let isLogin = true;
   const btnAuth = document.getElementById('btnAuth');
@@ -50,36 +53,21 @@
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
+    if (!email || !password) {
+        alert("Por favor llena todos los campos.");
+        return;
+    }
+
     if(isLogin) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if(!error) window.location.href = 'ebooks.html';
       else alert("Error: " + error.message);
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
-      if(!error) alert("¡Revisa tu correo para confirmar tu cuenta!");
+      if(!error) alert("¡Revisa tu correo para confirmar tu cuenta y luego inicia sesión!");
       else alert("Error: " + error.message);
     }
   };
-  // Este script gestiona el botón del Nav dinámicamente
-async function checkUser() {
-  const { data: { session } } = await supabase.auth.getSession();
-  const authBtn = document.getElementById('authButton'); // Asegúrate que el botón tenga este ID
-  const libLink = document.getElementById('linkBiblioteca');
-
-  if (session) {
-    authBtn.textContent = 'Cerrar Sesión';
-    authBtn.onclick = async () => { 
-      await supabase.auth.signOut(); 
-      window.location.reload(); 
-    };
-    if(libLink) libLink.style.display = 'block';
-  } else {
-    authBtn.textContent = 'Ingresar';
-    authBtn.onclick = () => { window.location.href = 'login.html'; };
-    if(libLink) libLink.style.display = 'none';
-  }
-}
-checkUser();
 </script>
 </body>
 </html>
