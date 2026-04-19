@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowiBooks — Ingresar</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#f7f9f4; --green:#2daa5f; --green-dark:#1d8047; --text:#1a2e1a; --text2:#4a6741; --r:18px; }
+  body { background:var(--bg); font-family:'Quicksand',sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
+  .auth-card { background:#fff; padding:40px; border-radius:var(--r); box-shadow:0 10px 30px rgba(45,170,95,.1); width:100%; max-width:400px; text-align:center; }
+  .logo { font-family:'Nunito',sans-serif; font-size:24px; font-weight:900; color:var(--text); margin-bottom:30px; text-decoration:none; display:block; }
+  h2 { font-family:'Nunito'; color:var(--text); margin-bottom:10px; }
+  input { width:100%; padding:14px; margin-bottom:12px; border:2px solid #e4ecdc; border-radius:12px; outline:none; font-family:inherit; }
+  input:focus { border-color:var(--green); }
+  .btn-auth { width:100%; padding:16px; background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#fff; border:none; border-radius:12px; font-weight:800; cursor:pointer; font-family:'Nunito'; }
+  .toggle-auth { margin-top:20px; font-size:13px; color:var(--text2); cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="auth-card">
+  <a href="index.html" class="logo">📚 <span style="color:var(--green)">Growi</span>Books</a>
+  <h2 id="authTitle">Bienvenido</h2>
+  <p id="authSub" style="font-size:14px; color:var(--text2); margin-bottom:24px;">Ingresa tus credenciales</p>
+  
+  <input type="email" id="email" placeholder="Tu correo electrónico">
+  <input type="password" id="password" placeholder="Tu contraseña">
+  
+  <button class="btn-auth" id="btnAuth">Entrar</button>
+  <p class="toggle-auth" id="btnToggle">¿No tienes cuenta? Regístrate aquí</p>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  const supabase = createClient('TU_SUPABASE_URL', 'TU_SUPABASE_ANON_KEY');
+
+  let isLogin = true;
+  const btnAuth = document.getElementById('btnAuth');
+  const btnToggle = document.getElementById('btnToggle');
+
+  btnToggle.onclick = () => {
+    isLogin = !isLogin;
+    document.getElementById('authTitle').textContent = isLogin ? 'Bienvenido' : 'Crear Cuenta';
+    btnAuth.textContent = isLogin ? 'Entrar' : 'Registrarme';
+    btnToggle.textContent = isLogin ? '¿No tienes cuenta? Regístrate aquí' : '¿Ya tienes cuenta? Entra aquí';
+  };
+
+  btnAuth.onclick = async () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    if(isLogin) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if(!error) window.location.href = 'ebooks.html';
+      else alert("Error: " + error.message);
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password });
+      if(!error) alert("¡Revisa tu correo para confirmar tu cuenta!");
+      else alert("Error: " + error.message);
+    }
+  };
+  // Este script gestiona el botón del Nav dinámicamente
+async function checkUser() {
+  const { data: { session } } = await supabase.auth.getSession();
+  const authBtn = document.getElementById('authButton'); // Asegúrate que el botón tenga este ID
+  const libLink = document.getElementById('linkBiblioteca');
+
+  if (session) {
+    authBtn.textContent = 'Cerrar Sesión';
+    authBtn.onclick = async () => { 
+      await supabase.auth.signOut(); 
+      window.location.reload(); 
+    };
+    if(libLink) libLink.style.display = 'block';
+  } else {
+    authBtn.textContent = 'Ingresar';
+    authBtn.onclick = () => { window.location.href = 'login.html'; };
+    if(libLink) libLink.style.display = 'none';
+  }
+}
+checkUser();
+</script>
+</body>
+</html>

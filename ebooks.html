@@ -438,6 +438,26 @@ renderPage();
       hamburger.classList.toggle('toggle');
     });
   }
+  // Este script gestiona el botón del Nav dinámicamente
+async function checkUser() {
+  const { data: { session } } = await supabase.auth.getSession();
+  const authBtn = document.getElementById('authButton'); // Asegúrate que el botón tenga este ID
+  const libLink = document.getElementById('linkBiblioteca');
+
+  if (session) {
+    authBtn.textContent = 'Cerrar Sesión';
+    authBtn.onclick = async () => { 
+      await supabase.auth.signOut(); 
+      window.location.reload(); 
+    };
+    if(libLink) libLink.style.display = 'block';
+  } else {
+    authBtn.textContent = 'Ingresar';
+    authBtn.onclick = () => { window.location.href = 'login.html'; };
+    if(libLink) libLink.style.display = 'none';
+  }
+}
+checkUser();
 </script>
 </body>
 </html>
