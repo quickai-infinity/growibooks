@@ -1306,6 +1306,15 @@ document.getElementById('protagonistPhoto').addEventListener('change', function(
   };
   reader.readAsDataURL(file);
 });
+// PROTECCIÓN DE RUTA: Si no hay sesión, rebota a login
+async function protectRoute() {
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  if (!session) {
+    // Guardamos la intención del usuario para volver aquí tras el login si quieres (opcional)
+    window.location.href = 'login.html';
+  }
+}
+protectRoute();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 

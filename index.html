@@ -147,14 +147,14 @@ body{
 </section>
 
 <section class="choices-grid">
-  <a href="generador-ebooks.html" class="choice-card story">
+  <a href="javascript:void(0)" onclick="checkAccess('generador-ebooks.html')" class="choice-card story">
     <div class="choice-icon">📖</div>
     <h2>Cuentos Mágicos</h2>
     <p>Crea historias ilustradas donde el niño es el protagonista. Desarrolla la imaginación, el hábito de lectura y la retención con narrativas envolventes y diálogos.</p>
     <div class="btn-choice">Crear Cuento</div>
   </a>
 
-  <a href="generador-didactico.html" class="choice-card workbook">
+  <a href="javascript:void(0)" onclick="checkAccess('generador-didactico.html')" class="choice-card workbook">
     <div class="choice-icon">✏️</div>
     <h2>Cuadernos Didácticos</h2>
     <p>Diseña ejercicios interactivos (laberintos, trazos, matemáticas). El niño usa el lápiz para ayudar al personaje a resolver problemas integrados en ilustraciones 3D.</p>
@@ -234,7 +234,15 @@ body{
       authBtn.onclick = () => { window.location.href = 'login.html'; };
     }
   }
-  
+  // Verifica si hay sesión al hacer clic en las tarjetas
+  async function checkAccess(targetUrl) {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (session) {
+      window.location.href = targetUrl;
+    } else {
+      window.location.href = 'login.html';
+    }
+  }
   checkUser();
 </script>
 </html>
