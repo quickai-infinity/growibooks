@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIVOgift — Crea Regalos Mágicos con IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080808;--bg2:#0e0e0e;--bg3:#161616;--bg4:#1e1e1e;--bg5:#262626;
+  --lime:#e8ff47;--lime10:#e8ff4718;--lime20:#e8ff4730;
+  --gold:#ffd700;--gold10:#ffd70020;
+  --text:#f0ede8;--text2:#a09e99;--text3:#5a5a5a;
+  --r:14px;--rs:8px;
+  --fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(24px);background:rgba(8,8,8,.85);border-bottom:1px solid #ffffff08}
+.logo{display:flex;align-items:center;font-family:var(--fd);font-size:21px;font-weight:800;letter-spacing:-.5px;text-decoration:none;color:var(--text)}
+.logo-o{width:24px;height:24px;border:2px solid var(--lime);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin:0 1px}
+.logo-o svg{width:9px;height:9px;fill:var(--lime)}
+.logo-gift{color:var(--lime);font-weight:300;font-size:19px}
+.nav-links{display:flex;gap:20px;align-items:center}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;transition:.2s}
+.nav-links a:hover{color:var(--lime)}
+.cart-btn{background:var(--lime10);border:1px solid var(--lime20);padding:8px 16px;border-radius:20px;color:var(--lime);font-size:12px;cursor:pointer;transition:.2s}
+.cart-btn:hover{background:var(--lime20)}
+
+/* MAIN */
+.main{padding:100px 20px 60px;max-width:1200px;margin:0 auto}
+
+/* STEPS INDICATOR */
+.steps-container{display:flex;justify-content:center;gap:8px;margin-bottom:40px}
+.step-dot{width:12px;height:12px;border-radius:50%;background:var(--bg4);border:2px solid var(--bg5);transition:.3s}
+.step-dot.active{background:var(--lime);border-color:var(--lime);box-shadow:0 0 15px var(--lime20)}
+.step-dot.completed{background:var(--lime);border-color:var(--lime)}
+
+/* PANELS */
+.panel{display:none;animation:fadeIn .4s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* PANEL 1 */
+.create-panel{display:grid;grid-template-columns:1fr 400px;gap:40px;align-items:start}
+@media(max-width:900px){.create-panel{grid-template-columns:1fr}}
+
+.form-section{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:32px}
+.form-section h2{font-family:var(--fd);font-size:24px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.form-section p.sub{font-size:13px;color:var(--text2);margin-bottom:28px}
+
+.input-group{margin-bottom:18px}
+label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;font-family:var(--fd)}
+input,select,textarea{width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid #ffffff12;border-radius:var(--rs);color:var(--text);font-family:var(--fb);font-size:13px;outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--lime)}
+textarea{resize:vertical;min-height:90px}
+
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* STYLE GRID */
+.style-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:600px){.style-grid{grid-template-columns:repeat(3,1fr)}}
+.style-option{padding:10px 6px;background:var(--bg);border:1.5px solid #ffffff12;border-radius:var(--rs);cursor:pointer;text-align:center;transition:.2s;font-size:10px}
+.style-option:hover{border-color:var(--lime20);background:var(--bg4)}
+.style-option.selected{border-color:var(--lime);background:var(--lime10)}
+.style-option .icon{font-size:18px;margin-bottom:3px;display:block}
+.style-option .name{font-weight:600;color:var(--text)}
+
+/* PREVIEW SIDEBAR */
+.preview-section{position:sticky;top:100px}
+.book-preview-card{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:24px;text-align:center}
+.book-preview-card h3{font-family:var(--fd);font-size:14px;margin-bottom:16px;color:var(--text2)}
+
+.mini-book{width:180px;height:240px;margin:0 auto 20px;perspective:800px}
+.mini-book-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transform:rotateY(-10deg);transition:.3s}
+.mini-book:hover .mini-book-inner{transform:rotateY(-5deg)}
+.mini-book-cover{position:absolute;width:100%;height:100%;background:linear-gradient(145deg,#2a2520,#1a1815);border-radius:0 8px 8px 0;box-shadow:-3px 3px 15px rgba(0,0,0,.4);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:12px}
+.mini-book-cover img{width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0}
+
+.btn-generate{width:100%;padding:14px;background:var(--lime);color:var(--bg);font-family:var(--fd);font-size:13px;font-weight:800;border:none;border-radius:var(--rs);cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:.5px}
+.btn-generate:hover{box-shadow:0 8px 30px #e8ff4725;transform:translateY(-2px)}
+.btn-generate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* PANEL 2 */
+.format-options{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:0 auto}
+@media(max-width:700px){.format-options{grid-template-columns:1fr}}
+
+.format-card{background:var(--bg3);border:2px solid #ffffff10;border-radius:var(--r);padding:32px;cursor:pointer;transition:.3s;position:relative;overflow:hidden}
+.format-card:hover{border-color:var(--lime20);transform:translateY(-4px)}
+.format-card.selected{border-color:var(--lime);background:var(--lime10)}
+.format-card.premium{border-color:var(--gold);background:linear-gradient(145deg,#1a1815,#0e0e0e)}
+.format-card.premium::before{content:'⭐ RECOMENDADO';position:absolute;top:12px;right:-30px;background:var(--gold);color:#000;font-size:9px;font-weight:800;padding:4px 40px;transform:rotate(45deg);font-family:var(--fd)}
+
+.format-icon{font-size:48px;margin-bottom:16px}
+.format-card h3{font-family:var(--fd);font-size:20px;font-weight:800;margin-bottom:8px}
+.format-card p{color:var(--text2);font-size:13px;line-height:1.5;margin-bottom:20px}
+.format-features{list-style:none}
+.format-features li{font-size:12px;color:var(--text);padding:6px 0;border-bottom:1px solid #ffffff08;display:flex;align-items:center;gap:8px}
+.format-features li::before{content:'✓';color:var(--lime);font-weight:bold}
+.format-price{margin-top:20px;font-family:var(--fd);font-size:24px;font-weight:800}
+.format-price span{font-size:13px;font-weight:400;color:var(--text2)}
+.format-price.free{color:var(--lime)}
+
+/* PANEL 3 */
+.gift-sections{display:flex;flex-direction:column;gap:24px;max-width:800px;margin:0 auto}
+.gift-section{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:28px}
+.gift-section h3{font-family:var(--fd);font-size:16px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.gift-section h3 .emoji{font-size:24px}
+.gift-section>p{font-size:12px;color:var(--text2);margin-bottom:20px}
+
+.voice-recorder{background:var(--bg);border:1px solid #ffffff10;border-radius:var(--rs);padding:24px}
+.recorder-status{text-align:center;margin-bottom:20px}
+.recorder-status .icon{font-size:48px;margin-bottom:10px}
+.recorder-status p{color:var(--text2);font-size:13px}
+.recorder-timer{font-family:var(--fd);font-size:32px;font-weight:800;color:var(--lime);margin:10px 0}
+
+.recorder-controls{display:flex;justify-content:center;gap:16px}
+.rec-btn{width:64px;height:64px;border-radius:50%;border:none;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;font-size:24px}
+.rec-btn.record{background:linear-gradient(145deg,#ff4444,#cc0000);color:#fff}
+.rec-btn.record:hover{box-shadow:0 0 30px rgba(255,0,0,.4)}
+.rec-btn.record.recording{animation:pulse-rec 1s infinite}
+@keyframes pulse-rec{0%,100%{box-shadow:0 0 0 0 rgba(255,0,0,.4)}50%{box-shadow:0 0 0 15px rgba(255,0,0,0)}}
+.rec-btn.stop{background:var(--bg4);color:var(--text)}
+.rec-btn.play{background:var(--lime);color:var(--bg)}
+.rec-btn:disabled{opacity:.3;cursor:not-allowed}
+
+.audio-preview{margin-top:20px;display:none}
+.audio-preview.show{display:block}
+.audio-preview audio{width:100%;border-radius:var(--rs)}
+.audio-actions{display:flex;gap:10px;margin-top:12px;justify-content:center}
+.audio-actions button{padding:8px 16px;border-radius:var(--rs);font-size:11px;font-family:var(--fd);font-weight:600;cursor:pointer;transition:.2s}
+.btn-rerecord{background:transparent;border:1px solid #ffffff20;color:var(--text)}
+.btn-rerecord:hover{border-color:var(--lime);color:var(--lime)}
+.btn-use-audio{background:var(--lime);border:none;color:var(--bg)}
+
+.dedicatoria-textarea{min-height:120px;font-style:italic}
+.dedicatoria-chars{text-align:right;font-size:11px;color:var(--text3);margin-top:6px}
+
+.shipping-type{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.ship-option{padding:16px;background:var(--bg);border:1.5px solid #ffffff12;border-radius:var(--rs);cursor:pointer;transition:.2s;text-align:center}
+.ship-option:hover{border-color:var(--lime20)}
+.ship-option.selected{border-color:var(--lime);background:var(--lime10)}
+.ship-option .icon{font-size:24px;margin-bottom:6px}
+.ship-option h4{font-size:12px;font-weight:600;margin-bottom:2px}
+.ship-option p{font-size:10px;color:var(--text2)}
+
+/* PANEL 4 */
+.checkout-grid{display:grid;grid-template-columns:1fr 380px;gap:32px;max-width:900px;margin:0 auto}
+@media(max-width:800px){.checkout-grid{grid-template-columns:1fr}}
+
+.checkout-form{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:28px}
+.checkout-form h3{font-family:var(--fd);font-size:16px;margin-bottom:20px}
+
+.order-summary{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:28px;position:sticky;top:100px}
+.order-summary h3{font-family:var(--fd);font-size:16px;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+
+.summary-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ffffff08;font-size:13px}
+.summary-item.total{border-bottom:none;padding-top:16px;margin-top:8px;font-family:var(--fd);font-size:18px;font-weight:800}
+.summary-item.total .price{color:var(--lime)}
+
+.btn-pay{width:100%;padding:16px;background:var(--lime);color:var(--bg);font-family:var(--fd);font-size:14px;font-weight:800;border:none;border-radius:var(--rs);cursor:pointer;margin-top:20px;transition:.2s;text-transform:uppercase}
+.btn-pay:hover{box-shadow:0 8px 30px #e8ff4725}
+
+.secure-badge{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;font-size:11px;color:var(--text3)}
+
+/* PANEL 5 */
+.confirm-panel{max-width:600px;margin:0 auto;text-align:center}
+.confirm-icon{font-size:80px;margin-bottom:20px;animation:bounce 1s ease}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.confirm-panel h2{font-family:var(--fd);font-size:32px;font-weight:800;margin-bottom:12px}
+.confirm-panel>p{color:var(--text2);font-size:14px;margin-bottom:32px}
+
+.order-details{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:28px;text-align:left;margin-bottom:24px}
+.order-details h4{font-family:var(--fd);margin-bottom:16px}
+.order-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #ffffff08;font-size:13px}
+
+.download-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.download-buttons button{padding:14px 28px;border-radius:var(--rs);font-family:var(--fd);font-size:13px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:8px}
+.btn-download-pdf{background:var(--lime);border:none;color:var(--bg)}
+.btn-download-doc{background:transparent;border:1.5px solid #ffffff20;color:var(--text)}
+.btn-download-doc:hover{border-color:var(--lime);color:var(--lime)}
+
+/* FOOTER NAV */
+.panel-footer{display:flex;justify-content:space-between;margin-top:40px;padding-top:24px;border-top:1px solid #ffffff10}
+.btn-back{padding:12px 24px;background:transparent;border:1.5px solid #ffffff15;color:var(--text);font-family:var(--fd);font-size:12px;font-weight:600;border-radius:var(--rs);cursor:pointer;transition:.2s}
+.btn-back:hover{border-color:var(--lime);color:var(--lime)}
+.btn-next{padding:12px 32px;background:var(--lime);border:none;color:var(--bg);font-family:var(--fd);font-size:13px;font-weight:800;border-radius:var(--rs);cursor:pointer;transition:.2s;text-transform:uppercase}
+.btn-next:hover{box-shadow:0 6px 25px #e8ff4730}
+.btn-next:disabled{opacity:.5;cursor:not-allowed}
+
+/* SECTION HEADERS (paneles 2-5) */
+.section-title{font-family:var(--fd);font-size:28px;font-weight:800;text-align:center;margin-bottom:8px}
+.section-sub{text-align:center;color:var(--text2);margin-bottom:40px}
+
+/* LOADING OVERLAY */
+.loading-overlay{position:fixed;inset:0;background:rgba(8,8,8,.95);z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:.3s}
+.loading-overlay.active{opacity:1;visibility:visible}
+
+.loading-spinner{width:76px;height:76px;border-radius:50%;background:conic-gradient(from 0deg,transparent 20%,#00f3ff 40%,#ff00ea 70%,var(--lime) 100%);position:relative;animation:spin 1.2s linear infinite;margin-bottom:24px;box-shadow:0 0 25px var(--lime20),0 0 15px rgba(255,0,234,.2)}
+.loading-spinner::after{content:"";position:absolute;inset:4px;background:rgba(8,8,8,.95);border-radius:50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:var(--fd);font-size:18px;margin-bottom:8px;z-index:2}
+.loading-sub{color:var(--text2);font-size:13px;z-index:2}
+
+/* ERROR TOAST */
+.error-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1010;border:1px solid #ff444440;color:#ff6b6b;padding:14px 24px;border-radius:var(--rs);font-size:13px;font-family:var(--fb);z-index:4000;transition:transform .3s ease;max-width:90vw;text-align:center}
+.error-toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ZOOM MODAL */
+.zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);z-index:5000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s ease;cursor:zoom-out}
+.zoom-overlay.active{opacity:1;visibility:visible}
+.zoom-overlay img{max-width:90vw;max-height:85vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--lime10);transform:scale(.85);transition:transform .35s cubic-bezier(.22,1,.36,1);object-fit:contain}
+.zoom-overlay.active img{transform:scale(1)}
+.zoom-close{position:absolute;top:20px;right:24px;width:40px;height:40px;background:var(--bg4);border:1px solid #ffffff20;border-radius:50%;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;z-index:5001}
+.zoom-close:hover{border-color:var(--lime);color:var(--lime);transform:scale(1.1)}
+.zoom-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:var(--text3);font-size:12px;font-family:var(--fd)}
+.mini-book-cover{cursor:pointer}
+.mini-book-cover:hover{opacity:.9}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="logo">
+    VIV<span class="logo-o"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg></span><span class="logo-gift">gift</span>
+  </a>
+  <div class="nav-links">
+    <a href="/">Inicio</a>
+    <a href="/ebooks.html">Mis Ebooks</a>
+    <button class="cart-btn" id="cartBtn">🛒 Carrito (0)</button>
+  </div>
+</nav>
+
+<main class="main">
+  
+  <div class="steps-container">
+    <div class="step-dot active" data-step="1"></div>
+    <div class="step-dot" data-step="2"></div>
+    <div class="step-dot" data-step="3"></div>
+    <div class="step-dot" data-step="4"></div>
+    <div class="step-dot" data-step="5"></div>
+  </div>
+
+  <div class="panel active" id="panel1">
+    <div class="create-panel">
+      
+      <div class="form-section">
+        <h2>✨ Crea tu Cuento Mágico</h2>
+        <p class="sub">Describe la historia y la convertimos en un libro ilustrado único</p>
+
+        <div class="input-group">
+          <label>Título de la Historia</label>
+          <input type="text" id="storyTitle" placeholder="Ej: Las Aventuras de Luna en el Bosque Encantado">
+        </div>
+
+        <div class="input-group">
+          <label>Protagonista</label>
+          <input type="text" id="protagonistName" placeholder="Nombre del personaje principal">
+        </div>
+
+        <div class="input-group">
+           <label>📸 Foto del Protagonista ( Para personalizar su rostro)</label>
+           <input type="file" id="protagonistPhoto" accept="image/png, image/jpeg, image/jpg" style="padding: 8px; background: var(--bg); border: 1.5px dashed var(--lime20); border-radius: var(--rs); color: var(--text2); cursor: pointer; width: 100%; font-family: var(--fb); font-size: 12px;">
+           <p style="font-size: 10px; color: var(--text2); margin-top: 6px;">Sube una foto clara donde se vea bien el rostro (Máximo 2MB).</p>
+        </div>
+
+        <div class="input-group">
+          <label style="display:flex;justify-content:space-between;align-items:center">
+            Descripción
+            <button type="button" id="btnMagicDesc" style="background:var(--lime10);color:var(--lime);border:1px solid var(--lime20);padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer;font-family:var(--fd)">✨ Generar con IA</button>
+          </label>
+          <textarea id="storyDescription" placeholder="Describe la aventura, el mundo mágico, los personajes..."></textarea>
+        </div>
+
+        <div class="input-group">
+          <label>Estilo Visual</label>
+          <div class="style-grid">
+  <div class="style-option" data-style="comic"><span class="icon">💥</span><span class="name">Cómic</span></div>
+  <div class="style-option" data-style="acuarela"><span class="icon">🎨</span><span class="name">Acuarela</span></div>
+  <div class="style-option selected" data-style="pixar"><span class="icon">🎬</span><span class="name">3D Pixar</span></div>
+  <div class="style-option" data-style="anime"><span class="icon">🌸</span><span class="name">Anime Ghibli</span></div>
+  <div class="style-option" data-style="gts"><span class="icon">🤖</span><span class="name">GTS Mecha</span></div>
+  <div class="style-option" data-style="halo3d"><span class="icon">🎮</span><span class="name">3D Halo</span></div>
+  <div class="style-option" data-style="dragonball"><span class="icon">⚡</span><span class="name">Dragon Ball</span></div>
+  <div class="style-option" data-style="comics70"><span class="icon">📰</span><span class="name">Comics 70-80</span></div>
+  <div class="style-option" data-style="cyberpunk"><span class="icon">🌆</span><span class="name">Cyberpunk</span></div>
+  <div class="style-option" data-style="steampunk"><span class="icon">⚙️</span><span class="name">Steampunk</span></div>
+  <div class="style-option" data-style="kawaii"><span class="icon">🍡</span><span class="name">Kawaii</span></div>
+  <div class="style-option" data-style="realistic"><span class="icon">📷</span><span class="name">Realista</span></div>
+  
+  <div class="style-option" data-style="hyperreal"><span class="icon">👁️</span><span class="name">Hiperrealista</span></div>
+  <div class="style-option" data-style="vangogh"><span class="icon">🌌</span><span class="name">Noche Estrellada</span></div>
+  <div class="style-option" data-style="picasso"><span class="icon">🔺</span><span class="name">Cubismo</span></div>
+  <div class="style-option" data-style="dali"><span class="icon">⏱️</span><span class="name">Surrealista</span></div>
+  <div class="style-option" data-style="magia"><span class="icon">🪄</span><span class="name">Academia Magia</span></div>
+</div>
+
+        <div class="row-2">
+          <div class="input-group">
+            <label>Edad del Niño</label>
+            <select id="childAge">
+              <option value="3-5">3 - 5 años</option>
+              <option value="6-8">6 - 8 años</option>
+              <option value="9-12" selected>9 - 12 años</option>
+              <option value="13+">13+ años</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Páginas</label>
+            <select id="pageCount">
+              <option value="2">🧪 TEST (2 páginas)</option>
+              <option value="6">Mini (6)</option>
+              <option value="10" selected>Corto (10)</option>
+              <option value="15">Mediano (15)</option>
+              <option value="20">Largo (20)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-section">
+        <div class="book-preview-card">
+          <h3>📖 Vista Previa</h3>
+          <div class="mini-book">
+            <div class="mini-book-inner">
+              <div class="mini-book-cover" id="miniBookCover">
+                <span>Tu portada aquí</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+           <button class="btn-generate" id="btnPreviewCover" style="background:transparent;border:1px solid var(--lime);color:var(--lime)">✨ Preview de Portada</button>
+           <button class="btn-generate" id="btnDownloadCover" style="display:none; background:var(--bg4); border:1px solid #ffffff20; color:var(--text); margin-top: 10px; margin-bottom: 10px;">⬇️ Descargar Portada</button>
+           <button class="btn-generate" id="btnGenerateEbook">✨ Crear Mi Ebook</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel2">
+    <h2 class="section-title">¿Cómo quieres tu libro?</h2>
+    <p class="section-sub">Elige el formato perfecto para regalar o disfrutar</p>
+
+    <div class="format-options">
+      <div class="format-card" data-format="digital">
+        <div class="format-icon">📱</div>
+        <h3>Descarga Digital</h3>
+        <p>Descarga tu ebook ilustrado en PDF para leer en cualquier dispositivo o imprimir en casa.</p>
+        <ul class="format-features">
+          <li>PDF de alta calidad</li>
+          <li>Descarga inmediata</li>
+          <li>Imprime cuando quieras</li>
+        </ul>
+        <div class="format-price free">GRATIS</div>
+      </div>
+
+      <div class="format-card premium" data-format="gift">
+        <div class="format-icon">🎁</div>
+        <h3>Regalo Mágico Impreso</h3>
+        <p>Un libro encuadernado profesional con mensaje de voz grabado. ¡La experiencia completa de VIVOgift!</p>
+        <ul class="format-features">
+          <li>Libro impreso profesional</li>
+          <li>Encuadernación premium</li>
+          <li>🎤 Mensaje de voz grabado</li>
+          <li>💌 Dedicatoria personalizada</li>
+          <li>📦 Caja de regalo exclusiva</li>
+          <li>🚚 Envío a domicilio</li>
+        </ul>
+        <div class="format-price">$599 MXN <span>+ envío</span></div>
+      </div>
+    </div>
+
+    <div class="panel-footer" style="max-width:900px;margin:40px auto 0">
+      <button class="btn-back" onclick="goToStep(1)">← Volver</button>
+      <button class="btn-next" id="btnFormat">Continuar →</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel3">
+    <h2 class="section-title">🎁 Personaliza tu Regalo</h2>
+    <p class="section-sub">Haz que este regalo sea inolvidable</p>
+
+    <div class="gift-sections">
+      
+      <div class="gift-section">
+        <h3><span class="emoji">🎤</span> Graba un Mensaje de Voz</h3>
+        <p>Tu mensaje se reproducirá cuando el destinatario presione el botón mágico en el libro</p>
+        <div class="voice-recorder">
+          <div class="recorder-status">
+            <div class="icon" id="recIcon">🎙️</div>
+            <p id="recStatus">Presiona para grabar tu mensaje</p>
+            <div class="recorder-timer" id="recTimer">0:00</div>
+          </div>
+          <div class="recorder-controls">
+            <button class="rec-btn record" id="btnRecord">🎤</button>
+            <button class="rec-btn stop" id="btnStop" disabled>⏹️</button>
+            <button class="rec-btn play" id="btnPlay" disabled>▶️</button>
+          </div>
+          <div class="audio-preview" id="audioPreview">
+            <audio id="audioPlayer" controls></audio>
+            <div class="audio-actions">
+              <button class="btn-rerecord" id="btnRerecord">🔄 Grabar de nuevo</button>
+              <button class="btn-use-audio" id="btnUseAudio">✓ Usar este audio</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gift-section">
+        <h3><span class="emoji">💌</span> Escribe una Dedicatoria</h3>
+        <p>Esta nota irá impresa en la primera página del libro</p>
+        <div class="input-group">
+          <textarea id="dedicatoria" class="dedicatoria-textarea" placeholder="Para mi pequeña Luna, que este libro te recuerde que los sueños se hacen realidad cuando crees en la magia..." maxlength="300"></textarea>
+          <div class="dedicatoria-chars"><span id="charCount">0</span>/300</div>
+        </div>
+      </div>
+
+      <div class="gift-section">
+        <h3><span class="emoji">📦</span> Tipo de Envío</h3>
+        <p>¿Es un regalo sorpresa? Lo enviamos sin mostrar el precio</p>
+        <div class="shipping-type">
+          <div class="ship-option selected" data-ship="gift">
+            <div class="icon">🎁</div>
+            <h4>Envío como Regalo</h4>
+            <p>Sin precio visible, caja sorpresa</p>
+          </div>
+          <div class="ship-option" data-ship="normal">
+            <div class="icon">📦</div>
+            <h4>Envío Normal</h4>
+            <p>Empaque estándar</p>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="input-group">
+            <label>Nombre del Destinatario</label>
+            <input type="text" id="recipientName" placeholder="¿Para quién es el regalo?">
+          </div>
+          <div class="input-group">
+            <label>Teléfono del Destinatario</label>
+            <input type="tel" id="recipientPhone" placeholder="Para coordinar entrega">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Dirección de Entrega</label>
+          <textarea id="shippingAddress" placeholder="Calle, número, colonia, ciudad, CP..." style="min-height:60px"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-footer" style="max-width:800px;margin:40px auto 0">
+      <button class="btn-back" onclick="goToStep(2)">← Volver</button>
+      <button class="btn-next" onclick="goToStep(4)">Continuar al Pago →</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel4">
+    <h2 class="section-title">💳 Finalizar Compra</h2>
+
+    <div class="checkout-grid">
+      <div class="checkout-form">
+        <h3>📋 Datos de Facturación</h3>
+        <div class="row-2">
+          <div class="input-group">
+            <label>Nombre</label>
+            <input type="text" id="billingName" placeholder="Tu nombre completo">
+          </div>
+          <div class="input-group">
+            <label>Email</label>
+            <input type="email" id="billingEmail" placeholder="tu@email.com">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Teléfono</label>
+          <input type="tel" id="billingPhone" placeholder="Tu número de contacto">
+        </div>
+        <h3 style="margin-top:28px">💳 Método de Pago</h3>
+        <div class="input-group">
+          <label>Número de Tarjeta</label>
+          <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456">
+        </div>
+        <div class="row-2">
+          <div class="input-group">
+            <label>Vencimiento</label>
+            <input type="text" id="cardExpiry" placeholder="MM/AA">
+          </div>
+          <div class="input-group">
+            <label>CVV</label>
+            <input type="text" id="cardCvv" placeholder="123">
+          </div>
+        </div>
+      </div>
+
+      <div class="order-summary">
+        <h3>🛒 Resumen del Pedido</h3>
+        <div class="summary-item"><span>Ebook Ilustrado (10 páginas)</span><span>$0</span></div>
+        <div class="summary-item"><span>Impresión Premium</span><span>$399</span></div>
+        <div class="summary-item"><span>Mensaje de Voz</span><span>$99</span></div>
+        <div class="summary-item"><span>Caja de Regalo</span><span>$101</span></div>
+        <div class="summary-item"><span>Envío Estándar</span><span id="shippingCost">$89</span></div>
+        <div class="summary-item total"><span>Total</span><span class="price" id="totalPrice">$688 MXN</span></div>
+        <button class="btn-pay" id="btnPay">🔒 Pagar Ahora</button>
+        <div class="secure-badge">🔐 Pago seguro con encriptación SSL</div>
+      </div>
+    </div>
+  </div>
+
+<div class="panel" id="panel5">
+    <div class="confirm-panel">
+      <div class="confirm-icon">🎉</div>
+      <h2>¡Tu Historia está en Proceso!</h2>
+      <p>Estamos ilustrando y ensamblando tu libro en alta definición.</p>
+
+      <div style="display:flex;gap:24px;justify-content:center;align-items:flex-start;flex-wrap:wrap;margin:24px 0 32px;">
+        <div style="text-align:center;">
+          <div id="ebookPreviewCover" style="width:200px;height:280px;margin:0 auto 12px;background:linear-gradient(145deg,#2a2520,#1a1815);border-radius:0 10px 10px 0;box-shadow:-4px 4px 20px rgba(0,0,0,.5);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <span style="color:var(--text2);font-size:12px;">Portada</span>
+          </div>
+          <p style="font-size:11px;color:var(--text2);font-family:var(--fd);">Click para ampliar</p>
+        </div>
+
+        <div style="text-align:left;max-width:340px;">
+          <h3 style="font-family:var(--fd);font-size:18px;font-weight:800;margin-bottom:8px;color:var(--lime);" id="ebookResultTitle">-</h3>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6;">
+            <div>📖 <span id="ebookResultPages">10</span> páginas ilustradas</div>
+            <div>🎨 Estilo: <span id="ebookResultStyle">-</span></div>
+            <div>👤 Protagonista: <span id="ebookResultProtagonist">-</span></div>
+
+            <div style="margin-top:15px; padding:15px; background:var(--bg4); border-radius:var(--rs); border:1px solid var(--lime20); color:var(--text);">
+              ⚙️ <b>Estado: Procesando en el servidor...</b><br><br>
+              Tu libro aparecerá automáticamente en la sección de <b>Mis Ebooks</b> en unos 10 a 20 minutos.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="download-buttons">
+        <a href="/ebooks.html" class="btn-download-pdf" style="text-decoration:none;">📁 Ir a Mis Ebooks</a>
+        <button class="btn-generate" id="btnDownloadCoverFinal" style="max-width:240px;background:var(--bg4);border:1px solid #ffffff20;color:var(--text);font-size:12px;">⬇️ Descargar Portada</button>
+      </div>
+
+      <div style="margin-top:32px;">
+        <button class="btn-back" onclick="location.reload()" style="border-color:var(--lime);color:var(--lime);">✨ Crear otro Ebook</button>
+      </div>
+    </div>
+</div>
+</main>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner" id="loadingSpinner"></div>
+  <div class="loading-text" id="loadingText">Creando tu ebook mágico...</div>
+  <div class="loading-sub" id="loadingSub">Esto puede tomar unos minutos</div>
+  
+  <div id="progressContainer" style="display:none; width: 80%; max-width: 400px; margin-top: 20px; text-align: center;">
+    <div style="width: 100%; height: 12px; background: #262626; border-radius: 10px; overflow: hidden; border: 1px solid #ffffff20;">
+      <div id="progressBarFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff00ff, #00ffff); border-radius: 10px; transition: width 0.5s ease;"></div>
+    </div>
+    <p id="progressPercent" style="color: var(--lime); font-family: var(--fd); font-weight: bold; margin-top: 8px;">0%</p>
+  </div>
+</div>
+
+<div class="error-toast" id="errorToast"></div>
+
+<div class="zoom-overlay" id="zoomOverlay">
+  <button class="zoom-close" id="zoomClose">✕</button>
+  <img id="zoomImage" src="" alt="Portada ampliada">
+  <div class="zoom-hint">Click en cualquier sitio para cerrar</div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ═══════════════════════════════════════════════════════════════
+
+const CONFIG = {
+  webhooks: {
+    ebook:       'https://panel1.quickai.agency/webhook/generar-ebook',
+    cover:       'https://panel1.quickai.agency/webhook/generar-portada',
+    previewCover:'https://panel1.quickai.agency/webhook/preview-cover',
+    description: 'https://panel1.quickai.agency/webhook/generar-descripcion',
+    order:       'https://panel1.quickai.agency/webhook/procesar-pedido',
+    uploadAudio: 'https://panel1.quickai.agency/webhook/subir-audio'
+  },
+  prices: {
+    print: 399,
+    voiceMessage: 99,
+    giftBox: 101,
+    shipping: 89,
+    expressShipping: 149
+  }
+};
+
+// Estado global
+let state = {
+  step: 1,
+  format: null,
+  ebook: {
+    title: '',
+    protagonist: '',
+    description: '',
+    style: 'pixar',
+    age: '9-12',
+    pages: 10,
+    coverUrl: null,
+    docUrl: null,
+    pdfUrl: null,
+    images: []
+  },
+  gift: {
+    audioBlob: null,
+    audioUrl: null,
+    dedicatoria: '',
+    recipientName: '',
+    recipientPhone: '',
+    shippingAddress: '',
+    shippingType: 'gift'
+  },
+  billing: {}
+};
+
+// ═══════════════════════════════════════════════════════════════
+// DESCRIPCIONES DE ESTILOS VISUALES 
+// ═══════════════════════════════════════════════════════════════
+
+const styleDescriptions = {
+  'comic':      'estilo cómic moderno, colores vibrantes, contornos gruesos y definidos, poses dinámicas de acción',
+  'acuarela':   'ilustración suave en acuarela, tonos pastel, pinceladas delicadas, atmósfera etérea y soñadora',
+  'pixar':      'estilo animación 3D tipo Pixar y Disney, personajes expresivos, iluminación rica y cinematográfica',
+  'anime':      'estilo anime de Studio Ghibli, fondos mágicos y detallados, atmósfera encantadora, iluminación suave',
+  'gts':        'estilo anime de robots gigantes mecha, diseños mecánicos detallados, escala épica, poses dinámicas, ciencia ficción tipo Gundam o Evangelion',
+  'halo3d':     'estilo videojuego 3D tipo Halo, estética futurista de ciencia ficción, armaduras y armas detalladas, iluminación dramática, batallas épicas',
+  'dragonball': 'estilo anime Dragon Ball Z, poses de acción dinámicas, auras de energía y ataques de ki, pelo en punta, expresiones intensas',
+  'comics70':   'estilo cómic vintage años 70-80, puntos de trama halftone, paleta de colores retro, estética clásica de superhéroes, sensación nostálgica',
+  'cyberpunk':  'estética cyberpunk con neones, ciudad futurista distópica, calles bajo la lluvia, pantallas holográficas, colores synthwave',
+  'steampunk':  'estilo steampunk victoriano, maquinaria de bronce y cobre, engranajes y vapor, moda vintage, fantasía industrial',
+  'kawaii':     'estilo kawaii japonés adorable, ojos grandes y brillantes, colores pastel, proporciones chibi, expresiones tiernas',
+  'realistic':  'arte digital fotorrealista, texturas detalladas, iluminación natural, composición cinematográfica, personajes realistas',
+  'hyperreal':  'fotografía hiperrealista 8k, detalles faciales humanos extremadamente precisos, textura de piel real, iluminación de estudio fotográfico profesional, lente macro',
+  'vangogh':    'estilo pintura postimpresionista tipo Van Gogh, pinceladas gruesas y arremolinadas, colores intensos, cielos estrellados vibrantes, textura de óleo sobre lienzo',
+  'picasso':    'estilo arte cubista abstracto, perspectivas múltiples, formas geométricas rotas, colores primarios audaces, diseño vanguardista de galería de arte',
+  'dali':       'estilo pintura surrealista onírica, paisajes de ensueño extraños, perspectivas infinitas, elementos derretidos o flotantes, simbolismo mágico profundo',
+  'magia':      'estilo fantasía cinematográfica tipo escuela de magos ingleses, castillos antiguos y oscuros, varitas brillantes, uniformes escolares de hechicería, lechuzas, iluminación misteriosa y mágica'
+};
+
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+
+function showLoading(text, sub) {
+  document.getElementById('loadingText').textContent = text;
+  document.getElementById('loadingSub').textContent = sub;
+  document.getElementById('loadingOverlay').classList.add('active');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('active');
+}
+
+function showError(msg) {
+  const toast = document.getElementById('errorToast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 5000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVEGACIÓN ENTRE PASOS
+// ═══════════════════════════════════════════════════════════════
+
+function goToStep(step) {
+  state.step = step;
+  document.querySelectorAll('.step-dot').forEach((dot, i) => {
+    dot.classList.remove('active', 'completed');
+    if (i + 1 < step) dot.classList.add('completed');
+    if (i + 1 === step) dot.classList.add('active');
+  });
+  document.querySelectorAll('.panel').forEach((panel, i) => {
+    panel.classList.toggle('active', i + 1 === step);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ZOOM MODAL — Click en la portada para verla en grande
+// ═══════════════════════════════════════════════════════════════
+
+const zoomOverlay = document.getElementById('zoomOverlay');
+const zoomImage   = document.getElementById('zoomImage');
+
+document.getElementById('miniBookCover').addEventListener('click', () => {
+  if (!state.ebook.coverUrl) return; 
+  zoomImage.src = state.ebook.coverUrl;
+  zoomOverlay.classList.add('active');
+});
+
+zoomOverlay.addEventListener('click', (e) => {
+  if (e.target === zoomOverlay || e.target.id === 'zoomClose') {
+    zoomOverlay.classList.remove('active');
+  }
+});
+document.getElementById('zoomClose').addEventListener('click', () => {
+  zoomOverlay.classList.remove('active');
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') zoomOverlay.classList.remove('active');
+});
+
+// ═══════════════════════════════════════════════════════════════
+// SELECCIÓN DE ESTILO VISUAL
+// ═══════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.style-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    state.ebook.style = opt.dataset.style;
+    // Eliminamos el intento de buscar 'visualStyle' en el HTML para evitar el error null
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 1: PREVIEW DE PORTADA
+// ═══════════════════════════════════════════════════════════════
+
+document.getElementById('btnPreviewCover').addEventListener('click', async () => {
+  const title       = document.getElementById('storyTitle').value.trim();
+  const protagonist = document.getElementById('protagonistName').value.trim();
+  const description = document.getElementById('storyDescription').value.trim();
+  
+  if (!title || !description) {
+    showError('Ingresa el Título y la Descripción para generar la portada.');
+    return;
+  }
+
+  const btnPreview = document.getElementById('btnPreviewCover');
+  btnPreview.disabled = true;
+  showLoading('Generando portada mágica...', 'Atlas Cloud está pintando tu portada. Puede tomar 1-2 minutos.');
+  
+  try {
+  const payload = {
+      title: title,
+      protagonist: protagonist || 'el protagonista',
+      description: description,
+      styleDescription: styleDescriptions[state.ebook.style],
+      style: state.ebook.style,
+      protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null
+    };
+
+    const controller = new AbortController();
+    const coverTimeout = setTimeout(() => controller.abort(), 240000); 
+
+    const response = await fetch(CONFIG.webhooks.previewCover, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify(payload)
+    });
+    
+    clearTimeout(coverTimeout);
+    
+    if (!response.ok) {
+      throw new Error('Error del servidor (HTTP ' + response.status + ')');
+    }
+
+    const rawText = await response.text();
+    if (!rawText || rawText.trim().length === 0) {
+      throw new Error('El servidor devolvió una respuesta vacía');
+    }
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch (parseErr) {
+      if (rawText.length > 1000 && !rawText.includes('<')) {
+        const b64 = rawText.trim();
+        data = { coverUrl: b64.startsWith('data:image') ? b64 : ('data:image/png;base64,' + b64) };
+      } else {
+        throw new Error('Respuesta del servidor no es JSON válido');
+      }
+    }
+
+    const imgUrl = data.coverUrl || data.imageUrl || data.url || (Array.isArray(data) ? data[0]?.url : null);
+    
+    if (!imgUrl) {
+      throw new Error('La respuesta no contiene una imagen válida');
+    }
+
+    state.ebook.coverUrl = imgUrl;
+
+    const coverEl = document.getElementById('miniBookCover');
+    const img = document.createElement('img');
+    img.alt = 'Portada';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0';
+    
+    img.onload = () => {
+      coverEl.innerHTML = '';
+      coverEl.appendChild(img);
+    };
+    
+    img.onerror = (e) => {
+      coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error al mostrar la imagen. Intenta de nuevo.</span>';
+    };
+    
+    img.src = imgUrl;
+    document.getElementById('btnDownloadCover').style.display = 'block'; 
+  } catch (error) {
+    showError(error.message || 'Error al generar la portada. Intenta de nuevo.');
+  } finally {
+    hideLoading();
+    btnPreview.disabled = false;
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 1: CREAR EBOOK COMPLETO
+// ═══════════════════════════════════════════════════════════════
+
+let progressInterval;
+
+document.getElementById('btnGenerateEbook').addEventListener('click', async () => {
+  const title       = document.getElementById('storyTitle').value.trim();
+  const description = document.getElementById('storyDescription').value.trim();
+  
+  if (!title || !description) {
+    showError('Completa el título y la descripción.');
+    return;
+  }
+
+  state.ebook.title       = title;
+  state.ebook.protagonist = document.getElementById('protagonistName').value.trim();
+  state.ebook.description = description;
+  state.ebook.pages       = parseInt(document.getElementById('pageCount').value);
+  state.ebook.age         = document.getElementById('childAge').value;
+
+  document.getElementById('loadingText').textContent = 'Creando tu ebook mágico...';
+  document.getElementById('loadingSub').textContent = 'Diseñando el personaje protagonista...';
+  document.getElementById('loadingOverlay').classList.add('active');
+  document.getElementById('progressContainer').style.display = 'block';
+  
+  const barFill = document.getElementById('progressBarFill');
+  const percentText = document.getElementById('progressPercent');
+  
+  const progressMessages = [
+    { at: 5,  text: '🎨 Diseñando el personaje protagonista...',    sub: 'La IA está creando la ficha visual' },
+    { at: 15, text: '📝 Escribiendo la historia con diálogos...',    sub: 'Creando la narrativa página por página' },
+    { at: 25, text: '🖌️ Ilustrando página 1...',                    sub: 'Generando ilustraciones con IA' },
+    { at: 35, text: '🖌️ Ilustrando páginas...',                     sub: 'Cada página es una obra de arte única' },
+    { at: 50, text: '🖌️ Más de la mitad ilustrada...',              sub: 'Las páginas están quedando increíbles' },
+    { at: 65, text: '💬 Añadiendo burbujas de diálogo...',           sub: 'Los personajes cobran vida' },
+    { at: 75, text: '📤 Subiendo imágenes a Supabase...',             sub: 'Guardando tus ilustraciones de forma segura' },
+    { at: 85, text: '📄 Preparando los archivos finales...',          sub: 'Ensamblando tu ebook completo' },
+    { at: 90, text: '✨ Últimos retoques...',                        sub: 'Tu libro está casi listo' },
+  ];
+  
+  let currentProgress = 0;
+  barFill.style.width = '0%';
+  percentText.textContent = '0%';
+  
+  progressInterval = setInterval(() => {
+    if (currentProgress < 90) {
+      currentProgress += 1;
+      barFill.style.width = currentProgress + '%';
+      percentText.textContent = currentProgress + '%';
+      
+      const msg = progressMessages.find(m => m.at === currentProgress);
+      if (msg) {
+        document.getElementById('loadingText').textContent = msg.text;
+        document.getElementById('loadingSub').textContent = msg.sub;
+      }
+    }
+  }, 25000); 
+  
+try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000000); 
+
+    await fetch(CONFIG.webhooks.ebook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        title: state.ebook.title,
+        protagonist: state.ebook.protagonist,
+        description: state.ebook.description,
+        styleDescription: styleDescriptions[state.ebook.style],
+        style: state.ebook.style,
+        age: state.ebook.age,
+        pages: state.ebook.pages,
+        coverUrl: state.ebook.coverUrl,
+        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null
+      })
+    });
+    
+    clearTimeout(timeoutId);
+  } catch (error) {
+    console.log('[Crear Ebook] El servidor continúa procesando en segundo plano.');
+  }
+// ═══════════════════════════════════════════════════════════════
+  // LÓGICA BLINDADA: PANTALLA FIJA CON BOTONES
+  // ═══════════════════════════════════════════════════════════════
+  clearInterval(progressInterval);
+  
+  if (barFill) {
+    barFill.style.width = '100%';
+    barFill.style.background = 'var(--lime)';
+  }
+  if (percentText) percentText.textContent = 'PROCESANDO EN SERVIDOR...';
+
+  document.getElementById('loadingSpinner').style.display = 'none';
+  document.getElementById('loadingText').textContent = '🎨 Ilustrando en alta definición...';
+  
+  // Borramos el setTimeout y el goToStep(5). 
+  // Ahora la pantalla de carga se convierte en la pantalla final de éxito.
+  document.getElementById('loadingSub').innerHTML = 
+    'Tu libro es muy detallado y el proceso continúa en nuestro servidor de forma segura.<br>' +
+    '<span style="color:var(--lime); font-size:14px; font-weight:600;">Estará listo en tu biblioteca en unos 10 a 20 minutos.</span><br><br>' +
+    '<a href="/ebooks.html" style="display:inline-block; margin-top:20px; padding:14px 32px; background:var(--lime); color:var(--bg); font-family:var(--fd); font-size:14px; font-weight:800; border-radius:8px; text-decoration:none; text-transform:uppercase;">📁 Ir a Mis Ebooks</a>' +
+    '<div style="margin-top:20px;">' +
+    '<button onclick="location.reload()" style="background:transparent; border:none; color:var(--text2); text-decoration:underline; font-size:13px; cursor:pointer;">✨ Crear otro libro nuevo</button>' +
+    '</div>';
+
+});
+// ═══════════════════════════════════════════════════════════════
+// PANEL 1: GENERAR DESCRIPCIÓN CON IA
+// ═══════════════════════════════════════════════════════════════
+
+document.getElementById('btnMagicDesc').addEventListener('click', async () => {
+  const title = document.getElementById('storyTitle').value.trim();
+  if (!title) {
+    showError('Escribe un título primero.');
+    return;
+  }
+  
+  const btn = document.getElementById('btnMagicDesc');
+  const textarea = document.getElementById('storyDescription');
+  
+  btn.textContent = '⏳ Generando...';
+  btn.disabled = true;
+  
+  try {
+    const response = await fetch(CONFIG.webhooks.description, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: title,
+        protagonist: document.getElementById('protagonistName').value.trim() || 'el protagonista',
+        style: state.ebook.style
+      })
+    });
+    
+    if (response.ok) {
+      const rawText = await response.text();
+      try {
+        const data = JSON.parse(rawText);
+        textarea.value = data.text || data.output || data.descripcion || rawText;
+      } catch {
+        textarea.value = rawText;
+      }
+    }
+  } catch (err) {
+    showError('Error al generar la descripción.');
+  }
+  
+  btn.textContent = '✨ Generar con IA';
+  btn.disabled = false;
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 2: FORMATO
+// ═══════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.format-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.format = card.dataset.format;
+  });
+});
+
+document.getElementById('btnFormat').addEventListener('click', () => {
+  if (!state.format) {
+    showError('Selecciona un formato.');
+    return;
+  }
+  if (state.format === 'digital') {
+    goToStep(5);
+  } else {
+    goToStep(3);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 3: GRABACIÓN DE VOZ
+// ═══════════════════════════════════════════════════════════════
+
+let mediaRecorder = null;
+let audioChunks = [];
+let recordingTimer = null;
+let recordingSeconds = 0;
+
+const btnRecord  = document.getElementById('btnRecord');
+const btnStop    = document.getElementById('btnStop');
+const btnPlay    = document.getElementById('btnPlay');
+const recTimer   = document.getElementById('recTimer');
+const recStatus  = document.getElementById('recStatus');
+const recIcon    = document.getElementById('recIcon');
+const audioPreview = document.getElementById('audioPreview');
+const audioPlayer  = document.getElementById('audioPlayer');
+
+btnRecord.addEventListener('click', async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      state.gift.audioBlob = blob;
+      state.gift.audioUrl = URL.createObjectURL(blob);
+      audioPlayer.src = state.gift.audioUrl;
+      audioPreview.classList.add('show');
+      btnPlay.disabled = false;
+    };
+    
+    mediaRecorder.start();
+    btnRecord.classList.add('recording');
+    btnRecord.disabled = true;
+    btnStop.disabled = false;
+    recIcon.textContent = '🔴';
+    recStatus.textContent = 'Grabando... (máx 60 segundos)';
+    
+    recordingSeconds = 0;
+    recordingTimer = setInterval(() => {
+      recordingSeconds++;
+      const mins = Math.floor(recordingSeconds / 60);
+      const secs = recordingSeconds % 60;
+      recTimer.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+      if (recordingSeconds >= 60) btnStop.click();
+    }, 1000);
+    
+  } catch (err) {
+    showError('No se pudo acceder al micrófono. Permite el acceso.');
+  }
+});
+
+btnStop.addEventListener('click', () => {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+  }
+  clearInterval(recordingTimer);
+  btnRecord.classList.remove('recording');
+  btnRecord.disabled = false;
+  btnStop.disabled = true;
+  recIcon.textContent = '✅';
+  recStatus.textContent = '¡Mensaje grabado! Escúchalo abajo';
+});
+
+btnPlay.addEventListener('click', () => audioPlayer.play());
+
+document.getElementById('btnRerecord').addEventListener('click', () => {
+  audioPreview.classList.remove('show');
+  state.gift.audioBlob = null;
+  state.gift.audioUrl = null;
+  recIcon.textContent = '🎙️';
+  recStatus.textContent = 'Presiona para grabar tu mensaje';
+  recTimer.textContent = '0:00';
+  btnPlay.disabled = true;
+});
+
+document.getElementById('btnUseAudio').addEventListener('click', () => {
+  recStatus.textContent = '✅ Audio guardado y listo para usar';
+});
+
+document.getElementById('dedicatoria').addEventListener('input', function() {
+  document.getElementById('charCount').textContent = this.value.length;
+  state.gift.dedicatoria = this.value;
+});
+
+document.querySelectorAll('.ship-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.ship-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    state.gift.shippingType = opt.dataset.ship;
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL 4: CHECKOUT
+// ═══════════════════════════════════════════════════════════════
+
+document.getElementById('btnPay').addEventListener('click', async () => {
+  const name  = document.getElementById('billingName').value.trim();
+  const email = document.getElementById('billingEmail').value.trim();
+  
+  if (!name || !email) {
+    showError('Completa los datos de facturación.');
+    return;
+  }
+  
+  state.gift.recipientName    = document.getElementById('recipientName').value.trim();
+  state.gift.recipientPhone   = document.getElementById('recipientPhone').value.trim();
+  state.gift.shippingAddress  = document.getElementById('shippingAddress').value.trim();
+  
+  showLoading('Procesando tu pedido...', 'Esto solo tomará un momento');
+  
+  const orderId = 'VG-' + Date.now();
+
+  try {
+    let audioFileId = null;
+    if (state.gift.audioBlob) {
+      const audioResponse = await fetch(`${CONFIG.webhooks.uploadAudio}?orderId=${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'audio/webm' },
+        body: state.gift.audioBlob
+      });
+      if (audioResponse.ok) {
+        const audioData = await audioResponse.json();
+        audioFileId = audioData.fileId;
+      }
+    }
+    
+    const orderData = {
+      orderId: orderId,
+      ebook: state.ebook,
+      gift: { ...state.gift, audioFileId: audioFileId },
+      billing: { name: name, email: email, phone: document.getElementById('billingPhone').value.trim() },
+      total: calculateTotal()
+    };
+    
+    const response = await fetch(CONFIG.webhooks.order, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      document.getElementById('orderNumber').textContent     = data.orderId || orderId;
+      document.getElementById('confirmTitle').textContent     = state.ebook.title;
+      document.getElementById('confirmRecipient').textContent = state.gift.recipientName || 'N/A';
+      document.getElementById('orderDetailsSection').style.display = 'block';
+      hideLoading();
+      goToStep(5);
+    } else {
+      throw new Error('Error procesando pedido');
+    }
+  } catch (error) {
+    hideLoading();
+    showError('Error al procesar tu pedido. Intenta de nuevo.');
+  }
+});
+
+function calculateTotal() {
+  if (state.format === 'gift') {
+    return CONFIG.prices.print + CONFIG.prices.voiceMessage + CONFIG.prices.giftBox + CONFIG.prices.shipping;
+  }
+  return 0;
+}
+
+
+
+/// ═══════════════════════════════════════════════════════════════
+// PANEL 5: LÓGICA DE FINALIZACIÓN
+// ═══════════════════════════════════════════════════════════════
+
+// Esta función redirige al usuario a la biblioteca para que vea el libro 
+// procesado correctamente por el servidor (n8n).
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'btnDownloadPdf') {
+    window.location.href = '/ebooks.html';
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// LISTENERS PROTEGIDOS (EVITAN EL ERROR DE LÍNEA 1331)
+// ═══════════════════════════════════════════════════════════════
+
+if (document.getElementById('btnDownloadDoc')) {
+  document.getElementById('btnDownloadDoc').addEventListener('click', () => {
+    if (state.ebook.docUrl) {
+      window.open(state.ebook.docUrl, '_blank');
+    } else {
+      showError('El documento aún no está disponible.');
+    }
+  });
+}
+
+if (document.getElementById('btnDownloadCover')) {
+  document.getElementById('btnDownloadCover').addEventListener('click', () => {
+    downloadCoverImage('btnDownloadCover');
+  });
+}
+
+if (document.getElementById('btnDownloadCoverFinal')) {
+  document.getElementById('btnDownloadCoverFinal').addEventListener('click', () => {
+    downloadCoverImage('btnDownloadCoverFinal');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FUNCIÓN DE DESCARGA PROFESIONAL (CON CANVAS PARA EVITAR CORS)
+// ═══════════════════════════════════════════════════════════════
+
+function downloadCoverImage(btnId) {
+  const imgUrl = state.ebook.coverUrl;
+  if (!imgUrl) return;
+
+  const btn = document.getElementById(btnId);
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Procesando...';
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous'; // CRUCIAL: Permite leer los datos de Supabase sin error CORS
+  
+  img.onload = function() {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    
+    try {
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = (state.ebook.title || 'Portada_VIVOgift').replace(/\s+/g, '_') + '.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      btn.innerHTML = '✅ ¡Descargada!';
+    } catch (err) {
+      console.error("Error al convertir imagen:", err);
+      window.open(imgUrl, '_blank'); // Fallback si falla el canvas
+      btn.innerHTML = '✅ Abrir Imagen';
+    }
+    setTimeout(() => btn.innerHTML = originalText, 3000);
+  };
+
+  img.onerror = function() {
+    console.error("Error al cargar la imagen para descarga");
+    window.open(imgUrl, '_blank'); 
+    btn.innerHTML = originalText;
+  };
+
+  img.src = imgUrl;
+}
+// ═══════════════════════════════════════════════════════════════
+// LECTOR DE FOTO DEL PROTAGONISTA
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('protagonistPhoto').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Validar que la foto no sea gigante (Límite 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    showError('La foto es muy pesada. Por favor sube una imagen de menos de 2MB.');
+    this.value = ''; // Limpiar el archivo
+    return;
+  }
+
+  // Leer la foto y convertirla a código Base64
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    state.ebook.protagonistPhotoBase64 = e.target.result;
+    console.log("✅ Foto procesada correctamente lista para enviar.");
+  };
+  reader.readAsDataURL(file);
+});
+</script>
+
+</body>
+</html>

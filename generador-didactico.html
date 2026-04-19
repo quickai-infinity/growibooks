@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIVOgift — Crea Libros Didácticos con IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080808;--bg2:#0e0e0e;--bg3:#161616;--bg4:#1e1e1e;--bg5:#262626;
+  --lime:#e8ff47;--lime10:#e8ff4718;--lime20:#e8ff4730;
+  --gold:#ffd700;--gold10:#ffd70020;
+  --text:#f0ede8;--text2:#a09e99;--text3:#5a5a5a;
+  --r:14px;--rs:8px;
+  --fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(24px);background:rgba(8,8,8,.85);border-bottom:1px solid #ffffff08}
+.logo{display:flex;align-items:center;font-family:var(--fd);font-size:21px;font-weight:800;letter-spacing:-.5px;text-decoration:none;color:var(--text)}
+.logo-o{width:24px;height:24px;border:2px solid var(--lime);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin:0 1px}
+.logo-o svg{width:9px;height:9px;fill:var(--lime)}
+.logo-gift{color:var(--lime);font-weight:300;font-size:19px}
+.nav-links{display:flex;gap:20px;align-items:center}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;transition:.2s}
+.nav-links a:hover{color:var(--lime)}
+.cart-btn{background:var(--lime10);border:1px solid var(--lime20);padding:8px 16px;border-radius:20px;color:var(--lime);font-size:12px;cursor:pointer;transition:.2s}
+.cart-btn:hover{background:var(--lime20)}
+
+/* MAIN */
+.main{padding:100px 20px 60px;max-width:1200px;margin:0 auto}
+
+/* STEPS INDICATOR */
+.steps-container{display:flex;justify-content:center;gap:8px;margin-bottom:40px}
+.step-dot{width:12px;height:12px;border-radius:50%;background:var(--bg4);border:2px solid var(--bg5);transition:.3s}
+.step-dot.active{background:var(--lime);border-color:var(--lime);box-shadow:0 0 15px var(--lime20)}
+.step-dot.completed{background:var(--lime);border-color:var(--lime)}
+
+/* PANELS */
+.panel{display:none;animation:fadeIn .4s ease}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* PANEL 1 */
+.create-panel{display:grid;grid-template-columns:1fr 400px;gap:40px;align-items:start}
+@media(max-width:900px){.create-panel{grid-template-columns:1fr}}
+
+.form-section{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:32px}
+.form-section h2{font-family:var(--fd);font-size:24px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.form-section p.sub{font-size:13px;color:var(--text2);margin-bottom:28px}
+
+.input-group{margin-bottom:18px}
+label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;font-family:var(--fd)}
+input,select,textarea{width:100%;padding:12px 14px;background:var(--bg);border:1.5px solid #ffffff12;border-radius:var(--rs);color:var(--text);font-family:var(--fb);font-size:13px;outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:var(--lime)}
+textarea{resize:vertical;min-height:90px}
+
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* STYLE GRID */
+.style-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:600px){.style-grid{grid-template-columns:repeat(3,1fr)}}
+.style-option{padding:10px 6px;background:var(--bg);border:1.5px solid #ffffff12;border-radius:var(--rs);cursor:pointer;text-align:center;transition:.2s;font-size:10px}
+.style-option:hover{border-color:var(--lime20);background:var(--bg4)}
+.style-option.selected{border-color:var(--lime);background:var(--lime10)}
+.style-option .icon{font-size:18px;margin-bottom:3px;display:block}
+.style-option .name{font-weight:600;color:var(--text)}
+
+/* PREVIEW SIDEBAR */
+.preview-section{position:sticky;top:100px}
+.book-preview-card{background:var(--bg3);border:1px solid #ffffff10;border-radius:var(--r);padding:24px;text-align:center}
+.book-preview-card h3{font-family:var(--fd);font-size:14px;margin-bottom:16px;color:var(--text2)}
+
+.mini-book{width:180px;height:240px;margin:0 auto 20px;perspective:800px}
+.mini-book-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transform:rotateY(-10deg);transition:.3s}
+.mini-book:hover .mini-book-inner{transform:rotateY(-5deg)}
+.mini-book-cover{position:absolute;width:100%;height:100%;background:linear-gradient(145deg,#2a2520,#1a1815);border-radius:0 8px 8px 0;box-shadow:-3px 3px 15px rgba(0,0,0,.4);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:12px}
+.mini-book-cover img{width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0}
+
+.btn-generate{width:100%;padding:14px;background:var(--lime);color:var(--bg);font-family:var(--fd);font-size:13px;font-weight:800;border:none;border-radius:var(--rs);cursor:pointer;transition:.2s;text-transform:uppercase;letter-spacing:.5px}
+.btn-generate:hover{box-shadow:0 8px 30px #e8ff4725;transform:translateY(-2px)}
+.btn-generate:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* PANELS AND OTHERS */
+.panel-footer{display:flex;justify-content:space-between;margin-top:40px;padding-top:24px;border-top:1px solid #ffffff10}
+.btn-back{padding:12px 24px;background:transparent;border:1.5px solid #ffffff15;color:var(--text);font-family:var(--fd);font-size:12px;font-weight:600;border-radius:var(--rs);cursor:pointer;transition:.2s}
+.btn-back:hover{border-color:var(--lime);color:var(--lime)}
+.btn-next{padding:12px 32px;background:var(--lime);border:none;color:var(--bg);font-family:var(--fd);font-size:13px;font-weight:800;border-radius:var(--rs);cursor:pointer;transition:.2s;text-transform:uppercase}
+.btn-next:hover{box-shadow:0 6px 25px #e8ff4730}
+.btn-next:disabled{opacity:.5;cursor:not-allowed}
+.section-title{font-family:var(--fd);font-size:28px;font-weight:800;text-align:center;margin-bottom:8px}
+.section-sub{text-align:center;color:var(--text2);margin-bottom:40px}
+.loading-overlay{position:fixed;inset:0;background:rgba(8,8,8,.95);z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:.3s}
+.loading-overlay.active{opacity:1;visibility:visible}
+.loading-spinner{width:76px;height:76px;border-radius:50%;background:conic-gradient(from 0deg,transparent 20%,#00f3ff 40%,#ff00ea 70%,var(--lime) 100%);position:relative;animation:spin 1.2s linear infinite;margin-bottom:24px;box-shadow:0 0 25px var(--lime20),0 0 15px rgba(255,0,234,.2)}
+.loading-spinner::after{content:"";position:absolute;inset:4px;background:rgba(8,8,8,.95);border-radius:50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:var(--fd);font-size:18px;margin-bottom:8px;z-index:2}
+.loading-sub{color:var(--text2);font-size:13px;z-index:2}
+.error-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1010;border:1px solid #ff444440;color:#ff6b6b;padding:14px 24px;border-radius:var(--rs);font-size:13px;font-family:var(--fb);z-index:4000;transition:transform .3s ease;max-width:90vw;text-align:center}
+.error-toast.show{transform:translateX(-50%) translateY(0)}
+.zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);z-index:5000;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s ease;cursor:zoom-out}
+.zoom-overlay.active{opacity:1;visibility:visible}
+.zoom-overlay img{max-width:90vw;max-height:85vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--lime10);transform:scale(.85);transition:transform .35s cubic-bezier(.22,1,.36,1);object-fit:contain}
+.zoom-overlay.active img{transform:scale(1)}
+.zoom-close{position:absolute;top:20px;right:24px;width:40px;height:40px;background:var(--bg4);border:1px solid #ffffff20;border-radius:50%;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;z-index:5001}
+.zoom-close:hover{border-color:var(--lime);color:var(--lime);transform:scale(1.1)}
+.zoom-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:var(--text3);font-size:12px;font-family:var(--fd)}
+
+/* FORMAT Y CHECKOUT (Reutilizado) */
+.format-options{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:0 auto}
+.format-card{background:var(--bg3);border:2px solid #ffffff10;border-radius:var(--r);padding:32px;cursor:pointer;transition:.3s;position:relative;overflow:hidden}
+.format-card:hover{border-color:var(--lime20);transform:translateY(-4px)}
+.format-card.selected{border-color:var(--lime);background:var(--lime10)}
+.format-icon{font-size:48px;margin-bottom:16px}
+.format-card h3{font-family:var(--fd);font-size:20px;font-weight:800;margin-bottom:8px}
+.format-card p{color:var(--text2);font-size:13px;line-height:1.5;margin-bottom:20px}
+.format-features{list-style:none}
+.format-features li{font-size:12px;color:var(--text);padding:6px 0;border-bottom:1px solid #ffffff08;display:flex;align-items:center;gap:8px}
+.format-features li::before{content:'✓';color:var(--lime);font-weight:bold}
+.format-price{margin-top:20px;font-family:var(--fd);font-size:24px;font-weight:800}
+.format-price.free{color:var(--lime)}
+.confirm-panel{max-width:600px;margin:0 auto;text-align:center}
+.confirm-icon{font-size:80px;margin-bottom:20px;animation:bounce 1s ease}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.confirm-panel h2{font-family:var(--fd);font-size:32px;font-weight:800;margin-bottom:12px}
+.confirm-panel>p{color:var(--text2);font-size:14px;margin-bottom:32px}
+.download-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="logo">
+    VIV<span class="logo-o"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg></span><span class="logo-gift">gift</span>
+  </a>
+  <div class="nav-links">
+    <a href="/">Inicio</a>
+    <a href="/ebooks.html">Mis Ebooks</a>
+    <a href="/generador-didactico.html" style="color:var(--lime)">Libros Didácticos</a>
+  </div>
+</nav>
+
+<main class="main">
+  
+  <div class="steps-container">
+    <div class="step-dot active" data-step="1"></div>
+    <div class="step-dot" data-step="2"></div>
+    <div class="step-dot" data-step="3"></div>
+  </div>
+
+  <div class="panel active" id="panel1">
+    <div class="create-panel">
+      
+      <div class="form-section">
+        <h2>✏️ Crea tu Libro Didáctico</h2>
+        <p class="sub">Diseña cuadernos de actividades interactivos en alta calidad 3D con historias integradas.</p>
+
+        <div class="input-group">
+          <label>Temática de la Actividad</label>
+          <input type="text" id="storyTitle" placeholder="Ej: Explorando el Abecedario en la Selva">
+        </div>
+
+        <div class="input-group">
+          <label>Protagonista (Opcional)</label>
+          <input type="text" id="protagonistName" placeholder="Nombre del niño/niña">
+        </div>
+
+        <div class="input-group">
+           <label>📸 Foto del Protagonista (Para personalizar su rostro)</label>
+           <input type="file" id="protagonistPhoto" accept="image/png, image/jpeg, image/jpg" style="padding: 8px; background: var(--bg); border: 1.5px dashed var(--lime20); border-radius: var(--rs); color: var(--text2); cursor: pointer; width: 100%; font-family: var(--fb); font-size: 12px;">
+           <p style="font-size: 10px; color: var(--text2); margin-top: 6px;">Sube una foto clara. Máximo 2MB.</p>
+        </div>
+
+        <div class="input-group">
+          <label>Tipo de Ejercicios a Integrar</label>
+          <select id="activityType">
+            <option value="laberintos para resolver visualmente">Laberintos</option>
+            <option value="figuras para rellenar y contar">Contar y Rellenar Figuras</option>
+            <option value="letras para trazar y aprender el abecedario">Trazar Letras</option>
+            <option value="problemas matemáticos visuales simples">Matemáticas Básicas</option>
+            <option value="mezcla de laberintos, trazos y buscar objetos escondidos" selected>Mezcla Dinámica (Laberintos, Trazos, Búsqueda)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label style="display:flex;justify-content:space-between;align-items:center">
+            Descripción de la Trama
+            <button type="button" id="btnMagicDesc" style="background:var(--lime10);color:var(--lime);border:1px solid var(--lime20);padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer;font-family:var(--fd)">✨ Generar Trama con IA</button>
+          </label>
+          <textarea id="storyDescription" placeholder="Describe el contexto del ejercicio. Ej: El protagonista debe cruzar el río de los números para llegar al castillo..."></textarea>
+        </div>
+
+        <div class="input-group">
+          <label>Calidad y Estilo Visual (Se mantiene el render 3D a color)</label>
+          <div class="style-grid">
+          <div class="style-option" data-style="comic"><span class="icon">💥</span><span class="name">Cómic</span></div>
+          <div class="style-option" data-style="acuarela"><span class="icon">🎨</span><span class="name">Acuarela</span></div>
+          <div class="style-option selected" data-style="pixar"><span class="icon">🎬</span><span class="name">3D Pixar</span></div>
+          <div class="style-option" data-style="anime"><span class="icon">🌸</span><span class="name">Anime Ghibli</span></div>
+          <div class="style-option" data-style="gts"><span class="icon">🤖</span><span class="name">GTS Mecha</span></div>
+          <div class="style-option" data-style="halo3d"><span class="icon">🎮</span><span class="name">3D Halo</span></div>
+          <div class="style-option" data-style="dragonball"><span class="icon">⚡</span><span class="name">Dragon Ball</span></div>
+          <div class="style-option" data-style="comics70"><span class="icon">📰</span><span class="name">Comics 70-80</span></div>
+          <div class="style-option" data-style="cyberpunk"><span class="icon">🌆</span><span class="name">Cyberpunk</span></div>
+          <div class="style-option" data-style="steampunk"><span class="icon">⚙️</span><span class="name">Steampunk</span></div>
+          <div class="style-option" data-style="kawaii"><span class="icon">🍡</span><span class="name">Kawaii</span></div>
+          <div class="style-option" data-style="realistic"><span class="icon">📷</span><span class="name">Realista</span></div>
+          <div class="style-option" data-style="hyperreal"><span class="icon">👁️</span><span class="name">Hiperrealista</span></div>
+          <div class="style-option" data-style="vangogh"><span class="icon">🌌</span><span class="name">N. Estrellada</span></div>
+          <div class="style-option" data-style="picasso"><span class="icon">🔺</span><span class="name">Cubismo</span></div>
+          <div class="style-option" data-style="dali"><span class="icon">⏱️</span><span class="name">Surrealista</span></div>
+          <div class="style-option" data-style="magia"><span class="icon">🪄</span><span class="name">A. Magia</span></div>
+        </div>
+        </div>
+
+        <div class="row-2">
+          <div class="input-group">
+            <label>Nivel de Dificultad (Edad)</label>
+            <select id="childAge">
+              <option value="3-5">3 - 5 años (Básico)</option>
+              <option value="6-8" selected>6 - 8 años (Intermedio)</option>
+              <option value="9-12">9 - 12 años (Avanzado)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Número de Páginas</label>
+            <select id="pageCount">
+              <option value="2">🧪 TEST (2 páginas)</option>
+              <option value="6">Corto (6 páginas)</option>
+              <option value="10" selected>Estándar (10 páginas)</option>
+              <option value="20">Largo (20 páginas)</option>
+              <option value="30">Extenso (30 páginas)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-section">
+        <div class="book-preview-card">
+          <h3>📖 Vista Previa</h3>
+          <div class="mini-book">
+            <div class="mini-book-inner">
+              <div class="mini-book-cover" id="miniBookCover">
+                <span>Tu portada aquí</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+           <button class="btn-generate" id="btnPreviewCover" style="background:transparent;border:1px solid var(--lime);color:var(--lime)">✨ Preview de Portada</button>
+           <button class="btn-generate" id="btnGenerateEbook">✨ Crear Libro Didáctico</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel2">
+    <h2 class="section-title">Elige la exportación</h2>
+    <p class="section-sub">PDF optimizado para impresión en casa o uso digital</p>
+
+    <div class="format-options">
+      <div class="format-card selected" data-format="digital">
+        <div class="format-icon">🖨️</div>
+        <h3>PDF Imprimible / Digital</h3>
+        <p>Libro en formato PDF estructurado, conservando colores, renders 3D y texturas. Listo para imprimir y resolver con marcadores.</p>
+        <ul class="format-features">
+          <li>Imágenes renderizadas a todo color</li>
+          <li>Texto y diálogos integrados</li>
+          <li>Descarga inmediata</li>
+        </ul>
+        <div class="format-price free">GRATIS</div>
+      </div>
+    </div>
+
+    <div class="panel-footer" style="max-width:900px;margin:40px auto 0">
+      <button class="btn-back" onclick="goToStep(1)">← Volver</button>
+      <button class="btn-next" id="btnFormat">Generar Ahora →</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel3">
+    <div class="confirm-panel">
+      <div class="confirm-icon">🎉</div>
+      <h2>¡Tu Libro Didáctico está en Proceso!</h2>
+      <p>Estamos calculando los ejercicios y renderizando las páginas en alta definición.</p>
+
+      <div style="margin-top:15px; padding:15px; background:var(--bg4); border-radius:var(--rs); border:1px solid var(--lime20); color:var(--text); text-align: left; max-width: 400px; margin: 0 auto;">
+        ⚙️ <b>Estado: Procesando en el servidor...</b><br><br>
+        Las actividades se están incrustando dinámicamente en las imágenes. Tu libro aparecerá en la sección de <b>Mis Ebooks</b> en unos 10 a 20 minutos dependiendo del volumen de páginas seleccionadas.
+      </div>
+
+      <div class="download-buttons" style="margin-top: 32px;">
+        <a href="/ebooks.html" class="btn-next" style="text-decoration:none;">📁 Ir a Mi Biblioteca</a>
+      </div>
+      <div style="margin-top:20px;">
+        <button class="btn-back" onclick="location.reload()" style="border-color:var(--lime);color:var(--lime);">✨ Crear otro cuaderno</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner" id="loadingSpinner"></div>
+  <div class="loading-text" id="loadingText">Estructurando los ejercicios...</div>
+  <div class="loading-sub" id="loadingSub">Esto puede tomar unos minutos</div>
+  <div id="progressContainer" style="display:none; width: 80%; max-width: 400px; margin-top: 20px; text-align: center;">
+    <div style="width: 100%; height: 12px; background: #262626; border-radius: 10px; overflow: hidden; border: 1px solid #ffffff20;">
+      <div id="progressBarFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff00ff, #00ffff); border-radius: 10px; transition: width 0.5s ease;"></div>
+    </div>
+    <p id="progressPercent" style="color: var(--lime); font-family: var(--fd); font-weight: bold; margin-top: 8px;">0%</p>
+  </div>
+</div>
+
+<div class="error-toast" id="errorToast"></div>
+
+<div class="zoom-overlay" id="zoomOverlay">
+  <button class="zoom-close" id="zoomClose">✕</button>
+  <img id="zoomImage" src="" alt="Portada ampliada">
+  <div class="zoom-hint">Click en cualquier sitio para cerrar</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURACIÓN CENTRAL
+// ═══════════════════════════════════════════════════════════════
+const CONFIG = {
+  webhooks: {
+    // Webhooks compartidos con el flujo principal
+    ebook:       'https://panel1.quickai.agency/webhook/generar-ebook',
+    previewCover:'https://panel1.quickai.agency/webhook/preview-cover',
+    
+    // NUEVO: Webhook exclusivo para la descripción de cuadernos didácticos
+    description: 'https://panel1.quickai.agency/webhook/generar/descripcion/didactica'
+  }
+};
+
+let state = {
+  step: 1,
+  ebook: {
+    title: '',
+    protagonist: '',
+    description: '',
+    style: 'pixar',
+    age: '6-8',
+    pages: 10,
+    coverUrl: null,
+    protagonistPhotoBase64: null
+  }
+};
+
+const styleDescriptions = {
+  'comic':      'estilo cómic moderno, colores vibrantes, contornos gruesos y definidos, poses dinámicas de acción',
+  'acuarela':   'ilustración suave en acuarela, tonos pastel, pinceladas delicadas, atmósfera etérea y soñadora',
+  'pixar':      'estilo animación 3D tipo Pixar y Disney, personajes expresivos, iluminación rica y cinematográfica',
+  'anime':      'estilo anime de Studio Ghibli, fondos mágicos y detallados, atmósfera encantadora, iluminación suave',
+  'gts':        'estilo anime de robots gigantes mecha, diseños mecánicos detallados, escala épica, poses dinámicas, ciencia ficción tipo Gundam o Evangelion',
+  'halo3d':     'estilo videojuego 3D tipo Halo, estética futurista de ciencia ficción, armaduras y armas detalladas, iluminación dramática, batallas épicas',
+  'dragonball': 'estilo anime Dragon Ball Z, poses de acción dinámicas, auras de energía y ataques de ki, pelo en punta, expresiones intensas',
+  'comics70':   'estilo cómic vintage años 70-80, puntos de trama halftone, paleta de colores retro, estética clásica de superhéroes, sensación nostálgica',
+  'cyberpunk':  'estética cyberpunk con neones, ciudad futurista distópica, calles bajo la lluvia, pantallas holográficas, colores synthwave',
+  'steampunk':  'estilo steampunk victoriano, maquinaria de bronce y cobre, engranajes y vapor, moda vintage, fantasía industrial',
+  'kawaii':     'estilo kawaii japonés adorable, ojos grandes y brillantes, colores pastel, proporciones chibi, expresiones tiernas',
+  'realistic':  'arte digital fotorrealista, texturas detalladas, iluminación natural, composición cinematográfica, personajes realistas',
+  'hyperreal':  'fotografía hiperrealista 8k, detalles faciales humanos extremadamente precisos, textura de piel real, iluminación de estudio fotográfico profesional, lente macro',
+  'vangogh':    'estilo pintura postimpresionista tipo Van Gogh, pinceladas gruesas y arremolinadas, colores intensos, cielos estrellados vibrantes, textura de óleo sobre lienzo',
+  'picasso':    'estilo arte cubista abstracto, perspectivas múltiples, formas geométricas rotas, colores primarios audaces, diseño vanguardista de galería de arte',
+  'dali':       'estilo pintura surrealista onírica, paisajes de ensueño extraños, perspectivas infinitas, elementos derretidos o flotantes, simbolismo mágico profundo',
+  'magia':      'estilo fantasía cinematográfica tipo escuela de magos ingleses, castillos antiguos y oscuros, varitas brillantes, uniformes escolares de hechicería, lechuzas, iluminación misteriosa y mágica'
+};
+
+function showLoading(text, sub) {
+  document.getElementById('loadingText').textContent = text;
+  document.getElementById('loadingSub').textContent = sub;
+  document.getElementById('loadingOverlay').classList.add('active');
+}
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
+function showError(msg) {
+  const toast = document.getElementById('errorToast');
+  toast.textContent = msg; toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 5000);
+}
+function goToStep(step) {
+  state.step = step;
+  document.querySelectorAll('.step-dot').forEach((dot, i) => {
+    dot.classList.remove('active', 'completed');
+    if (i + 1 < step) dot.classList.add('completed');
+    if (i + 1 === step) dot.classList.add('active');
+  });
+  document.querySelectorAll('.panel').forEach((panel, i) => {
+    panel.classList.toggle('active', i + 1 === step);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UI INTERACTIONS
+// ═══════════════════════════════════════════════════════════════
+document.querySelectorAll('.style-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    state.ebook.style = opt.dataset.style;
+  });
+});
+
+const zoomOverlay = document.getElementById('zoomOverlay');
+const zoomImage   = document.getElementById('zoomImage');
+document.getElementById('miniBookCover').addEventListener('click', () => {
+  if (!state.ebook.coverUrl) return; 
+  zoomImage.src = state.ebook.coverUrl;
+  zoomOverlay.classList.add('active');
+});
+zoomOverlay.addEventListener('click', (e) => {
+  if (e.target === zoomOverlay || e.target.id === 'zoomClose') zoomOverlay.classList.remove('active');
+});
+
+// LECTOR DE FOTO
+document.getElementById('protagonistPhoto').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    showError('La foto es muy pesada. Máximo 2MB.');
+    this.value = ''; return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) { state.ebook.protagonistPhotoBase64 = e.target.result; };
+  reader.readAsDataURL(file);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// GENERAR TRAMA DE ACTIVIDADES (IA)
+// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// GENERAR TRAMA DE ACTIVIDADES CON IA (Contextualizado)
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('btnMagicDesc').addEventListener('click', async () => {
+  const title = document.getElementById('storyTitle').value.trim();
+  const activitySelect = document.getElementById('activityType');
+  const activityText = activitySelect.options[activitySelect.selectedIndex].text;
+  const age = document.getElementById('childAge').value;
+  
+  if (!title) { 
+    showError('Escribe primero la temática (título) para que la IA sepa de qué tratará el cuaderno.'); 
+    return; 
+  }
+  
+  const btn = document.getElementById('btnMagicDesc');
+  const textarea = document.getElementById('storyDescription');
+  
+  btn.textContent = '⏳ Pensando...'; 
+  btn.disabled = true;
+  
+  // Construimos un "Contexto Didáctico" para que la IA de n8n no se pierda
+  const promptContext = {
+    title: title,
+    protagonist: document.getElementById('protagonistName').value.trim() || 'el protagonista',
+    activityType: activityText, // Enviamos el nombre del ejercicio (ej: "Laberintos")
+    age: age,
+    style: state.ebook.style,
+    instruction: `Genera una sinopsis creativa para un cuaderno didáctico. El tema es "${title}" y el tipo de ejercicio principal son "${activityText}". No escribas un cuento pasivo, escribe una trama donde el protagonista necesite resolver estos retos para avanzar.`
+  };
+
+  try {
+    const response = await fetch(CONFIG.webhooks.description, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(promptContext)
+    });
+    
+    if (response.ok) {
+      const rawText = await response.text();
+      try {
+        const data = JSON.parse(rawText);
+        // Priorizamos el campo 'text' o el texto plano que devuelva tu flujo de n8n
+        textarea.value = data.text || data.output || rawText;
+      } catch {
+        textarea.value = rawText;
+      }
+    } else {
+      showError('El servidor de IA no respondió. Revisa la conexión con n8n.');
+    }
+  } catch (err) {
+    showError('Error de red al intentar generar la trama.');
+  } finally {
+    btn.textContent = '✨ Generar Trama con IA';
+    btn.disabled = false;
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PREVIEW DE PORTADA
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('btnPreviewCover').addEventListener('click', async () => {
+  const title = document.getElementById('storyTitle').value.trim();
+  const desc = document.getElementById('storyDescription').value.trim();
+  if (!title || !desc) { showError('Falta título o descripción.'); return; }
+
+  const btnPreview = document.getElementById('btnPreviewCover');
+  btnPreview.disabled = true;
+  showLoading('Diseñando la portada del cuaderno...', 'Enviando parámetros a la IA.');
+  
+  try {
+    const payload = {
+      title: "Cuaderno Didáctico: " + title,
+      protagonist: document.getElementById('protagonistName').value.trim() || 'protagonista',
+      description: desc,
+      styleDescription: styleDescriptions[state.ebook.style],
+      style: state.ebook.style,
+      protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null
+    };
+
+    const controller = new AbortController();
+    const coverTimeout = setTimeout(() => controller.abort(), 240000); 
+
+    const response = await fetch(CONFIG.webhooks.previewCover, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify(payload)
+    });
+    
+    clearTimeout(coverTimeout);
+    if (!response.ok) throw new Error('Error HTTP ' + response.status);
+
+    const rawText = await response.text();
+    let data;
+    try { data = JSON.parse(rawText); } catch (e) {
+      if (rawText.length > 1000) data = { coverUrl: rawText.startsWith('data:image') ? rawText : ('data:image/png;base64,' + rawText) };
+      else throw new Error('Respuesta inválida');
+    }
+
+    const imgUrl = data.coverUrl || data.imageUrl || data.url || (Array.isArray(data) ? data[0]?.url : null);
+    if (!imgUrl) throw new Error('Sin imagen en respuesta.');
+
+    state.ebook.coverUrl = imgUrl;
+    const coverEl = document.getElementById('miniBookCover');
+    const img = document.createElement('img');
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0';
+    img.onload = () => { coverEl.innerHTML = ''; coverEl.appendChild(img); };
+    img.src = imgUrl;
+  } catch (error) {
+    showError(error.message || 'Error al generar la portada.');
+  } finally {
+    hideLoading(); btnPreview.disabled = false;
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// ENVÍO DE DATOS CON PROMPT INYECTADO PARA ACTIVIDADES
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('btnGenerateEbook').addEventListener('click', () => {
+  const title = document.getElementById('storyTitle').value.trim();
+  const desc = document.getElementById('storyDescription').value.trim();
+  if (!title || !desc) { showError('Completa temática y descripción.'); return; }
+  goToStep(2);
+});
+
+document.getElementById('btnFormat').addEventListener('click', async () => {
+  const baseTitle = document.getElementById('storyTitle').value.trim();
+  const baseDesc = document.getElementById('storyDescription').value.trim();
+  const activitySelect = document.getElementById('activityType');
+  const activityType = activitySelect.options[activitySelect.selectedIndex].text;
+  const activityValue = activitySelect.value;
+  
+  if (!baseTitle || !baseDesc) { 
+    showError('Completa temática y descripción en el paso 1.'); 
+    goToStep(1); 
+    return; 
+  }
+
+  // DICCIONARIO DE DIRECTIVAS DIDÁCTICAS POR TIPO DE EJERCICIO
+  // Cada prompt fuerza la integración de la historia, las burbujas de diálogo y el diseño visual.
+  const exerciseDirectives = {
+    "laberintos para resolver visualmente": `
+      MANDATO CRÍTICO DE LABERINTOS:
+      La narrativa debe ser una mini-historia de exploración. En cada página, el protagonista enfrenta un obstáculo que solo se supera cruzando un camino enredado.
+      - Burbujas de diálogo: Los personajes DEBEN hablar en cada página dando pistas ("¡Mira, el camino correcto está por las rocas amarillas!", "¿Por dónde debemos ir ahora?").
+      - Diseño Visual (sceneDescription): Exige explícitamente que se dibuje un LABERINTO FÍSICO Y CLARO en la escena (ej. un laberinto de setos, un camino de baldosas flotantes, pasillos en una cueva). El laberinto debe ser visible desde una perspectiva que permita al lector trazar la salida con un lápiz.`,
+      
+    "figuras para rellenar y contar": `
+      MANDATO CRÍTICO DE CONTEO Y FIGURAS:
+      La narrativa es una mini-historia de recolección o descubrimiento. El protagonista necesita encontrar elementos específicos para avanzar.
+      - Burbujas de diálogo: Los personajes interactúan contando o preguntando cantidades ("¡Necesitamos encontrar 5 estrellas brillantes!", "¿Cuántas manzanas ves en el árbol?").
+      - Diseño Visual (sceneDescription): Exige que se dibujen múltiples elementos idénticos dispersos por la escena para que el niño los cuente. Incluye también figuras delineadas (con contornos claros) integradas en el entorno, pensadas para que el niño las coloree o rellene posteriormente.`,
+      
+    "letras para trazar y aprender el abecedario": `
+      MANDATO CRÍTICO DE TRAZO DE LETRAS:
+      La narrativa se centra en la magia de las palabras. El protagonista descubre letras gigantes o runas antiguas en su entorno.
+      - Burbujas de diálogo: Los personajes deben mencionar la letra de la que trata la página ("¡Mira, una enorme letra 'A' de árbol!", "Ayúdame a seguir la forma de esta letra mágica").
+      - Diseño Visual (sceneDescription): Exige que el elemento central de la imagen sea una LETRA GIGANTE (o palabra corta) dibujada con líneas punteadas gruesas o como un surco brillante en el suelo/pared, diseñada específicamente para que el niño siga el trazo con un lápiz.`,
+      
+    "problemas matemáticos visuales simples": `
+      MANDATO CRÍTICO DE MATEMÁTICAS BÁSICAS:
+      La narrativa plantea pequeños dilemas cotidianos o mágicos que requieren sumar o restar elementos visuales.
+      - Burbujas de diálogo: Los personajes plantean el problema directamente al lector ("Si tenemos 3 pociones y encontramos 2 más, ¿cuántas tenemos?", "¡Ayuda! Necesitamos dividir estas monedas").
+      - Diseño Visual (sceneDescription): Exige agrupaciones claras de objetos. Si el problema es de suma, dibuja un grupo de objetos separados de otro grupo. Debe haber espacios visuales claros o pizarras en el fondo de la imagen con números físicos o símbolos matemáticos (+, -, =) integrados en la arquitectura o el paisaje.`,
+      
+    "mezcla de laberintos, trazos y buscar objetos escondidos": `
+      MANDATO CRÍTICO DE DINÁMICA MIXTA:
+      La narrativa es una aventura épica con múltiples fases. Cada página alterna entre buscar objetos ocultos, seguir caminos (laberintos) y seguir patrones.
+      - Burbujas de diálogo: Los personajes deben romper la cuarta pared y pedir ayuda directa al lector ("¡Encuentra la llave escondida en esta página!", "Cuidado, guíanos por el laberinto seguro").
+      - Diseño Visual (sceneDescription): Alterna los retos por página. Página 1: Escena muy densa con objetos camuflados. Página 2: Un laberinto claro trazado en el suelo. Página 3: Patrones o formas punteadas para seguir. La calidad de imagen debe ser fotorrealista/3D, pero con zonas claramente definidas para la interacción del niño.`
+  };
+
+  // Seleccionamos la directiva correspondiente, si no coincide, usamos una por defecto.
+  const specificDirective = exerciseDirectives[activityValue] || exerciseDirectives["mezcla de laberintos, trazos y buscar objetos escondidos"];
+
+  // Construcción del Prompt Final Inyectado
+  const finalDescription = `
+${baseDesc}
+
+[INSTRUCCIONES DE SISTEMA - LIBRO DIDÁCTICO]
+No escribas un cuento de lectura pasiva. Este es un CUADERNO DE ACTIVIDADES INTERACTIVO. 
+Tipo de ejercicio seleccionado: ${activityType}.
+
+${specificDirective}
+
+REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual solicitado (Pixar, Cómic, Fotorrealista, etc.) a TODO COLOR, pero la composición de la imagen DEBE integrar el ejercicio físico (el laberinto, las letras punteadas, los objetos a contar) para que el libro sea utilizable al imprimirse.`;
+
+  state.ebook.title = "Cuaderno Didáctico: " + baseTitle;
+  state.ebook.protagonist = document.getElementById('protagonistName').value.trim() || 'Lector';
+  state.ebook.description = finalDescription;
+  state.ebook.pages = parseInt(document.getElementById('pageCount').value);
+  state.ebook.age = document.getElementById('childAge').value;
+
+  // Actualizamos la UI
+  document.getElementById('loadingText').textContent = 'Estructurando los ejercicios...';
+  document.getElementById('loadingSub').textContent = 'Calculando trayectorias y gráficos en Atlas...';
+  document.getElementById('loadingOverlay').classList.add('active');
+  document.getElementById('progressContainer').style.display = 'block';
+  
+  const barFill = document.getElementById('progressBarFill');
+  const percentText = document.getElementById('progressPercent');
+  
+  let currentProgress = 0;
+  barFill.style.width = '0%'; 
+  percentText.textContent = '0%';
+  
+  const progressInterval = setInterval(() => {
+    if (currentProgress < 90) {
+      currentProgress += 1;
+      barFill.style.width = currentProgress + '%';
+      percentText.textContent = currentProgress + '%';
+    }
+  }, 25000);
+  
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 300000); 
+    
+    // Enviamos el payload al webhook de n8n
+    await fetch(CONFIG.webhooks.ebook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        title: state.ebook.title,
+        protagonist: state.ebook.protagonist,
+        description: state.ebook.description, 
+        styleDescription: styleDescriptions[state.ebook.style],
+        style: state.ebook.style,
+        age: state.ebook.age,
+        pages: state.ebook.pages,
+        coverUrl: state.ebook.coverUrl,
+        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null
+      })
+    });
+    clearTimeout(timeoutId);
+  } catch (error) {
+    console.log('El webhook continuará el proceso de renderizado asíncrono.');
+  }
+
+  clearInterval(progressInterval);
+  hideLoading();
+  goToStep(3); 
+});
+</script>
+</body>
+</html>
