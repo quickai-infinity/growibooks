@@ -74,8 +74,7 @@ body{
 .hamburger div { width: 24px; height: 3px; background: var(--green); margin: 5px 0; border-radius: 3px; transition: all 0.3s ease; }
 
 @media (max-width: 768px) {
-  .hamburger { display: block; }
-  .nav-links {
+  .hamburger { display: block; position: relative; z-index: 5100; }  .nav-links {
     position: fixed; top: 0; right: -100%; height: 100vh; width: 70%; max-width: 300px;
     background: var(--bg3); flex-direction: column; justify-content: center; align-items: center;
     gap: 20px; box-shadow: -5px 0 30px rgba(0,0,0,0.1);
@@ -306,8 +305,8 @@ body{
   .btn-logout { background: transparent; border: 2px solid var(--bg5); color: var(--text2); }
 
   /* --- RESPONSIVO (MÓVIL) --- */
-  @media (max-width: 768px) {
-    .hamburger { display: block; } /* Arregla el problema de la Imagen 1 */
+    @media (max-width: 768px) {
+    .hamburger { display: block; z-index: 5100; position: relative; }
     .nav-links { position: fixed; right: 0px; height: calc(100vh - 70px); top: 70px; background-color: rgba(247,249,244,.98); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; width: 70%; max-width: 300px; transform: translateX(100%); transition: transform .5s ease-in; padding: 40px 0; gap: 25px; box-shadow: -10px 10px 20px rgba(0,0,0,.05); border-left: 2px solid var(--lime10); }
     .nav-active { transform: translateX(0%); }
     .hamburger.toggle div:nth-child(1) { transform: rotate(-45deg) translate(-5px, 6px); }
