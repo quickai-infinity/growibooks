@@ -257,52 +257,25 @@ body{
 
   // 3. LÓGICA DEL BOTÓN DE SESIÓN
   async function checkUser() {
-    const btnLogin = document.getElementById('btnLogin');
-    const btnLogout = document.getElementById('btnLogout');
-    const userDashboardNav = document.getElementById('userDashboardNav');
-    const creditCount = document.getElementById('creditCount');
-    const libLink = document.getElementById('linkBiblioteca');
+  const btnLogin = document.getElementById('btnLogin');
+  if (!btnLogin) return;
 
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
+  const sb = window.supabase.createClient(
+    'https://rtjgcpklpyolzsdjjtdb.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY'
+  );
 
-    if (session) {
-      if (libLink) libLink.style.display = 'block';
-      if (btnLogin) btnLogin.style.display = 'none';
-      if (userDashboardNav) userDashboardNav.style.display = 'flex';
+  const { data: { session } } = await sb.auth.getSession();
 
-      try {
-        const { data: perfil } = await window.supabaseClient
-          .from('perfiles_growibooks')
-          .select('creditos')
-          .eq('id', session.user.id)
-          .single();
-        if (perfil && creditCount) creditCount.textContent = perfil.creditos;
-      } catch (err) { console.log('Error cargando créditos'); }
-
-      if (btnLogout) {
-        btnLogout.onclick = async () => {
-          await window.supabaseClient.auth.signOut();
-          window.location.reload();
-        };
-      }
-    } else {
-      if (libLink) libLink.style.display = 'none';
-      if (btnLogin) {
-        btnLogin.style.display = 'block';
-        btnLogin.onclick = () => { window.location.href = 'login.html'; };
-      }
-      if (userDashboardNav) userDashboardNav.style.display = 'none';
-    }
+  if (session) {
+    btnLogin.textContent = '👤 Mi Panel';
+    btnLogin.onclick = () => { window.location.href = 'dashboard.html'; };
+  } else {
+    btnLogin.textContent = 'Ingresar';
+    btnLogin.onclick = () => { window.location.href = 'login.html'; };
   }
-  // Verifica si hay sesión al hacer clic en las tarjetas
-  async function checkAccess(targetUrl) {
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
-    if (session) {
-      window.location.href = targetUrl;
-    } else {
-      window.location.href = 'login.html';
-    }
-  }
-  checkUser();
+}
+
+checkUser();
 </script>
 </html>
