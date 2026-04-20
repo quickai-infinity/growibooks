@@ -326,6 +326,8 @@ body{
   <a href="generador-ebooks.html" class="btn-create" id="btnCreateNew" style="display:none">✨ Crear nuevo libro</a>
 </main>
 
+</main>
+
 <div class="deco-dots">
   <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
   <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
@@ -337,17 +339,24 @@ body{
 <div class="zoom-overlay" id="zoomOverlay" onclick="this.classList.remove('active')"><img id="zoomImage" src="" alt=""></div>
 <div class="error-toast" id="errorToast"></div>
 
+<div class="success-modal" id="successModal">
+  <div class="success-modal-content">
+    <div class="icon">✅</div>
+    <h3>¡Orden Recibida!</h3>
+    <p>Hemos recibido tu solicitud de impresión. Nos pondremos en contacto contigo pronto para los detalles de envío.</p>
+    <button class="btn-close-modal" onclick="closeSuccessModal()">Entendido</button>
+  </div>
+</div>
+
 <script>
-// CONFIGURACIÓN SUPABASE
 const SUPABASE_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY'; // <--- PEGA TU ANON KEY AQUÍ
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY'; 
 
 function showError(msg) {
   const t = document.getElementById('errorToast'); t.textContent = msg; t.style.display = 'block';
   setTimeout(() => t.style.display = 'none', 5000);
 }
 
-// NUEVA FUNCIÓN: CARGAR DESDE SUPABASE
 async function renderPage() {
   const grid = document.getElementById('ebooksGrid');
   const empty = document.getElementById('emptyState');
@@ -375,7 +384,7 @@ async function renderPage() {
       const card = document.createElement('div');
       card.className = 'ebook-card';
       
-   card.innerHTML = `
+      card.innerHTML = `
         <div class="cover" id="cover-${ebook.id}">
           ${ebook.cover_url 
             ? `<img src="${ebook.cover_url}" alt="${ebook.title}" onerror="this.parentElement.innerHTML='<div class=cover-placeholder>📖</div>'">`
@@ -427,7 +436,6 @@ function zoomCover(src) {
   document.getElementById('zoomOverlay').classList.add('active');
 }
 
-// NUEVA FUNCIÓN: ELIMINAR DE SUPABASE
 async function deleteEbook(id) {
   if (!confirm('¿Eliminar este ebook permanentemente de la base de datos?')) return;
   try {
@@ -439,46 +447,19 @@ async function deleteEbook(id) {
   } catch (e) { showError('No se pudo eliminar el ebook.'); }
 }
 
-// NUEVA FUNCIÓN: ABRIR EL PDF DESDE SUPABASE DIRECTAMENTE
 function downloadPdf(pdfUrl, btn) {
   if (!pdfUrl || pdfUrl === 'undefined' || pdfUrl === 'null') { 
     showError('El PDF aún se está procesando. Intenta de nuevo en un minuto.'); 
     return; 
   }
-  
   const orig = btn.innerHTML;
   btn.innerHTML = '⏳ Abriendo...';
-  
   window.open(pdfUrl, '_blank'); 
-  
   setTimeout(() => { btn.innerHTML = orig; }, 2000);
 }
-renderPage();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
-  // 1. LÓGICA DE HAMBURGUESA
-  const hamburger = document.getElementById('hamburger');
-  const navLinks = document.getElementById('navLinks');
-  if (hamburger) {
-    hamburger.addEventListener('click', () => {
-      navLinks.classList.toggle('nav-active');
-      hamburger.classList.toggle('toggle');
-    });
-  }
-
-  // 2. CONEXIÓN SUPABASE BLINDADA
-  const DB_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
-  const DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY';
-  
-  if (!window.supabaseClient) {
-    window.supabaseClient = window.supabase.createClient(DB_URL, DB_KEY);
-  }
-
-  // NUEVA FUNCIÓN: ENVIAR A IMPRIMIR (WEBHOOK N8N)
+// NUEVA FUNCIÓN: ENVIAR A IMPRIMIR (WEBHOOK N8N)
 async function sendToPrint(id, title, coverUrl, pdfUrl, btnElement) {
-  // Verificar si hay PDF generado antes de pedir impresión
   if (!pdfUrl || pdfUrl === 'undefined' || pdfUrl === 'null') { 
     showError('El PDF aún se está procesando. Espera un momento antes de imprimir.'); 
     return; 
@@ -489,7 +470,7 @@ async function sendToPrint(id, title, coverUrl, pdfUrl, btnElement) {
   btnElement.disabled = true;
 
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
     const userId = session ? session.user.id : 'usuario_desconocido';
 
     await fetch('https://panel1.quickai.agency/webhook/imprimir/ebook', {
@@ -504,7 +485,6 @@ async function sendToPrint(id, title, coverUrl, pdfUrl, btnElement) {
       })
     });
 
-    // Mostrar ventana de éxito
     document.getElementById('successModal').style.display = 'flex';
   } catch (error) {
     showError("Hubo un error de conexión. Intenta de nuevo.");
@@ -518,12 +498,29 @@ function closeSuccessModal() {
   document.getElementById('successModal').style.display = 'none';
 }
 
-  // 3. LÓGICA DEL BOTÓN DE SESIÓN
+renderPage();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  if (hamburger) {
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('nav-active');
+      hamburger.classList.toggle('toggle');
+    });
+  }
+
+  if (!window.supabaseClient) {
+    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+
   async function checkUser() {
     const authBtn = document.getElementById('authButton');
     const libLink = document.getElementById('linkBiblioteca');
     
-    if (!authBtn) return; // Si no hay botón en esta página, aborta sin dar error
+    if (!authBtn) return; 
 
     const { data: { session } } = await window.supabaseClient.auth.getSession();
 
@@ -546,14 +543,12 @@ function closeSuccessModal() {
   }
   
   checkUser();
-  <div class="success-modal" id="successModal">
-  <div class="success-modal-content">
-    <div class="icon">✅</div>
-    <h3>¡Orden Recibida!</h3>
-    <p>Hemos recibido tu solicitud de impresión. Nos pondremos en contacto contigo pronto para los detalles de envío.</p>
-    <button class="btn-close-modal" onclick="closeSuccessModal()">Entendido</button>
-  </div>
-</div>
+
+  async function protectRoute() {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (!session) window.location.href = 'login.html';
+  }
+  protectRoute();
 </script>
 </body>
 </html>
