@@ -141,42 +141,45 @@
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   async function loadDashboard() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
 
-    // Saludo
-    const emailParts = session.user.email.split('@');
-    document.getElementById('welcomeUser').textContent = ' ' + emailParts[0];
+  // Mostrar nav de usuario
+  const navUser = document.getElementById('userDashboardNav');
+  if (navUser) navUser.style.display = 'flex';
 
-    // Cargar Créditos
-    try {
-      const { data: perfil } = await supabase
-        .from('perfiles_growibooks')
-        .select('creditos')
-        .eq('id', session.user.id)
-        .single();
-      if (perfil) {
-        document.getElementById('creditCount').textContent = perfil.creditos;
-        document.getElementById('bigCreditCount').textContent = perfil.creditos;
-      }
-    } catch(err) { console.log('Error cargando créditos dashboard'); }
-    
-    // Contadores de libros y cuadernos
-    try {
-        const { data: ebooks } = await supabase
-            .from('ebooks')
-            .select('title'); // Solo necesitamos el título para ver el tipo
-        
-        if(ebooks) {
-            let stories = 0; let workbooks = 0;
-            ebooks.forEach(e => {
-                if(e.title && e.title.toLowerCase().includes('didáctico')) workbooks++;
-                else stories++;
-            });
-            document.getElementById('countStories').textContent = stories;
-            document.getElementById('countWorkbooks').textContent = workbooks;
-        }
-    } catch(err) { console.log('Error cargando conteos'); }
+  // Saludo
+  const emailParts = session.user.email.split('@');
+  document.getElementById('welcomeUser').textContent = ' ' + emailParts[0];
+
+  // Créditos
+  try {
+    const { data: perfil } = await supabase
+      .from('perfiles_growibooks')
+      .select('creditos')
+      .eq('id', session.user.id)
+      .single();
+    if (perfil) {
+      document.getElementById('creditCount').textContent = perfil.creditos;
+      document.getElementById('bigCreditCount').textContent = perfil.creditos;
+    }
+  } catch(err) { console.log('Error cargando créditos'); }
+
+  // Contadores
+  try {
+    const { data: ebooks } = await supabase
+      .from('ebooks')
+      .select('title');
+    if (ebooks) {
+      let stories = 0; let workbooks = 0;
+      ebooks.forEach(e => {
+        if (e.title && e.title.toLowerCase().includes('didáctico')) workbooks++;
+        else stories++;
+      });
+      document.getElementById('countStories').textContent = stories;
+      document.getElementById('countWorkbooks').textContent = workbooks;
+    }
+  } catch(err) { console.log('Error cargando conteos'); }
 
     // Mostrar menú dashboard
     document.getElementById('userDashboardNav').style.display = 'flex';
