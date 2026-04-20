@@ -286,23 +286,21 @@ body{
 </head>
 <body>
 
-<nav class="nav">
-  <a href="index.html" class="logo">
-    <div class="logo-icon">📚</div>
-    <span class="growi" style="color:var(--green)">Growi</span><span class="books">Books</span>
-  </a>
-  
-  <button class="hamburger" id="hamburger">
-    <div></div><div></div><div></div>
-  </button>
-
 <div class="nav-links" id="navLinks">
-  <a href="index.html">Inicio</a>
-  <a href="generador-ebooks.html" style="color:var(--green); font-weight:700;">📖 Cuentos</a>
-  <a href="ebooks.html" id="linkBiblioteca" style="display:none;">Mi Biblioteca</a>
-  <button id="authButton" style="background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#fff; border:none; padding:8px 16px; border-radius:20px; font-family:var(--fd); font-weight:800; cursor:pointer; font-size:13px;">Ingresar</button>
-</div>
-</nav>
+    <a href="index.html">Inicio</a>
+    <a href="generador-ebooks.html">📖 Cuentos</a>
+    <a href="generador-didactico.html">✏️ Cuadernos</a>
+    <a href="ebooks.html" id="linkBiblioteca" style="display:none;">Mi Biblioteca</a>
+    
+    <div id="userDashboard" style="display:none; align-items:center; gap:8px; margin-left:10px;">
+      <div style="background:var(--lime10); border:1px solid var(--lime20); padding:6px 14px; border-radius:20px; font-size:13px; font-family:var(--fd); font-weight:800; color:var(--green-dark); display:flex; align-items:center; gap:6px; cursor:help;" title="Tus créditos disponibles">
+        🪙 <span id="creditCount">...</span>
+      </div>
+      <button id="btnLogout" style="background:transparent; border:2px solid var(--bg5); padding:6px 14px; border-radius:20px; font-family:var(--fd); font-weight:800; color:var(--text2); cursor:pointer; font-size:12px; transition:.2s;">Salir</button>
+    </div>
+
+    <button id="btnLogin" style="background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#fff; border:none; padding:8px 20px; border-radius:20px; font-family:var(--fd); font-weight:800; cursor:pointer; font-size:13px;">Ingresar</button>
+  </div>
 
 <main class="main">
 
@@ -513,27 +511,53 @@ if (hamburger) {
 }
 
 async function checkUser() {
-  const authBtn = document.getElementById('authButton');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnLogout = document.getElementById('btnLogout');
+  const userDashboard = document.getElementById('userDashboard');
+  const creditCount = document.getElementById('creditCount');
   const libLink = document.getElementById('linkBiblioteca');
-  if (!authBtn) return; 
+  
+  if (!btnLogin) return; 
 
   const { data: { session } } = await window.supabaseClient.auth.getSession();
 
   if (session) {
+    // 1. Mostrar menú de usuario registrado
     if(libLink) libLink.style.display = 'block'; 
-    authBtn.textContent = 'Cerrar Sesión';
-    authBtn.style.background = 'transparent';
-    authBtn.style.color = 'var(--text2)';
-    authBtn.style.border = '2px solid var(--bg5)';
+    btnLogin.style.display = 'none';
+    userDashboard.style.display = 'flex';
     
-    authBtn.onclick = async () => { 
+    // 2. Consultar los créditos en la base de datos
+    try {
+      const { data: perfil } = await window.supabaseClient
+        .from('perfiles_growibooks')
+        .select('creditos')
+        .eq('id', session.user.id)
+        .single();
+
+      if (perfil) {
+        creditCount.textContent = perfil.creditos;
+      }
+    } catch (err) {
+      console.log('No se pudieron cargar los créditos');
+    }
+
+    // 3. Lógica para cerrar sesión
+    btnLogout.onclick = async () => { 
       await window.supabaseClient.auth.signOut(); 
       window.location.href = 'login.html'; 
     };
     
-    renderPage(); // Se ejecuta AQUÍ, después de confirmar la sesión
+    // 4. Renderizar libros (solo si estamos en ebooks.html)
+    if (typeof renderPage === 'function') renderPage(); 
+
   } else {
-    window.location.href = 'login.html';
+    // Mostrar menú de visitante
+    if(libLink) libLink.style.display = 'none';
+    userDashboard.style.display = 'none';
+    btnLogin.style.display = 'block';
+    
+    btnLogin.onclick = () => { window.location.href = 'login.html'; };
   }
 }
 
