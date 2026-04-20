@@ -348,41 +348,47 @@ body{
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+// 1. CONFIGURACIÓN E INICIALIZACIÓN
 const SUPABASE_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY'; 
 
+if (!window.supabaseClient) {
+  window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
+// 2. FUNCIONES DE INTERFAZ
 function showError(msg) {
   const t = document.getElementById('errorToast'); t.textContent = msg; t.style.display = 'block';
   setTimeout(() => t.style.display = 'none', 5000);
 }
+function closeSuccessModal() { document.getElementById('successModal').style.display = 'none'; }
+function zoomCover(src) {
+  if (!src) return;
+  document.getElementById('zoomImage').src = src;
+  document.getElementById('zoomOverlay').classList.add('active');
+}
 
+// 3. RENDERIZADO DE LA BIBLIOTECA
 async function renderPage() {
   const grid = document.getElementById('ebooksGrid');
   const empty = document.getElementById('emptyState');
   const createBtn = document.getElementById('btnCreateNew');
 
   try {
-    // 1. Obtener la sesión actual del usuario
     const { data: { session } } = await window.supabaseClient.auth.getSession();
-    
-    // 2. Si no hay sesión, no pedimos nada y lo mandamos al login
-    if (!session) {
-      window.location.href = 'login.html';
-      return;
-    }
+    if (!session) return;
 
-    // 3. Hacemos la petición enviando el Token del usuario
     const response = await fetch(`${SUPABASE_URL}/rest/v1/ebooks?select=*&order=created_at.desc`, {
-      headers: { 
-        'apikey': SUPABASE_KEY, 
-        'Authorization': `Bearer ${session.access_token}` 
-      }
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${session.access_token}` }
     });
     
     const ebooks = await response.json();
 
-    if (!ebooks || ebooks.length === 0) {
+    // LÓGICA DE ESTADO VACÍO (SI NO HAY LIBROS)
+    if (!ebooks || ebooks.length === 0 || ebooks.error) {
       grid.style.display = 'none'; 
       empty.style.display = 'block'; 
       createBtn.style.display = 'none'; 
@@ -413,10 +419,7 @@ async function renderPage() {
         <div class="info">
           <div class="title">${ebook.title || 'Sin título'}</div>
           <div class="meta">${ebook.style || ''} ${date ? '· ' + date : ''}</div>
-          
-          <div class="actions" id="actions-${ebook.id}">
-          </div>
-          
+          <div class="actions" id="actions-${ebook.id}"></div>
           <div class="actions-bottom">
             <button class="btn-delete-small" onclick="deleteEbook('${ebook.id}')">🗑️ Eliminar este libro</button>
           </div>
@@ -428,13 +431,11 @@ async function renderPage() {
       
       const actionsContainer = document.getElementById(`actions-${ebook.id}`);
       
-      // Botón PDF
       const btnPdf = document.createElement('button');
       btnPdf.className = 'btn btn-pdf';
       btnPdf.innerHTML = '📄 PDF';
       btnPdf.onclick = () => downloadPdf(ebook.pdf_url, btnPdf);
       
-      // Botón Imprimir
       const btnPrint = document.createElement('button');
       btnPrint.className = 'btn btn-print';
       btnPrint.innerHTML = '🖨️ Imprimir';
@@ -444,22 +445,18 @@ async function renderPage() {
       actionsContainer.appendChild(btnPrint);
     });
   } catch (err) {
-    grid.innerHTML = '<p style="text-align:center; color:#e57373; font-weight:600; padding:40px; grid-column:1/-1;">Error al conectar con la biblioteca. Intenta recargar la página.</p>';
+    grid.innerHTML = '<p style="text-align:center; color:var(--text2); font-weight:600; padding:40px; grid-column:1/-1;">🌱 Aún no hay libros aquí o hubo una falla de red. ¡Intenta recargar la página!</p>';
   }
 }
 
-function zoomCover(src) {
-  if (!src) return;
-  document.getElementById('zoomImage').src = src;
-  document.getElementById('zoomOverlay').classList.add('active');
-}
-
+// 4. FUNCIONES DE ACCIÓN
 async function deleteEbook(id) {
   if (!confirm('¿Eliminar este ebook permanentemente de la base de datos?')) return;
   try {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
     await fetch(`${SUPABASE_URL}/rest/v1/ebooks?id=eq.${id}`, {
       method: 'DELETE',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${session.access_token}` }
     });
     renderPage();
   } catch (e) { showError('No se pudo eliminar el ebook.'); }
@@ -476,13 +473,11 @@ function downloadPdf(pdfUrl, btn) {
   setTimeout(() => { btn.innerHTML = orig; }, 2000);
 }
 
-// NUEVA FUNCIÓN: ENVIAR A IMPRIMIR (WEBHOOK N8N)
 async function sendToPrint(id, title, coverUrl, pdfUrl, btnElement) {
   if (!pdfUrl || pdfUrl === 'undefined' || pdfUrl === 'null') { 
     showError('El PDF aún se está procesando. Espera un momento antes de imprimir.'); 
     return; 
   }
-
   const originalText = btnElement.innerHTML;
   btnElement.innerHTML = '⏳ Enviando...';
   btnElement.disabled = true;
@@ -495,14 +490,9 @@ async function sendToPrint(id, title, coverUrl, pdfUrl, btnElement) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user_id: userId,
-        ebook_id: id,
-        ebook_title: title,
-        pdf_url: pdfUrl,
-        cover_url: coverUrl
+        user_id: userId, ebook_id: id, ebook_title: title, pdf_url: pdfUrl, cover_url: coverUrl
       })
     });
-
     document.getElementById('successModal').style.display = 'flex';
   } catch (error) {
     showError("Hubo un error de conexión. Intenta de nuevo.");
@@ -512,61 +502,42 @@ async function sendToPrint(id, title, coverUrl, pdfUrl, btnElement) {
   }
 }
 
-function closeSuccessModal() {
-  document.getElementById('successModal').style.display = 'none';
+// 5. NAVEGACIÓN Y SESIÓN
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('navLinks');
+if (hamburger) {
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('nav-active');
+    hamburger.classList.toggle('toggle');
+  });
 }
 
-renderPage();
-</script>
+async function checkUser() {
+  const authBtn = document.getElementById('authButton');
+  const libLink = document.getElementById('linkBiblioteca');
+  if (!authBtn) return; 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const hamburger = document.getElementById('hamburger');
-  const navLinks = document.getElementById('navLinks');
-  if (hamburger) {
-    hamburger.addEventListener('click', () => {
-      navLinks.classList.toggle('nav-active');
-      hamburger.classList.toggle('toggle');
-    });
-  }
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
 
-  if (!window.supabaseClient) {
-    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  }
-
-  async function checkUser() {
-    const authBtn = document.getElementById('authButton');
-    const libLink = document.getElementById('linkBiblioteca');
+  if (session) {
+    if(libLink) libLink.style.display = 'block'; 
+    authBtn.textContent = 'Cerrar Sesión';
+    authBtn.style.background = 'transparent';
+    authBtn.style.color = 'var(--text2)';
+    authBtn.style.border = '2px solid var(--bg5)';
     
-    if (!authBtn) return; 
-
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
-
-    if (session) {
-      if(libLink) libLink.style.display = 'block'; 
-      authBtn.textContent = 'Cerrar Sesión';
-      authBtn.style.background = 'transparent';
-      authBtn.style.color = 'var(--text2)';
-      authBtn.style.border = '2px solid var(--bg5)';
-      
-      authBtn.onclick = async () => { 
-        await window.supabaseClient.auth.signOut(); 
-        window.location.reload(); 
-      };
-    } else {
-      if(libLink) libLink.style.display = 'none'; 
-      authBtn.textContent = 'Ingresar';
-      authBtn.onclick = () => { window.location.href = 'login.html'; };
-    }
+    authBtn.onclick = async () => { 
+      await window.supabaseClient.auth.signOut(); 
+      window.location.href = 'login.html'; 
+    };
+    
+    renderPage(); // Se ejecuta AQUÍ, después de confirmar la sesión
+  } else {
+    window.location.href = 'login.html';
   }
-  
-  checkUser();
+}
 
-  async function protectRoute() {
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
-    if (!session) window.location.href = 'login.html';
-  }
-  protectRoute();
+checkUser();
 </script>
 </body>
 </html>
