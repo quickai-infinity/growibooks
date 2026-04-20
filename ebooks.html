@@ -193,30 +193,42 @@ body{
   margin-bottom:14px;
 }
 
-.ebook-card .actions{display:flex;gap:8px}
-.ebook-card .btn{
-  flex:1;padding:10px 12px;
-  border-radius:var(--rs);
-  font-family:var(--fd);font-size:11px;font-weight:800;
-  cursor:pointer;transition:.2s;text-align:center;
-  text-decoration:none;display:flex;align-items:center;
-  justify-content:center;gap:6px;letter-spacing:.3px;
+/* ── BOTONES EN LA TARJETA (ACTUALIZADO) ── */
+.ebook-card .actions { 
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; 
 }
-.btn-pdf{
-  background:linear-gradient(135deg,var(--green),var(--green-dark));
-  border:none;color:#fff;
-  box-shadow:0 3px 10px rgba(45,170,95,.3);
+.ebook-card .actions-bottom { 
+  display: flex; justify-content: center; border-top: 1px solid var(--bg5); padding-top: 8px; 
 }
-.btn-pdf:hover{
-  box-shadow:0 6px 20px rgba(45,170,95,.4);
-  transform:translateY(-1px);
+.btn-print {
+  background: linear-gradient(135deg, var(--orange), #e65c00);
+  border: none; color: #fff;
+  box-shadow: 0 3px 10px rgba(255, 123, 44, .3);
 }
-.btn-pdf:disabled{opacity:.5;cursor:wait;transform:none}
-.btn-delete{
-  background:transparent;
-  border:2px solid #ffcdd2;
-  color:#e57373;
-  flex:0;padding:10px 14px;border-radius:var(--rs);
+.btn-print:hover {
+  box-shadow: 0 6px 20px rgba(255, 123, 44, .4); transform: translateY(-1px);
+}
+.btn-delete-small {
+  background: transparent; border: none; color: #e57373; font-family: var(--fb);
+  font-size: 11px; font-weight: 600; cursor: pointer; transition: .2s;
+}
+.btn-delete-small:hover { color: #c62828; text-decoration: underline; }
+
+/* ── MODAL DE ÉXITO DE IMPRESIÓN ── */
+.success-modal {
+  position: fixed; inset: 0; background: rgba(26,46,26,.9);
+  z-index: 6000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px);
+}
+.success-modal-content {
+  background: var(--bg3); padding: 40px; border-radius: var(--r); text-align: center;
+  border: 2px solid var(--green20); box-shadow: var(--shadow-lg); max-width: 400px; width: 90%;
+}
+.success-modal-content .icon { font-size: 64px; margin-bottom: 16px; color: var(--green); }
+.success-modal-content h3 { font-family: var(--fd); font-size: 24px; font-weight: 900; color: var(--text); margin-bottom: 12px; }
+.success-modal-content p { color: var(--text2); font-size: 14px; font-weight: 500; margin-bottom: 24px; line-height: 1.6; }
+.btn-close-modal {
+  padding: 12px 32px; background: var(--green); color: #fff; border: none;
+  border-radius: 20px; font-family: var(--fd); font-weight: 800; cursor: pointer; width: 100%;
 }
 .btn-delete:hover{border-color:#ef5350;background:#ffebee;color:#c62828}
 
@@ -363,7 +375,7 @@ async function renderPage() {
       const card = document.createElement('div');
       card.className = 'ebook-card';
       
-      card.innerHTML = `
+   card.innerHTML = `
         <div class="cover" id="cover-${ebook.id}">
           ${ebook.cover_url 
             ? `<img src="${ebook.cover_url}" alt="${ebook.title}" onerror="this.parentElement.innerHTML='<div class=cover-placeholder>📖</div>'">`
@@ -374,8 +386,12 @@ async function renderPage() {
         <div class="info">
           <div class="title">${ebook.title || 'Sin título'}</div>
           <div class="meta">${ebook.style || ''} ${date ? '· ' + date : ''}</div>
+          
           <div class="actions" id="actions-${ebook.id}">
-            <button class="btn btn-delete" onclick="deleteEbook('${ebook.id}')" title="Eliminar">✕</button>
+            </div>
+          
+          <div class="actions-bottom">
+            <button class="btn-delete-small" onclick="deleteEbook('${ebook.id}')">🗑️ Eliminar este libro</button>
           </div>
         </div>`;
       
@@ -383,13 +399,22 @@ async function renderPage() {
 
       document.getElementById(`cover-${ebook.id}`).onclick = () => zoomCover(ebook.cover_url);
       
+      const actionsContainer = document.getElementById(`actions-${ebook.id}`);
+      
+      // Botón PDF
       const btnPdf = document.createElement('button');
       btnPdf.className = 'btn btn-pdf';
       btnPdf.innerHTML = '📄 PDF';
       btnPdf.onclick = () => downloadPdf(ebook.pdf_url, btnPdf);
       
-      const actionsContainer = document.getElementById(`actions-${ebook.id}`);
-      actionsContainer.insertBefore(btnPdf, actionsContainer.firstChild);
+      // Botón Imprimir
+      const btnPrint = document.createElement('button');
+      btnPrint.className = 'btn btn-print';
+      btnPrint.innerHTML = '🖨️ Imprimir';
+      btnPrint.onclick = () => sendToPrint(ebook.id, ebook.title, ebook.cover_url, ebook.pdf_url, btnPrint);
+      
+      actionsContainer.appendChild(btnPdf);
+      actionsContainer.appendChild(btnPrint);
     });
   } catch (err) {
     grid.innerHTML = '<p style="text-align:center; color:#e57373; font-weight:600; padding:40px; grid-column:1/-1;">Error al conectar con la biblioteca. Intenta recargar la página.</p>';
@@ -451,6 +476,48 @@ renderPage();
     window.supabaseClient = window.supabase.createClient(DB_URL, DB_KEY);
   }
 
+  // NUEVA FUNCIÓN: ENVIAR A IMPRIMIR (WEBHOOK N8N)
+async function sendToPrint(id, title, coverUrl, pdfUrl, btnElement) {
+  // Verificar si hay PDF generado antes de pedir impresión
+  if (!pdfUrl || pdfUrl === 'undefined' || pdfUrl === 'null') { 
+    showError('El PDF aún se está procesando. Espera un momento antes de imprimir.'); 
+    return; 
+  }
+
+  const originalText = btnElement.innerHTML;
+  btnElement.innerHTML = '⏳ Enviando...';
+  btnElement.disabled = true;
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session ? session.user.id : 'usuario_desconocido';
+
+    await fetch('https://panel1.quickai.agency/webhook/imprimir/ebook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userId,
+        ebook_id: id,
+        ebook_title: title,
+        pdf_url: pdfUrl,
+        cover_url: coverUrl
+      })
+    });
+
+    // Mostrar ventana de éxito
+    document.getElementById('successModal').style.display = 'flex';
+  } catch (error) {
+    showError("Hubo un error de conexión. Intenta de nuevo.");
+  } finally {
+    btnElement.innerHTML = originalText;
+    btnElement.disabled = false;
+  }
+}
+
+function closeSuccessModal() {
+  document.getElementById('successModal').style.display = 'none';
+}
+
   // 3. LÓGICA DEL BOTÓN DE SESIÓN
   async function checkUser() {
     const authBtn = document.getElementById('authButton');
@@ -479,6 +546,14 @@ renderPage();
   }
   
   checkUser();
+  <div class="success-modal" id="successModal">
+  <div class="success-modal-content">
+    <div class="icon">✅</div>
+    <h3>¡Orden Recibida!</h3>
+    <p>Hemos recibido tu solicitud de impresión. Nos pondremos en contacto contigo pronto para los detalles de envío.</p>
+    <button class="btn-close-modal" onclick="closeSuccessModal()">Entendido</button>
+  </div>
+</div>
 </script>
 </body>
 </html>
