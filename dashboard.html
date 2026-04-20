@@ -185,10 +185,10 @@
     document.getElementById('userDashboardNav').style.display = 'flex';
   }
 
-  async function signOut() {
-    await supabase.auth.signOut(); window.location.href = 'index.html';
-  }
-
+ async function signOut() {
+  await supabase.auth.signOut();
+  window.location.href = 'index.html';
+}
   loadDashboard();
 </script>
 </body>
