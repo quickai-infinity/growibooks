@@ -257,28 +257,41 @@ body{
 
   // 3. LÓGICA DEL BOTÓN DE SESIÓN
   async function checkUser() {
-    const authBtn = document.getElementById('authButton');
+    const btnLogin = document.getElementById('btnLogin');
+    const btnLogout = document.getElementById('btnLogout');
+    const userDashboardNav = document.getElementById('userDashboardNav');
+    const creditCount = document.getElementById('creditCount');
     const libLink = document.getElementById('linkBiblioteca');
-    
-    if (!authBtn) return; // Si no hay botón en esta página, aborta sin dar error
 
     const { data: { session } } = await window.supabaseClient.auth.getSession();
 
     if (session) {
-      if(libLink) libLink.style.display = 'block'; 
-      authBtn.textContent = 'Cerrar Sesión';
-      authBtn.style.background = 'transparent';
-      authBtn.style.color = 'var(--text2)';
-      authBtn.style.border = '2px solid var(--bg5)';
-      
-      authBtn.onclick = async () => { 
-        await window.supabaseClient.auth.signOut(); 
-        window.location.reload(); 
-      };
+      if (libLink) libLink.style.display = 'block';
+      if (btnLogin) btnLogin.style.display = 'none';
+      if (userDashboardNav) userDashboardNav.style.display = 'flex';
+
+      try {
+        const { data: perfil } = await window.supabaseClient
+          .from('perfiles_growibooks')
+          .select('creditos')
+          .eq('id', session.user.id)
+          .single();
+        if (perfil && creditCount) creditCount.textContent = perfil.creditos;
+      } catch (err) { console.log('Error cargando créditos'); }
+
+      if (btnLogout) {
+        btnLogout.onclick = async () => {
+          await window.supabaseClient.auth.signOut();
+          window.location.reload();
+        };
+      }
     } else {
-      if(libLink) libLink.style.display = 'none'; 
-      authBtn.textContent = 'Ingresar';
-      authBtn.onclick = () => { window.location.href = 'login.html'; };
+      if (libLink) libLink.style.display = 'none';
+      if (btnLogin) {
+        btnLogin.style.display = 'block';
+        btnLogin.onclick = () => { window.location.href = 'login.html'; };
+      }
+      if (userDashboardNav) userDashboardNav.style.display = 'none';
     }
   }
   // Verifica si hay sesión al hacer clic en las tarjetas
