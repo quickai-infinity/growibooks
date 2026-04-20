@@ -252,7 +252,18 @@ body{
   if (!window.supabaseClient) {
     window.supabaseClient = window.supabase.createClient(DB_URL, DB_KEY);
   }
-
+async function checkAccess(targetUrl) {
+  const sb = window.supabase.createClient(
+    'https://rtjgcpklpyolzsdjjtdb.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY'
+  );
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    window.location.href = targetUrl;
+  } else {
+    window.location.href = 'login.html';
+  }
+}
   // 3. LÓGICA DEL BOTÓN DE SESIÓN
   async function checkUser() {
   const btnLogin = document.getElementById('btnLogin');
