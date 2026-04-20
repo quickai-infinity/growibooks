@@ -789,21 +789,29 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
   hideLoading();
   goToStep(3); 
 });
-// PROTECCIÓN DE RUTA: Si no hay sesión, rebota a login
-async function protectRoute() {
-  const { data: { session } } = await window.supabaseClient.auth.getSession();
-  if (!session) {
-    // Guardamos la intención del usuario para volver aquí tras el login si quieres (opcional)
-    window.location.href = 'login.html';
-  }
-}
-protectRoute();
+// FIN DEL SCRIPT PRINCIPAL
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
 <script>
-  // 1. LÓGICA DE HAMBURGUESA
+  // 2. INICIALIZAMOS EL CLIENTE INMEDIATAMENTE
+  const DB_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
+  const DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY';
+  
+  const supabase = window.supabase.createClient(DB_URL, DB_KEY);
+  window.supabaseClient = supabase;
+
+  // 3. EJECUTAMOS EL CANDADO DE SEGURIDAD
+  async function protectRoute() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = 'login.html';
+    }
+  }
+  protectRoute();
+
+  // 4. LÓGICA DEL MENÚ HAMBURGUESA
   const hamburger = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
   if (hamburger) {
@@ -813,42 +821,44 @@ protectRoute();
     });
   }
 
-  // 2. CONEXIÓN SUPABASE BLINDADA
-  const DB_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
-  const DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY';
-  
-  if (!window.supabaseClient) {
-    window.supabaseClient = window.supabase.createClient(DB_URL, DB_KEY);
-  }
-
-  // 3. LÓGICA DEL BOTÓN DE SESIÓN
-  async function checkUser() {
-    const authBtn = document.getElementById('authButton');
-    const libLink = document.getElementById('linkBiblioteca');
+  // 5. CARGAMOS EL DASHBOARD EN EL MENÚ (CRÉDITOS Y SALIR)
+  async function loadNavDashboard() {
+    const { data: { session } } = await supabase.auth.getSession();
     
-    if (!authBtn) return; // Si no hay botón en esta página, aborta sin dar error
-
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
-
     if (session) {
+      const libLink = document.getElementById('linkBiblioteca');
+      const btnLogin = document.getElementById('btnLogin');
+      const userDashboardNav = document.getElementById('userDashboardNav');
+      const creditCount = document.getElementById('creditCount');
+      const btnLogout = document.getElementById('btnLogout');
+
       if(libLink) libLink.style.display = 'block'; 
-      authBtn.textContent = 'Cerrar Sesión';
-      authBtn.style.background = 'transparent';
-      authBtn.style.color = 'var(--text2)';
-      authBtn.style.border = '2px solid var(--bg5)';
+      if(btnLogin) btnLogin.style.display = 'none';
+      if(userDashboardNav) userDashboardNav.style.display = 'flex';
       
-      authBtn.onclick = async () => { 
-        await window.supabaseClient.auth.signOut(); 
-        window.location.reload(); 
-      };
-    } else {
-      if(libLink) libLink.style.display = 'none'; 
-      authBtn.textContent = 'Ingresar';
-      authBtn.onclick = () => { window.location.href = 'login.html'; };
+      try {
+        const { data: perfil } = await supabase
+          .from('perfiles_growibooks')
+          .select('creditos')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (perfil && creditCount) {
+          creditCount.textContent = perfil.creditos;
+        }
+      } catch (err) {
+        console.log('Error cargando créditos');
+      }
+
+      if (btnLogout) {
+        btnLogout.onclick = async () => { 
+          await supabase.auth.signOut(); 
+          window.location.href = 'index.html'; 
+        };
+      }
     }
   }
-  
-  checkUser();
+  loadNavDashboard();
 </script>
 </body>
 </html>
