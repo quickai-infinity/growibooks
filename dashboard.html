@@ -10,67 +10,56 @@
   body { background:var(--bg); color:var(--text); font-family:var(--fd); margin:0; padding-top:100px; }
   h1,h2,h3 { font-family:var(--fb); margin:0; }
   
-  /* Layout */
   .container { max-width:1100px; margin:0 auto; padding:0 20px; }
   .dashboard-grid { display:grid; grid-template-columns: 2fr 1fr; gap:30px; margin-top:40px; }
-  
-  /* Cards */
   .card { background:var(--bg3); padding:30px; border-radius:var(--r); box-shadow:var(--shadow-lg); border:1px solid var(--bg5); }
   .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; }
   .card-header h2 { font-size:20px; font-weight:900; }
   
-  /* Info Card (Bienvenida y Créditos) */
-  .welcome-pill { background:var(--lime10); border:1px solid var(--lime20); padding:10px 20px; border-radius:var(--r); font-family:var(--fb); font-weight:900; font-size:16px; color:var(--green-dark); display:flex; align-items:center; gap:8px; margin-bottom:20px; }
-  
-  /* Stats Grid */
   .stats-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:30px; }
   .stat-box { background:var(--bg); padding:20px; border-radius:var(--r); text-align:center; border:1px solid var(--bg5); }
   .stat-box .icon { font-size:32px; margin-bottom:10px; }
   .stat-box .count { font-size:24px; font-weight:800; color:var(--green-dark); font-family:var(--fb); }
   .stat-box .label { font-size:12px; color:var(--text3); font-weight:600; margin-top:4px; }
   
-  /* Botón de recarga */
   .btn-buy { background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#fff; border:none; padding:16px; border-radius:var(--r); font-weight:800; font-family:var(--fb); cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:10px; font-size:15px; text-decoration:none; }
   .btn-buy:hover { transform:translateY(-1px); box-shadow: 0 4px 15px rgba(45,170,95,.3); }
 
-  /* Lista de accesos */
   .action-list { display:flex; flex-direction:column; gap:15px; }
   .action-item { background:var(--bg); padding:15px 20px; border-radius:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--bg5); text-decoration:none; color:inherit; transition:.2s; }
   .action-item:hover { border-color:var(--green); background:var(--bg3); }
   .action-item .title { font-weight:700; font-size:14px; }
   .action-item .arrow { font-size:12px; color:var(--text3); }
 
-  /* MÓVIL */
   @media (max-width: 768px) {
     .dashboard-grid { grid-template-columns: 1fr; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
   }
-</style>
-<style>
+
   /* --- ESTILOS UNIVERSALES DEL NAV --- */
   .nav { position: fixed; top: 0; left: 0; width: 100%; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; background: rgba(247,249,244,.95); backdrop-filter: blur(10px); z-index: 5000; box-shadow: 0 4px 15px rgba(26,46,26,.05); }
   .logo { z-index: 5100; position: relative; text-decoration: none; font-family:'Nunito', sans-serif; font-weight: 900; font-size: 22px; color: #1a2e1a; }
   
-  .hamburger { display: none; background: transparent; border: none; cursor: pointer; padding: 10px; }
+  .hamburger { display: none; background: transparent; border: none; cursor: pointer; padding: 10px; z-index: 5200; }
   .hamburger div { width: 25px; height: 3px; background-color: var(--text2); margin: 5px; transition: all .3s ease; }
 
   .nav-links { display: flex; align-items: center; gap: 20px; }
   .nav-links a { text-decoration: none; font-family:'Quicksand', sans-serif; color: #4a6741; font-weight: 700; font-size: 14px; }
-  .user-dashboard-nav { display: none; align-items: center; gap: 10px; margin-left: 10px; }
-  .credits-pill { background: #edf6e4; border: 1px solid #dbe8ca; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-family:'Nunito', sans-serif; font-weight: 900; color: #1d8047; display: flex; align-items: center; gap: 6px; cursor: help; }
+  .user-dashboard-nav { display: flex; align-items: center; gap: 10px; margin-left: 10px; }
+  .credits-pill { background: #edf6e4; border: 1px solid #dbe8ca; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-family:'Nunito', sans-serif; font-weight: 900; color: #1d8047; display: flex; align-items: center; gap: 6px; }
   .btn-nav { padding: 8px 18px; border-radius: 20px; font-family:'Nunito', sans-serif; font-weight: 800; cursor: pointer; font-size: 13px; text-decoration: none; transition: .2s; }
-  .btn-dashboard { background: #e4ecdc; color: #1a2e1a; }
   .btn-logout { background: transparent; border: 2px solid #e4ecdc; color: #4a6741; }
 
   /* --- RESPONSIVO (MÓVIL) --- */
   @media (max-width: 768px) {
-    .hamburger { display: block; position: relative; z-index: 5200; } /* Z-index alto para que sea clickeable */
-    .nav-links { position: fixed; right: -100%; top: 0; height: 100vh; background-color: rgba(247,249,244,.98); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70%; max-width: 300px; transition: right .4s ease; padding: 40px 0; gap: 25px; box-shadow: -10px 0 20px rgba(0,0,0,.1); z-index: 5100; border-left: 2px solid #edf6e4; }
+    .hamburger { display: block; }
+    .nav-links { position: fixed; right: -100%; top: 0; height: 100vh; background-color: rgba(247,249,244,.98); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70%; max-width: 300px; transition: right .4s ease; padding: 40px 0; gap: 25px; box-shadow: -10px 0 20px rgba(0,0,0,.1); z-index: 5100; border-left: 2px solid var(--lime10); }
     .nav-links.nav-active { right: 0; }
     .hamburger.toggle div:nth-child(1) { transform: rotate(-45deg) translate(-5px, 6px); }
     .hamburger.toggle div:nth-child(2) { opacity: 0; }
     .hamburger.toggle div:nth-child(3) { transform: rotate(45deg) translate(-5px, -6px); }
-    .user-dashboard-nav { flex-direction: column; width: 100%; align-items: center; gap: 15px; border-top: 1px solid #e4ecdc; padding-top: 20px; }
+
+    .user-dashboard-nav { flex-direction: column; width: 100%; align-items: center; gap: 15px; border-top: 1px solid var(--bg5); padding-top: 20px; }
     .credits-pill { width: 80%; justify-content: center; }
     .btn-nav { width: 80%; text-align: center; }
   }
@@ -79,25 +68,13 @@
 <body>
 
 <nav class="nav">
-  <a href="index.html" class="logo">📚 <span class="growi" style="color:var(--green)">Growi</span>Books</a>
+  <a href="index.html" class="logo">📚 <span style="color:var(--green)">Growi</span>Books</a>
   
   <button class="hamburger" id="hamburger">
     <div></div><div></div><div></div>
   </button>
 
   <div class="nav-links" id="navLinks">
-    <a href="index.html">Inicio</a>
-    <a href="ebooks.html">Mi Biblioteca</a>
-    <div class="user-dashboard-nav" id="userDashboardNav">
-      <div class="credits-pill">🪙 <span id="creditCount">...</span></div>
-      <button class="btn-nav btn-logout" onclick="signOut()">Salir</button>
-    </div>
-  </div>
-</nav>
-
-<nav class="nav">
-  <a href="index.html" class="logo">📚 <span class="growi" style="color:var(--green)">Growi</span>Books</a>
-  <div class="nav-links">
     <a href="index.html">Inicio</a>
     <a href="ebooks.html">Mi Biblioteca</a>
     <div class="user-dashboard-nav" id="userDashboardNav">
@@ -120,7 +97,7 @@
         </div>
       </div>
       
-      <p style="color:var(--text2); font-size:14px; line-height:1.6; margin-bottom:25px;">Cada libro o cuaderno didáctico que generas consume **1 crédito mágico**. ¿Te quedas sin magia? No te preocupes, recarga cuando quieras.</p>
+      <p style="color:var(--text2); font-size:14px; line-height:1.6; margin-bottom:25px;">Cada libro o cuaderno didáctico que generas consume <b>1 crédito mágico</b>. ¿Te quedas sin magia? No te preocupes, recarga cuando quieras.</p>
       
       <div class="stats-grid">
         <div class="stat-box">
@@ -140,7 +117,8 @@
         </div>
       </div>
       
-      <a href="#" class="btn-buy" id="btnBuyCredits">Recargar Créditos ✨</a> </div>
+      <a href="#" class="btn-buy" id="btnBuyCredits">Recargar Créditos ✨</a> 
+    </div>
     
     <div class="card">
       <div class="card-header">
@@ -159,8 +137,8 @@
           <span class="title">Ver Mi Biblioteca</span>
           <span class="arrow">→</span>
         </a>
-        <a href="index.html#dossier" class="action-item">
-          <span class="title">Descargar Dossier de Ventas</span>
+        <a href="index.html" class="action-item">
+          <span class="title">Volver al Inicio</span>
           <span class="arrow">→</span>
         </a>
       </div>
@@ -173,7 +151,8 @@
   const SUPABASE_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY'; 
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  // Lógica de Hamburguesa añadida al Dashboard
+
+  // Lógica de la Hamburguesa
   const hamburger = document.getElementById('hamburger');
   const navLinks = document.getElementById('navLinks');
   if (hamburger) {
@@ -184,54 +163,43 @@
   }
 
   async function loadDashboard() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) { window.location.href = 'login.html'; return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
 
-  // Mostrar nav de usuario
-  const navUser = document.getElementById('userDashboardNav');
-  if (navUser) navUser.style.display = 'flex';
+    const emailParts = session.user.email.split('@');
+    document.getElementById('welcomeUser').textContent = ' ' + emailParts[0];
 
-  // Saludo
-  const emailParts = session.user.email.split('@');
-  document.getElementById('welcomeUser').textContent = ' ' + emailParts[0];
+    try {
+      const { data: perfil } = await supabase
+        .from('perfiles_growibooks')
+        .select('creditos')
+        .eq('id', session.user.id)
+        .single();
+      if (perfil) {
+        document.getElementById('creditCount').textContent = perfil.creditos;
+        document.getElementById('bigCreditCount').textContent = perfil.creditos;
+      }
+    } catch(err) { console.log('Error cargando créditos'); }
 
-  // Créditos
-  try {
-    const { data: perfil } = await supabase
-      .from('perfiles_growibooks')
-      .select('creditos')
-      .eq('id', session.user.id)
-      .single();
-    if (perfil) {
-      document.getElementById('creditCount').textContent = perfil.creditos;
-      document.getElementById('bigCreditCount').textContent = perfil.creditos;
-    }
-  } catch(err) { console.log('Error cargando créditos'); }
-
-  // Contadores
-  try {
-    const { data: ebooks } = await supabase
-      .from('ebooks')
-      .select('title');
-    if (ebooks) {
-      let stories = 0; let workbooks = 0;
-      ebooks.forEach(e => {
-        if (e.title && e.title.toLowerCase().includes('didáctico')) workbooks++;
-        else stories++;
-      });
-      document.getElementById('countStories').textContent = stories;
-      document.getElementById('countWorkbooks').textContent = workbooks;
-    }
-  } catch(err) { console.log('Error cargando conteos'); }
-
-    // Mostrar menú dashboard
-    document.getElementById('userDashboardNav').style.display = 'flex';
+    try {
+      const { data: ebooks } = await supabase.from('ebooks').select('title');
+      if (ebooks) {
+        let stories = 0; let workbooks = 0;
+        ebooks.forEach(e => {
+          if (e.title && e.title.toLowerCase().includes('didáctico')) workbooks++;
+          else stories++;
+        });
+        document.getElementById('countStories').textContent = stories;
+        document.getElementById('countWorkbooks').textContent = workbooks;
+      }
+    } catch(err) { console.log('Error cargando conteos'); }
   }
 
- async function signOut() {
-  await supabase.auth.signOut();
-  window.location.href = 'index.html';
-}
+  async function signOut() {
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
+  }
+  
   loadDashboard();
 </script>
 </body>
