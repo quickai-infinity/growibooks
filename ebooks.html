@@ -363,17 +363,35 @@ async function renderPage() {
   const createBtn = document.getElementById('btnCreateNew');
 
   try {
+    // 1. Obtener la sesión actual del usuario
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    
+    // 2. Si no hay sesión, no pedimos nada y lo mandamos al login
+    if (!session) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // 3. Hacemos la petición enviando el Token del usuario
     const response = await fetch(`${SUPABASE_URL}/rest/v1/ebooks?select=*&order=created_at.desc`, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      headers: { 
+        'apikey': SUPABASE_KEY, 
+        'Authorization': `Bearer ${session.access_token}` 
+      }
     });
     
     const ebooks = await response.json();
 
     if (!ebooks || ebooks.length === 0) {
-      grid.style.display = 'none'; empty.style.display = 'block'; createBtn.style.display = 'none'; return;
+      grid.style.display = 'none'; 
+      empty.style.display = 'block'; 
+      createBtn.style.display = 'none'; 
+      return;
     }
 
-    empty.style.display = 'none'; grid.style.display = 'grid'; createBtn.style.display = 'block';
+    empty.style.display = 'none'; 
+    grid.style.display = 'grid'; 
+    createBtn.style.display = 'block';
     grid.innerHTML = '';
 
     ebooks.forEach((ebook) => {
@@ -397,7 +415,7 @@ async function renderPage() {
           <div class="meta">${ebook.style || ''} ${date ? '· ' + date : ''}</div>
           
           <div class="actions" id="actions-${ebook.id}">
-            </div>
+          </div>
           
           <div class="actions-bottom">
             <button class="btn-delete-small" onclick="deleteEbook('${ebook.id}')">🗑️ Eliminar este libro</button>
