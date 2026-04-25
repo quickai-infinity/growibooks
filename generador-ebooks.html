@@ -840,35 +840,34 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
       throw new Error('Error del servidor (HTTP ' + response.status + ')');
     }
 
-    const rawText = await response.text();
-    if (!rawText || rawText.trim().length === 0) {
-      throw new Error('El servidor devolvió una respuesta vacía');
-    }
-
+const rawText = await response.text();
     let imgUrl = null;
-    let data;
-    
+
     try {
-      // 1. Intentamos parsear como JSON primero
-      data = JSON.parse(rawText);
-      // Buscamos la URL en las claves más comunes
-      imgUrl = data.coverUrl || data.imageUrl || data.url || (Array.isArray(data) ? data[0]?.url : null);
-    } catch (parseErr) {
-      // 2. Si NO es JSON, podría ser directamente la URL o un Base64
-      const textTrimmed = rawText.trim();
-      if (textTrimmed.startsWith('http')) {
-        // Es un link directo
-        imgUrl = textTrimmed;
-      } else if (textTrimmed.length > 1000 && !textTrimmed.includes('<')) {
-        // Es un Base64
-        imgUrl = textTrimmed.startsWith('data:image') ? textTrimmed : ('data:image/png;base64,' + textTrimmed);
+      const data = JSON.parse(rawText);
+      // Extraemos la URL de forma agresiva, sin importar cómo venga empaquetada
+      if (Array.isArray(data)) {
+        imgUrl = data[0].coverUrl || data[0].url || data[0].imageUrl || data[0].Key || null;
       } else {
-        throw new Error('El servidor respondió, pero el formato no es válido.');
+        imgUrl = data.coverUrl || data.url || data.imageUrl || data.Key || null;
+      }
+    } catch (parseErr) {
+      // Si n8n manda un link directo o un Base64
+      const txt = rawText.trim();
+      if (txt.startsWith('http')) {
+        imgUrl = txt;
+      } else if (txt.length > 1000 && !txt.includes('<')) {
+        imgUrl = txt.startsWith('data:image') ? txt : ('data:image/png;base64,' + txt);
       }
     }
 
-    if (!imgUrl) {
-      throw new Error('No se pudo extraer la imagen de la respuesta.');
+    // Si n8n mandó solo la llave (Key) de Supabase, construimos el link final aquí mismo
+    if (imgUrl && imgUrl.startsWith('ebooks/')) {
+       imgUrl = 'https://rtjgcpklpyolzsdjjtdb.supabase.co/storage/v1/object/public/' + imgUrl;
+    }
+
+    if (!imgUrl || imgUrl === "undefined" || imgUrl === "null") {
+      throw new Error('No se pudo extraer la imagen. Respuesta de n8n: ' + rawText);
     }
 
     state.ebook.coverUrl = imgUrl;
@@ -884,7 +883,7 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
     };
     
     img.onerror = (e) => {
-      coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error al mostrar la imagen. Intenta de nuevo.</span>';
+      coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error al cargar la ruta: ' + imgUrl + '</span>';
     };
     
     img.src = imgUrl;
