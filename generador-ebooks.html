@@ -845,14 +845,12 @@ const rawText = await response.text();
 
     try {
       const data = JSON.parse(rawText);
-      // Extraemos la URL de forma agresiva, sin importar cómo venga empaquetada
       if (Array.isArray(data)) {
         imgUrl = data[0].coverUrl || data[0].url || data[0].imageUrl || data[0].Key || null;
       } else {
         imgUrl = data.coverUrl || data.url || data.imageUrl || data.Key || null;
       }
     } catch (parseErr) {
-      // Si n8n manda un link directo o un Base64
       const txt = rawText.trim();
       if (txt.startsWith('http')) {
         imgUrl = txt;
@@ -861,7 +859,6 @@ const rawText = await response.text();
       }
     }
 
-    // Si n8n mandó solo la llave (Key) de Supabase, construimos el link final aquí mismo
     if (imgUrl && imgUrl.startsWith('ebooks/')) {
        imgUrl = 'https://rtjgcpklpyolzsdjjtdb.supabase.co/storage/v1/object/public/' + imgUrl;
     }
@@ -877,22 +874,38 @@ const rawText = await response.text();
     img.alt = 'Portada';
     img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0';
     
+    let intento = 0; // Control para el auto-corrector
+
     img.onload = () => {
       coverEl.innerHTML = '';
       coverEl.appendChild(img);
+      state.ebook.coverUrl = img.src; // Actualiza el botón de descarga con la ruta correcta
+      document.getElementById('btnDownloadCover').style.display = 'block'; 
     };
     
     img.onerror = (e) => {
-      coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error al cargar la ruta: ' + imgUrl + '</span>';
+      // EL AUTO-CORRECTOR: Si falla .png prueba .jpg y viceversa
+      if (intento === 0) {
+        intento++;
+        if (imgUrl.includes('.png')) {
+          img.src = imgUrl.replace('.png', '.jpg');
+        } else if (imgUrl.includes('.jpg')) {
+          img.src = imgUrl.replace('.jpg', '.png');
+        } else {
+          coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error final ruta: ' + imgUrl + '</span>';
+        }
+      } else {
+        coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">No encontrada en Supabase: ' + imgUrl + '</span>';
+      }
     };
     
     img.src = imgUrl;
-    document.getElementById('btnDownloadCover').style.display = 'block'; 
+    
   } catch (error) {
     showError(error.message || 'Error al generar la portada. Intenta de nuevo.');
   } finally {
     hideLoading();
-    btnPreview.disabled = false;
+    document.getElementById('btnPreviewCover').disabled = false;
   }
 });
 
