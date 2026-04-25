@@ -283,15 +283,15 @@ select{cursor:pointer}
         </div>
 
         <div class="input-group">
-          <label>Tipo de Ejercicios a Integrar</label>
-          <select id="activityType">
-            <option value="laberintos para resolver visualmente">Laberintos</option>
-            <option value="figuras para rellenar y contar">Contar y Rellenar Figuras</option>
-            <option value="letras para trazar y aprender el abecedario">Trazar Letras</option>
-            <option value="problemas matemáticos visuales simples">Matemáticas Básicas</option>
-            <option value="mezcla de laberintos, trazos y buscar objetos escondidos" selected>Mezcla Dinámica (Laberintos, Trazos, Búsqueda)</option>
-          </select>
-        </div>
+  <label>Tipo de Ejercicios a Integrar</label>
+  <select id="activityType">
+    <option value="laberintos para resolver visualmente">🧩 Laberintos Visuales (De Punto A a Punto B)</option>
+    <option value="colorear vehiculos o escenas con miniatura de referencia a color">🎨 Colorear con Miniatura de Referencia (Coches, aviones, etc.)</option>
+    <option value="trazos punto a punto para formar dibujos">🖍️ Trazos Punto a Punto</option>
+    <option value="letras para trazar y aprender el abecedario">🔤 Trazar Letras del Abecedario</option>
+    <option value="mezcla de laberintos, trazos y buscar objetos escondidos" selected>🌟 Mezcla Dinámica</option>
+  </select>
+</div>
 
         <div class="input-group">
           <label style="display:flex;justify-content:space-between;align-items:center">
@@ -333,6 +333,15 @@ select{cursor:pointer}
               <option value="9-12">9 - 12 años (Avanzado)</option>
             </select>
           </div>
+          <div class="input-group">
+    <label>Tamaño de Página</label>
+    <select id="pageSize">
+      <option value="Carta">Carta (8.5" x 11")</option>
+      <option value="A4" selected>A4 Estándar</option>
+      <option value="B5">B5 (Cuaderno Pequeño)</option>
+    </select>
+  </div>
+</div>
           <div class="input-group">
             <label>Número de Páginas</label>
             <select id="pageCount">
