@@ -845,22 +845,30 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
       throw new Error('El servidor devolvió una respuesta vacía');
     }
 
+    let imgUrl = null;
     let data;
+    
     try {
+      // 1. Intentamos parsear como JSON primero
       data = JSON.parse(rawText);
+      // Buscamos la URL en las claves más comunes
+      imgUrl = data.coverUrl || data.imageUrl || data.url || (Array.isArray(data) ? data[0]?.url : null);
     } catch (parseErr) {
-      if (rawText.length > 1000 && !rawText.includes('<')) {
-        const b64 = rawText.trim();
-        data = { coverUrl: b64.startsWith('data:image') ? b64 : ('data:image/png;base64,' + b64) };
+      // 2. Si NO es JSON, podría ser directamente la URL o un Base64
+      const textTrimmed = rawText.trim();
+      if (textTrimmed.startsWith('http')) {
+        // Es un link directo
+        imgUrl = textTrimmed;
+      } else if (textTrimmed.length > 1000 && !textTrimmed.includes('<')) {
+        // Es un Base64
+        imgUrl = textTrimmed.startsWith('data:image') ? textTrimmed : ('data:image/png;base64,' + textTrimmed);
       } else {
-        throw new Error('Respuesta del servidor no es JSON válido');
+        throw new Error('El servidor respondió, pero el formato no es válido.');
       }
     }
 
-    const imgUrl = data.coverUrl || data.imageUrl || data.url || (Array.isArray(data) ? data[0]?.url : null);
-    
     if (!imgUrl) {
-      throw new Error('La respuesta no contiene una imagen válida');
+      throw new Error('No se pudo extraer la imagen de la respuesta.');
     }
 
     state.ebook.coverUrl = imgUrl;
