@@ -437,7 +437,7 @@ select{cursor:pointer}
 const CONFIG = {
   webhooks: {
     // Webhooks compartidos con el flujo principal
-    ebook:       'https://panel1.quickai.agency/webhook/generar-ebook',
+    ebook:       'https://panel1.quickai.agency/webhook/generar-cuaderno-didactico',
     previewCover:'https://panel1.quickai.agency/webhook/preview-cover',
     
     // NUEVO: Webhook exclusivo para la descripción de cuadernos didácticos
@@ -774,7 +774,8 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
         age: state.ebook.age,
         pages: state.ebook.pages,
         coverUrl: state.ebook.coverUrl,
-        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null
+        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null,
+        activityType: activityValue // <-- AÑADIR ESTA LÍNEA CRÍTICA
       })
     });
     clearTimeout(timeoutId);
