@@ -1366,7 +1366,7 @@ document.getElementById('protagonistPhoto').addEventListener('change', function(
   const DB_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
   const DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY';
   
-  const supabase = window.supabase.createClient(DB_URL, DB_KEY);
+  var supabase = window.supabase.createClient(DB_URL, DB_KEY);
   window.supabaseClient = supabase; // Lo guardamos para que el resto del código lo encuentre
 
   // 3. EJECUTAMOS EL CANDADO DE SEGURIDAD (ANTES DE CARGAR LA INTERFAZ)
