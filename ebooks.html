@@ -461,7 +461,7 @@ async function renderPage() {
         </div>
         <div class="info">
           <div class="title">${ebook.title || 'Sin título'}</div>
-          <div class="meta">${ebook.style || ''} ${date ? '· ' + date : ''}</div>
+          <div class="meta" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${date ? date + ' · ' : ''} ${ebook.style || ''}</div>
           <div class="actions" id="actions-${ebook.id}"></div>
           <div class="actions-bottom">
             <button class="btn-delete-small" onclick="deleteEbook('${ebook.id}')">🗑️ Eliminar este libro</button>
@@ -562,47 +562,43 @@ async function checkUser() {
   const creditCount = document.getElementById('creditCount');
   const libLink = document.getElementById('linkBiblioteca');
   
-  if (!btnLogin) return; 
-
   const { data: { session } } = await window.supabaseClient.auth.getSession();
 
   if (session) {
-    // 1. Mostrar menú de usuario registrado
     if(libLink) libLink.style.display = 'block'; 
-    btnLogin.style.display = 'none';
-    userDashboard.style.display = 'flex';
+    if(btnLogin) btnLogin.style.display = 'none';
+    if(userDashboard) userDashboard.style.display = 'flex';
     
-    // 2. Consultar los créditos en la base de datos
     try {
       const { data: perfil } = await window.supabaseClient
         .from('perfiles_growibooks')
         .select('creditos')
         .eq('id', session.user.id)
         .single();
-
-      if (perfil) {
+      if (perfil && creditCount) {
         creditCount.textContent = perfil.creditos;
       }
     } catch (err) {
       console.log('No se pudieron cargar los créditos');
     }
 
-    // 3. Lógica para cerrar sesión
-    btnLogout.onclick = async () => { 
-      await window.supabaseClient.auth.signOut(); 
-      window.location.href = 'login.html'; 
-    };
+    if(btnLogout) {
+      btnLogout.onclick = async () => { 
+        await window.supabaseClient.auth.signOut(); 
+        window.location.href = 'login.html'; 
+      };
+    }
     
-    // 4. Renderizar libros (solo si estamos en ebooks.html)
+    // ¡AQUÍ ES DONDE POR FIN LLAMARÁ A TUS LIBROS!
     if (typeof renderPage === 'function') renderPage(); 
 
   } else {
-    // Mostrar menú de visitante
     if(libLink) libLink.style.display = 'none';
-    userDashboard.style.display = 'none';
-    btnLogin.style.display = 'block';
-    
-    btnLogin.onclick = () => { window.location.href = 'login.html'; };
+    if(userDashboard) userDashboard.style.display = 'none';
+    if(btnLogin) {
+        btnLogin.style.display = 'block';
+        btnLogin.onclick = () => { window.location.href = 'login.html'; };
+    }
   }
 }
 // Añadir esto después de crear el cliente:
