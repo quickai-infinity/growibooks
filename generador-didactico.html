@@ -731,8 +731,11 @@ document.getElementById('btnFormat').addEventListener('click', async () => {
     return; 
   }
 
+  // 1. CAPTURAR EL ID DEL USUARIO (Pieza clave para evitar errores en n8n)
+  const { data: { session } } = await window.supabaseClient.auth.getSession();
+  const userId = session ? session.user.id : null;
+
   // DICCIONARIO DE DIRECTIVAS DIDÁCTICAS POR TIPO DE EJERCICIO
-  // Cada prompt fuerza la integración de la historia, las burbujas de diálogo y el diseño visual.
   const exerciseDirectives = {
     "laberintos para resolver visualmente": `
       MANDATO CRÍTICO DE LABERINTOS:
@@ -765,10 +768,8 @@ document.getElementById('btnFormat').addEventListener('click', async () => {
       - Diseño Visual (sceneDescription): Alterna los retos por página. Página 1: Escena muy densa con objetos camuflados. Página 2: Un laberinto claro trazado en el suelo. Página 3: Patrones o formas punteadas para seguir. La calidad de imagen debe ser fotorrealista/3D, pero con zonas claramente definidas para la interacción del niño.`
   };
 
-  // Seleccionamos la directiva correspondiente, si no coincide, usamos una por defecto.
   const specificDirective = exerciseDirectives[activityValue] || exerciseDirectives["mezcla de laberintos, trazos y buscar objetos escondidos"];
 
-  // Construcción del Prompt Final Inyectado
   const finalDescription = `
 ${baseDesc}
 
@@ -786,7 +787,6 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
   state.ebook.pages = parseInt(document.getElementById('pageCount').value);
   state.ebook.age = document.getElementById('childAge').value;
 
-  // Actualizamos la UI
   document.getElementById('loadingText').textContent = 'Estructurando los ejercicios...';
   document.getElementById('loadingSub').textContent = 'Calculando trayectorias y gráficos en Atlas...';
   document.getElementById('loadingOverlay').classList.add('active');
@@ -811,7 +811,6 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 300000); 
     
-    // Enviamos el payload al webhook de n8n
     await fetch(CONFIG.webhooks.ebook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -826,7 +825,8 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
         pages: state.ebook.pages,
         coverUrl: state.ebook.coverUrl,
         protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null,
-        activityType: activityValue // <-- AÑADIR ESTA LÍNEA CRÍTICA
+        activityType: activityValue,
+        user_id: userId // <-- ESTO ES LO QUE SOLUCIONA EL ERROR EN N8N
       })
     });
     clearTimeout(timeoutId);
