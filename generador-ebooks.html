@@ -968,6 +968,10 @@ document.getElementById('btnGenerateEbook').addEventListener('click', async () =
     }
   }, 25000); 
   
+// 1. CAPTURAMOS LA SESIÓN DEL USUARIO AQUÍ
+const { data: { session } } = await window.supabaseClient.auth.getSession();
+const userId = session ? session.user.id : null;
+
 try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000000); 
@@ -985,7 +989,8 @@ try {
         age: state.ebook.age,
         pages: state.ebook.pages,
         coverUrl: state.ebook.coverUrl,
-        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null
+        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null,
+        user_id: userId // <--- ¡AQUÍ ESTÁ AGREGADO EL ID!
       })
     });
     
@@ -994,8 +999,8 @@ try {
     console.log('[Crear Ebook] El servidor continúa procesando en segundo plano.');
   }
 // ═══════════════════════════════════════════════════════════════
-  // LÓGICA BLINDADA: PANTALLA FIJA CON BOTONES
-  // ═══════════════════════════════════════════════════════════════
+// LÓGICA BLINDADA: PANTALLA FIJA CON BOTONES
+// ═══════════════════════════════════════════════════════════════
   clearInterval(progressInterval);
   
   if (barFill) {
