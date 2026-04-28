@@ -811,22 +811,22 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 300000); 
     
-    await fetch(CONFIG.webhooks.ebook, {
+    await fetch(CONFIG.webhooks.didactico, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,
       body: JSON.stringify({
         title: state.ebook.title,
         protagonist: state.ebook.protagonist,
-        description: state.ebook.description, 
+        description: state.ebook.description,
+        activityType: state.ebook.activityType,
         styleDescription: styleDescriptions[state.ebook.style],
         style: state.ebook.style,
         age: state.ebook.age,
         pages: state.ebook.pages,
-        coverUrl: state.ebook.coverUrl,
+        coverUrl: state.ebook.coverUrl, // <--- MIRA, LO METES JUSTO AQUÍ
         protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null,
-        activityType: activityValue,
-        user_id: userId // <-- ESTO ES LO QUE SOLUCIONA EL ERROR EN N8N
+        user_id: userId // <--- (Asegúrate de tener también esta línea para que se guarde en TU perfil)
       })
     });
     clearTimeout(timeoutId);
