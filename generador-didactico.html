@@ -824,7 +824,7 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
         style: state.ebook.style,
         age: state.age,
         pages: state.pages,
-        coverUrl: state.coverUrl, // <--- ASÍ ES COMO DEBE QUEDAR
+        coverUrl: state.coverUrl || state.ebook?.coverUrl || null,
         protagonistPhotoBase64: state.protagonistPhotoBase64 || null,
         user_id: userId // <--- (Asegúrate de tener también esta línea para que se guarde en TU perfil)
       })
