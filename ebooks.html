@@ -318,6 +318,17 @@ body{
     .credits-pill { width: 80%; justify-content: center; }
     .btn-nav { width: 80%; text-align: center; }
   }
+  .btn-play {
+    background: var(--gold); /* Usamos tu color dorado para que resalte */
+    color: white;
+    border: none;
+    margin-top: 8px; /* Separación de los otros botones */
+    width: 100%;
+}
+.btn-play:hover {
+    background: #e66a20; /* Un dorado más oscuro al pasar el mouse */
+    transform: translateY(-2px);
+}
 </style>
 </head>
 <body>
@@ -486,6 +497,22 @@ async function renderPage() {
       
       actionsContainer.appendChild(btnPdf);
       actionsContainer.appendChild(btnPrint);
+      if (isDid) {
+        const btnPlay = document.createElement('button');
+        btnPlay.className = 'btn btn-play'; 
+        btnPlay.innerHTML = '🎮 Jugar Interactivo';
+        
+        btnPlay.onclick = () => {
+          // Buscamos la primera página de actividad (ignorando la portada)
+          // Si por alguna razón no encuentra 'page', usa la imagen 0 por defecto
+          const firstPage = ebook.images.find(img => img.type === 'page') || ebook.images[0];
+          
+          // Enviamos la URL de esa imagen al nuevo panel de juego
+          window.location.href = `jugar.html?img=${encodeURIComponent(firstPage.url)}`;
+        };
+        
+        actionsContainer.appendChild(btnPlay);
+      }
     });
   } catch (err) {
     grid.innerHTML = '<p style="text-align:center; color:var(--text2); font-weight:600; padding:40px; grid-column:1/-1;">🌱 Aún no hay libros aquí o hubo una falla de red. ¡Intenta recargar la página!</p>';
