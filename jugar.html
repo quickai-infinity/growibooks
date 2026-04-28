@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GrowiPlay — ¡A jugar!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Heredamos las variables de color del generador */
+        :root {
+            --bg: #f7f9f4; /* */
+            --lime: #2daa5f; /* */
+            --gold: #ff7b2c; /* */
+            --text: #1a2e1a; /* */
+            --shadow: 0 4px 20px rgba(45,170,95,0.15); /* */
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif; /* */
+            background-color: var(--bg);
+            overflow: hidden; /* Evita scroll mientras dibujas */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* BARRA DE HERRAMIENTAS (Lápices) */
+        .toolbar {
+            background: white;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        .pencil {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .pencil.active {
+            transform: scale(1.2);
+            border-color: var(--text);
+        }
+
+        /* ÁREA DE JUEGO (Canvas) */
+        .game-container {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #gameCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: crosshair;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .btn-action {
+            background: var(--gold);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="toolbar">
+    <button class="btn-action" onclick="window.history.back()">⬅️ Volver</button>
+    <div class="pencil active" style="background: #2daa5f;" onclick="setBrush('#2daa5f', this)"></div>
+    <div class="pencil" style="background: #ff7b2c;" onclick="setBrush('#ff7b2c', this)"></div>
+    <div class="pencil" style="background: #7c4dff;" onclick="setBrush('#7c4dff', this)"></div>
+    <div class="pencil" style="background: #000000;" onclick="setBrush('#000000', this)"></div>
+    <div class="pencil" style="background: #ffffff; border: 1px solid #ccc;" onclick="setBrush('#ffffff', this)">🧽</div>
+    <button class="btn-action" style="background: var(--lime);" onclick="clearCanvas()">✨ Limpiar</button>
+</div>
+
+<div class="game-container">
+    <canvas id="gameCanvas"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let color = '#2daa5f';
+
+    // 1. CARGAR IMAGEN DESDE LA URL (Pasada por la biblioteca)
+    const urlParams = new URLSearchParams(window.location.search);
+    const imageUrl = urlParams.get('img');
+
+    function initCanvas() {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = imageUrl;
+        img.onload = () => {
+            // Ajustar resolución del canvas a la imagen
+            canvas.width = img.width;
+            canvas.height = img.height;
+            // Dibujar imagen de fondo
+            ctx.drawImage(img, 0, 0);
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 8;
+        };
+    }
+
+    // 2. LÓGICA DE DIBUJO
+    function startDrawing(e) {
+        drawing = true;
+        draw(e);
+    }
+
+    function stopDrawing() {
+        drawing = false;
+        ctx.beginPath();
+    }
+
+    function draw(e) {
+        if (!drawing) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+        // Ajuste de escala si el canvas se redimensionó por CSS
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        ctx.strokeStyle = color;
+        ctx.lineTo(x * scaleX, y * scaleY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x * scaleX, y * scaleY);
+    }
+
+    function setBrush(newColor, el) {
+        color = newColor;
+        document.querySelectorAll('.pencil').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function clearCanvas() {
+        initCanvas(); // Recarga la imagen base
+    }
+
+    // Eventos Mouse y Touch
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDrawing);
+    
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+    window.addEventListener('touchend', stopDrawing);
+
+    initCanvas();
+</script>
+
+</body>
+</html>
