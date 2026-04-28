@@ -822,10 +822,10 @@ REGLA ABSOLUTA: Las ilustraciones generadas DEBEN mantener el estilo visual soli
         activityType: state.ebook.activityType,
         styleDescription: styleDescriptions[state.ebook.style],
         style: state.ebook.style,
-        age: state.ebook.age,
-        pages: state.ebook.pages,
-        coverUrl: state.ebook.coverUrl, // <--- MIRA, LO METES JUSTO AQUÍ
-        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null,
+        age: state.age,
+        pages: state.pages,
+        coverUrl: state.coverUrl, // <--- ASÍ ES COMO DEBE QUEDAR
+        protagonistPhotoBase64: state.protagonistPhotoBase64 || null,
         user_id: userId // <--- (Asegúrate de tener también esta línea para que se guarde en TU perfil)
       })
     });
