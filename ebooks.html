@@ -207,6 +207,15 @@ body{
 .btn-print:hover {
   box-shadow: 0 6px 20px rgba(255, 123, 44, .4); transform: translateY(-1px);
 }
+.btn-audio {
+  background: linear-gradient(135deg, var(--purple), #5e35b1);
+  border: none; color: #fff;
+  box-shadow: 0 3px 10px rgba(124, 77, 255, .3);
+  grid-column: 1 / -1; /* Para que ocupe todo el ancho debajo de PDF y Encuadernar */
+}
+.btn-audio:hover {
+  box-shadow: 0 6px 20px rgba(124, 77, 255, .4); transform: translateY(-1px);
+}
 .btn-delete-small {
   background: transparent; border: none; color: #e57373; font-family: var(--fb);
   font-size: 11px; font-weight: 600; cursor: pointer; transition: .2s;
@@ -402,6 +411,18 @@ body{
   </div>
 </div>
 
+<div class="success-modal" id="audioModal">
+  <div class="success-modal-content">
+    <div class="icon">🎧</div>
+    <h3 id="audioModalTitle" style="margin-bottom: 5px;">Audiolibro</h3>
+    <p style="color: var(--text2); font-size: 13px; margin-bottom: 20px;">Relájate y disfruta la historia</p>
+    
+    <audio id="audioPlayerUi" controls style="width: 100%; margin-bottom: 20px; outline: none; border-radius: 30px;"></audio>
+    
+    <button class="btn-close-modal" onclick="closeAudioModal()">Cerrar Reproductor</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -497,6 +518,14 @@ async function renderPage() {
       
       actionsContainer.appendChild(btnPdf);
       actionsContainer.appendChild(btnPrint);
+      // NUEVO: BOTÓN DE AUDIO (Solo se muestra si el libro tiene audio generado)
+      if (ebook.audio_url) {
+        const btnAudio = document.createElement('button');
+        btnAudio.className = 'btn btn-audio';
+        btnAudio.innerHTML = '🎧 Escuchar Audiolibro';
+        btnAudio.onclick = () => playAudio(ebook.title, ebook.audio_url);
+        actionsContainer.appendChild(btnAudio);
+      }
       if (isDid) {
         const btnPlay = document.createElement('button');
         btnPlay.className = 'btn btn-play'; 
@@ -518,7 +547,24 @@ async function renderPage() {
     grid.innerHTML = '<p style="text-align:center; color:var(--text2); font-weight:600; padding:40px; grid-column:1/-1;">🌱 Aún no hay libros aquí o hubo una falla de red. ¡Intenta recargar la página!</p>';
   }
 }
+function playAudio(title, audioUrl) {
+  if (!audioUrl) {
+    showError("Este cuento aún no tiene audio.");
+    return;
+  }
+  document.getElementById('audioModalTitle').textContent = title;
+  const player = document.getElementById('audioPlayerUi');
+  player.src = audioUrl;
+  document.getElementById('audioModal').style.display = 'flex';
+  player.play(); // Inicia la reproducción automáticamente
+}
 
+function closeAudioModal() {
+  const player = document.getElementById('audioPlayerUi');
+  player.pause(); // Pausamos el audio
+  player.src = "";  // Limpiamos la pista
+  document.getElementById('audioModal').style.display = 'none';
+}
 // 4. FUNCIONES DE ACCIÓN
 async function deleteEbook(id) {
   if (!confirm('¿Eliminar este ebook permanentemente de la base de datos?')) return;
