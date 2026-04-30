@@ -1108,13 +1108,15 @@ document.getElementById('btnMagicDesc').addEventListener('click', async () => {
   btn.disabled = true;
   
   try {
-    const response = await fetch(CONFIG.webhooks.description, {
+const response = await fetch(CONFIG.webhooks.description, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: title,
         protagonist: document.getElementById('protagonistName').value.trim() || 'el protagonista',
-        style: state.ebook.style
+        style: state.ebook.style,
+        description: document.getElementById('storyDescription').value.trim(),
+        activityType: null // <--- ESTO EVITA EL ERROR 400 EN LA CONSOLA
       })
     });
     
