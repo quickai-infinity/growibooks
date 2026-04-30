@@ -97,6 +97,18 @@ select{cursor:pointer}
 .style-option .icon{font-size:18px;margin-bottom:3px;display:block}
 .style-option .name{font-weight:700;color:var(--text);font-family:var(--fd)}
 
+/* ESTILOS DEL SELECTOR DE VOZ */
+.voice-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.voice-option { padding: 14px 6px; background: var(--bg); border: 2px solid var(--bg5); border-radius: var(--rs); cursor: pointer; text-align: center; transition: .2s; }
+.voice-option:hover { border-color: var(--lime20); background: var(--bg4); transform: translateY(-2px); }
+.voice-option.selected { border-color: var(--green); background: var(--lime10); box-shadow: 0 4px 12px var(--lime20); }
+.voice-option .icon { font-size: 26px; display: block; margin-bottom: 6px; }
+.voice-option .name { font-weight: 800; font-family: var(--fd); color: var(--text); font-size: 13px; display: block; }
+.voice-option .sub { font-size: 9px; color: var(--text2); display: block; font-weight: 600; margin-top: 4px; line-height: 1.3; }
+
+/* Para que en celular se pongan 2 arriba y 2 abajo */
+@media(max-width:600px){ .voice-grid { grid-template-columns: repeat(2, 1fr); } }
+
 /* PREVIEW SIDEBAR */
 .preview-section{position:sticky;top:100px}
 .book-preview-card{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:24px;text-align:center;box-shadow:var(--shadow)}
@@ -348,6 +360,40 @@ select{cursor:pointer}
           <textarea id="storyDescription" placeholder="Describe la aventura, el mundo mágico, los personajes..."></textarea>
         </div>
 
+        <!-- SECCIÓN: SELECTOR DE VOZ (NARRADOR) -->
+        <div class="input-group" style="margin-top: 24px;">
+          <label>🎙️ Voz del Cuentacuentos</label>
+          <p style="font-size: 10px; color: var(--text3); margin-top: -4px; margin-bottom: 12px; font-weight:600;">Elige quién narrará esta increíble aventura.</p>
+          
+          <div class="voice-grid">
+            
+            <div class="voice-option selected" data-voice="narradora_adulta">
+              <span class="icon">👩</span>
+              <span class="name">Elena</span>
+              <span class="sub">Mujer Adulta<br>Narradora Cálida</span>
+            </div>
+            
+            <div class="voice-option" data-voice="narrador_adulto">
+              <span class="icon">👨</span>
+              <span class="name">Carlos</span>
+              <span class="sub">Hombre Adulto<br>Voz Profunda</span>
+            </div>
+
+            <div class="voice-option" data-voice="narradora_joven">
+              <span class="icon">👧</span>
+              <span class="name">Sofía</span>
+              <span class="sub">Mujer Joven<br>Voz Dulce</span>
+            </div>
+
+            <div class="voice-option" data-voice="narrador_joven">
+              <span class="icon">👦</span>
+              <span class="name">Mateo</span>
+              <span class="sub">Hombre Joven<br>Voz Dinámica</span>
+            </div>
+
+          </div>
+        </div>
+        <!-- FIN SELECTOR DE VOZ -->
         <div class="input-group">
           <label>Estilo Visual</label>
           <div class="style-grid">
@@ -678,10 +724,9 @@ let state = {
     style: 'pixar',
     age: '9-12',
     pages: 10,
+    voice: 'narradora_adulta', // <--- AÑADE ESTA LÍNEA
     coverUrl: null,
-    docUrl: null,
-    pdfUrl: null,
-    images: []
+//...
   },
   gift: {
     audioBlob: null,
@@ -757,6 +802,14 @@ function goToStep(step) {
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+// EVENTO: SELECCIÓN DE NARRADOR
+document.querySelectorAll('.voice-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.voice-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    state.ebook.voice = opt.dataset.voice; 
+  });
+});
 
 // ═══════════════════════════════════════════════════════════════
 // ZOOM MODAL — Click en la portada para verla en grande
@@ -972,6 +1025,15 @@ document.getElementById('btnGenerateEbook').addEventListener('click', async () =
 const { data: { session } } = await window.supabaseClient.auth.getSession();
 const userId = session ? session.user.id : null;
 
+// ---> AQUÍ PONEMOS EL DICCIONARIO ANTES DEL TRY <---
+const elevenLabsVoces = {
+  'narradora_adulta': 'gt8UWQljAEAt5YLqG4LW',
+  'narrador_adulto':  't3eeeqhBjrUqcrPvDqUn',
+  'narradora_joven':  'imFXYz8XIletRKLZZQaA',
+  'narrador_joven':   'NMFX8Ys7tWjlkdR0gerk'
+};
+const idDeVozParaN8n = elevenLabsVoces[state.ebook.voice];
+
 try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000000); 
@@ -980,6 +1042,7 @@ try {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,
+      // ---> ESTE ES EL "BODY" DEL FETCH <---
       body: JSON.stringify({
         title: state.ebook.title,
         protagonist: state.ebook.protagonist,
@@ -988,9 +1051,10 @@ try {
         style: state.ebook.style,
         age: state.ebook.age,
         pages: state.ebook.pages,
+        voiceId: idDeVozParaN8n, // <--- AQUÍ MANDAMOS EL ID DE LA VOZ ELEGIDA
         coverUrl: state.ebook.coverUrl,
         protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null,
-        user_id: userId // <--- ¡AQUÍ ESTÁ AGREGADO EL ID!
+        user_id: userId 
       })
     });
     
