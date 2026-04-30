@@ -880,13 +880,16 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
     const controller = new AbortController();
     const coverTimeout = setTimeout(() => controller.abort(), 240000); 
 
-    const response = await fetch(CONFIG.webhooks.previewCover, {
+  const response = await fetch(CONFIG.webhooks.description, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        title: title,
+        protagonist: document.getElementById('protagonistName').value.trim() || 'el protagonista',
+        style: state.ebook.style,
+        description: document.getElementById('storyDescription').value.trim() // <--- ¡ESTA ES LA LÍNEA MÁGICA QUE FALTABA!
+      })
     });
-    
     clearTimeout(coverTimeout);
     
     if (!response.ok) {
