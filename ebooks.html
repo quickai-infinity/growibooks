@@ -239,15 +239,26 @@ body{
 /* ── VISOR DEL LIBRO (CARRUSEL) ── */
 .book-viewer {
   display: flex; align-items: center; justify-content: center;
-  position: relative; flex-grow: 1; min-height: 400px; margin-bottom: 20px;
-  background: var(--bg3); border-radius: 16px; overflow: hidden;
+  position: relative; flex-grow: 1; 
+  min-height: 50vh; /* Altura forzada relativa a la pantalla */
+  max-height: 65vh; /* Evita que crezca demasiado */
+  width: 100%;
+  margin-bottom: 20px;
+  background: var(--bg); /* Usa el fondo suave para mejor contraste */
+  border-radius: 16px; overflow: hidden;
   box-shadow: inset 0 4px 20px rgba(0,0,0,.05);
 }
 .book-slide {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  object-fit: contain; opacity: 0; transition: opacity 0.8s ease-in-out;
+  position: absolute; top: 0; left: 0; 
+  width: 100%; height: 100%;
+  object-fit: contain; /* Esto asegura que el libro se vea completo sin recortarse */
+  opacity: 0; transition: opacity 0.5s ease-in-out;
+  visibility: hidden; /* Oculta las que no están activas de verdad */
 }
-.book-slide.active { opacity: 1; z-index: 10;}
+.book-slide.active { 
+  opacity: 1; z-index: 10; 
+  visibility: visible; /* Muestra la activa */
+}
 
 /* Controles del Carrusel */
 .nav-arrow {
