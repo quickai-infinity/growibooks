@@ -458,9 +458,12 @@ body{
     <!-- Visor de Imágenes del Libro -->
     <div class="book-viewer" id="bookViewer">
       <button class="nav-arrow left" onclick="prevSlide()">◀</button>
-      <div id="slidesContainer" style="width: 100%; height: 100%; position: relative;">
+      
+      <!-- EL SECRETO ESTÁ EN EL POSITION: ABSOLUTE DE ESTE DIV -->
+      <div id="slidesContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; overflow: hidden; z-index: 5;">
         <!-- Las imágenes se insertarán aquí con JavaScript -->
       </div>
+      
       <button class="nav-arrow right" onclick="nextSlide()">▶</button>
     </div>
 
