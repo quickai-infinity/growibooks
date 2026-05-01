@@ -606,24 +606,33 @@ function playAudio(ebook) {
   document.getElementById('audioModal').style.display = 'flex';
   
   // 2. Preparar el Carrusel de Imágenes
-  const slidesContainer = document.getElementById('slidesContainer');
+ const slidesContainer = document.getElementById('slidesContainer');
   slidesContainer.innerHTML = ''; // Limpiar libro anterior
   currentSlideIndex = 0;
   
   // Reunir todas las imágenes (Portada + Páginas)
   let allImages = [];
-  if (ebook.cover_url) allImages.push(ebook.cover_url);
+  
+  // ¡CORRECCIÓN 1! Limpiamos la URL de la portada antes de meterla
+  if (ebook.cover_url) {
+    allImages.push(ebook.cover_url.replace(/=/g, ''));
+  }
+  
   if (ebook.images && Array.isArray(ebook.images)) {
     // Filtrar solo las páginas y ordenarlas
     const pages = ebook.images.filter(img => img.type === 'page').sort((a,b) => a.pageNumber - b.pageNumber);
-    pages.forEach(p => allImages.push(p.url));
+    
+    // ¡CORRECCIÓN 2! Limpiamos la URL de cada página antes de meterla
+    pages.forEach(p => {
+      if (p.url) allImages.push(p.url.replace(/=/g, ''));
+    });
   }
   totalSlides = allImages.length;
 
   // Insertar imágenes en el visor
   allImages.forEach((url, index) => {
     const img = document.createElement('img');
-    img.src = url;
+    img.src = url; // Ahora esta URL está 100% limpia y Supabase la aceptará
     img.className = `book-slide ${index === 0 ? 'active' : ''}`; // La primera es visible
     img.id = `slide-${index}`;
     slidesContainer.appendChild(img);
