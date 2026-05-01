@@ -1108,22 +1108,21 @@ document.getElementById('btnMagicDesc').addEventListener('click', async () => {
   btn.disabled = true;
   
   try {
-    // CAPTURAMOS LA SESIÓN DEL USUARIO PARA LA DESCRIPCIÓN TAMBIÉN
+    // CAPTURAMOS LA SESIÓN DEL USUARIO
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     const userId = session ? session.user.id : null;
 
     const response = await fetch(CONFIG.webhooks.description, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      // JSON PLANO SIN EL ENVOLTORIO 'body: {}' EXTRA
       body: JSON.stringify({
-        body: { // <-- AÑADIMOS EL ENVOLTORIO 'body' QUE N8N ESPERA
-          title: title,
-          protagonist: document.getElementById('protagonistName').value.trim() || 'el protagonista',
-          style: state.ebook.style,
-          description: document.getElementById('storyDescription').value.trim(),
-          activityType: "", // Cadena vacía en lugar de null
-          user_id: userId
-        }
+        title: title,
+        protagonist: document.getElementById('protagonistName').value.trim() || 'los protagonistas',
+        style: state.ebook.style,
+        description: document.getElementById('storyDescription').value.trim(),
+        activityType: "", // Cadena vacía para evitar el error 400
+        user_id: userId
       })
     });
     
@@ -1136,7 +1135,7 @@ document.getElementById('btnMagicDesc').addEventListener('click', async () => {
         textarea.value = rawText;
       }
     } else {
-        showError('Error del servidor: ' + response.status);
+      showError('Error del servidor: ' + response.status);
     }
   } catch (err) {
     showError('Error al conectar con la IA.');
@@ -1145,7 +1144,6 @@ document.getElementById('btnMagicDesc').addEventListener('click', async () => {
   btn.textContent = '✨ Generar con IA';
   btn.disabled = false;
 });
-
 // ═══════════════════════════════════════════════════════════════
 // PANEL 2: FORMATO
 // ═══════════════════════════════════════════════════════════════
