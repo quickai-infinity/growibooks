@@ -222,24 +222,54 @@ body{
 }
 .btn-delete-small:hover { color: #c62828; text-decoration: underline; }
 
-/* ── MODAL DE ÉXITO DE IMPRESIÓN ── */
+/* ── MODALES (ÉXITO Y AUDIO) ── */
 .success-modal {
-  position: fixed; inset: 0; background: rgba(26,46,26,.9);
-  z-index: 6000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px);
+  position: fixed; inset: 0; background: rgba(26,46,26,.95);
+  z-index: 6000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px);
 }
 .success-modal-content {
-  background: var(--bg3); padding: 40px; border-radius: var(--r); text-align: center;
-  border: 2px solid var(--green20); box-shadow: var(--shadow-lg); max-width: 400px; width: 90%;
+  background: var(--bg); padding: 30px; border-radius: 24px; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4); width: 95%; max-width: 900px; max-height: 95vh;
+  display: flex; flex-direction: column; position: relative;
 }
 .success-modal-content .icon { font-size: 64px; margin-bottom: 16px; color: var(--green); }
 .success-modal-content h3 { font-family: var(--fd); font-size: 24px; font-weight: 900; color: var(--text); margin-bottom: 12px; }
 .success-modal-content p { color: var(--text2); font-size: 14px; font-weight: 500; margin-bottom: 24px; line-height: 1.6; }
+
+/* ── VISOR DEL LIBRO (CARRUSEL) ── */
+.book-viewer {
+  display: flex; align-items: center; justify-content: center;
+  position: relative; flex-grow: 1; min-height: 400px; margin-bottom: 20px;
+  background: var(--bg3); border-radius: 16px; overflow: hidden;
+  box-shadow: inset 0 4px 20px rgba(0,0,0,.05);
+}
+.book-slide {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  object-fit: contain; opacity: 0; transition: opacity 0.8s ease-in-out;
+}
+.book-slide.active { opacity: 1; z-index: 10;}
+
+/* Controles del Carrusel */
+.nav-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 20;
+  background: rgba(255,255,255,0.8); border: none; border-radius: 50%;
+  width: 50px; height: 50px; font-size: 24px; color: var(--green);
+  cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: 0.3s;
+}
+.nav-arrow:hover { background: var(--green); color: white; transform: translateY(-50%) scale(1.1); }
+.nav-arrow.left { left: 15px; }
+.nav-arrow.right { right: 15px; }
+
+/* Controles de Audio y Cierre */
+.audio-controls { margin-top: auto; padding-top: 15px; border-top: 2px solid var(--green10); }
+.audio-controls h3 { font-family: var(--fd); font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 5px; }
+.audio-controls p { color: var(--text2); font-size: 14px; margin-bottom: 15px; }
 .btn-close-modal {
   padding: 12px 32px; background: var(--green); color: #fff; border: none;
-  border-radius: 20px; font-family: var(--fd); font-weight: 800; cursor: pointer; width: 100%;
+  border-radius: 20px; font-family: var(--fd); font-weight: 800; cursor: pointer; width: 100%; max-width: 300px; margin: 0 auto; display: block;
 }
-.btn-delete:hover{border-color:#ef5350;background:#ffebee;color:#c62828}
-
+.btn-close-modal:hover { background: var(--green-dark); }
+.btn-delete:hover { border-color:#ef5350; background:#ffebee; color:#c62828; }
 /* ── CTA BUTTON ── */
 .btn-create{
   display:block;width:fit-content;
@@ -413,13 +443,23 @@ body{
 
 <div class="success-modal" id="audioModal">
   <div class="success-modal-content">
-    <div class="icon">🎧</div>
-    <h3 id="audioModalTitle" style="margin-bottom: 5px;">Audiolibro</h3>
-    <p style="color: var(--text2); font-size: 13px; margin-bottom: 20px;">Relájate y disfruta la historia</p>
     
-    <audio id="audioPlayerUi" controls style="width: 100%; margin-bottom: 20px; outline: none; border-radius: 30px;"></audio>
-    
-    <button class="btn-close-modal" onclick="closeAudioModal()">Cerrar Reproductor</button>
+    <!-- Visor de Imágenes del Libro -->
+    <div class="book-viewer" id="bookViewer">
+      <button class="nav-arrow left" onclick="prevSlide()">◀</button>
+      <div id="slidesContainer" style="width: 100%; height: 100%; position: relative;">
+        <!-- Las imágenes se insertarán aquí con JavaScript -->
+      </div>
+      <button class="nav-arrow right" onclick="nextSlide()">▶</button>
+    </div>
+
+    <!-- Controles de Audio -->
+    <div class="audio-controls">
+      <h3 id="audioModalTitle">Audiolibro Interactivo</h3>
+      <p id="audioModalStatus">Cargando la magia...</p>
+      <audio id="audioPlayerUi" controls style="width: 100%; margin-bottom: 20px; outline: none; border-radius: 30px;"></audio>
+      <button class="btn-close-modal" onclick="closeAudioModal()">Cerrar Libro</button>
+    </div>
   </div>
 </div>
 
@@ -547,22 +587,92 @@ async function renderPage() {
     grid.innerHTML = '<p style="text-align:center; color:var(--text2); font-weight:600; padding:40px; grid-column:1/-1;">🌱 Aún no hay libros aquí o hubo una falla de red. ¡Intenta recargar la página!</p>';
   }
 }
-function playAudio(title, audioUrl) {
-  if (!audioUrl) {
+// --- VARIABLES GLOBALES DEL LECTOR INTERACTIVO ---
+let currentSlideIndex = 0;
+let totalSlides = 0;
+let autoSlideInterval = null;
+
+// --- FUNCIÓN PRINCIPAL ---
+function playAudio(ebook) {
+  if (!ebook.audio_url) {
     showError("Este cuento aún no tiene audio.");
     return;
   }
-  document.getElementById('audioModalTitle').textContent = title;
+  
+  // 1. Preparar la Interfaz
+  document.getElementById('audioModalTitle').textContent = ebook.title || 'Cuento';
   const player = document.getElementById('audioPlayerUi');
-  player.src = audioUrl;
+  player.src = ebook.audio_url;
   document.getElementById('audioModal').style.display = 'flex';
-  player.play(); // Inicia la reproducción automáticamente
+  
+  // 2. Preparar el Carrusel de Imágenes
+  const slidesContainer = document.getElementById('slidesContainer');
+  slidesContainer.innerHTML = ''; // Limpiar libro anterior
+  currentSlideIndex = 0;
+  
+  // Reunir todas las imágenes (Portada + Páginas)
+  let allImages = [];
+  if (ebook.cover_url) allImages.push(ebook.cover_url);
+  if (ebook.images && Array.isArray(ebook.images)) {
+    // Filtrar solo las páginas y ordenarlas
+    const pages = ebook.images.filter(img => img.type === 'page').sort((a,b) => a.pageNumber - b.pageNumber);
+    pages.forEach(p => allImages.push(p.url));
+  }
+  totalSlides = allImages.length;
+
+  // Insertar imágenes en el visor
+  allImages.forEach((url, index) => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.className = `book-slide ${index === 0 ? 'active' : ''}`; // La primera es visible
+    img.id = `slide-${index}`;
+    slidesContainer.appendChild(img);
+  });
+
+  document.getElementById('audioModalStatus').textContent = `Página 1 de ${totalSlides}`;
+
+  // 3. La Magia de la Sincronización
+  player.onloadedmetadata = function() {
+    // Calculamos cuánto dura cada página
+    const durationEnSegundos = player.duration;
+    const tiempoPorPagina = (durationEnSegundos / totalSlides) * 1000; // en milisegundos
+
+    // Si el niño le da a play, el libro pasa solo
+    player.onplay = () => {
+      clearInterval(autoSlideInterval);
+      autoSlideInterval = setInterval(nextSlide, tiempoPorPagina);
+    };
+    
+    // Si pausa, el libro deja de pasar solo
+    player.onpause = () => clearInterval(autoSlideInterval);
+  };
+
+  player.play();
 }
+
+// --- FUNCIONES DE CONTROL MANUAL ---
+function showSlide(index) {
+  // Asegurar que no se salga de los límites
+  if (index >= totalSlides) currentSlideIndex = 0;
+  else if (index < 0) currentSlideIndex = totalSlides - 1;
+  else currentSlideIndex = index;
+
+  // Ocultar todas
+  document.querySelectorAll('.book-slide').forEach(img => img.classList.remove('active'));
+  // Mostrar la actual
+  document.getElementById(`slide-${currentSlideIndex}`).classList.add('active');
+  
+  document.getElementById('audioModalStatus').textContent = `Página ${currentSlideIndex + 1} de ${totalSlides}`;
+}
+
+function nextSlide() { showSlide(currentSlideIndex + 1); }
+function prevSlide() { showSlide(currentSlideIndex - 1); }
 
 function closeAudioModal() {
   const player = document.getElementById('audioPlayerUi');
-  player.pause(); // Pausamos el audio
-  player.src = "";  // Limpiamos la pista
+  player.pause(); 
+  player.src = "";  
+  clearInterval(autoSlideInterval); // Detener el paso automático
   document.getElementById('audioModal').style.display = 'none';
 }
 // 4. FUNCIONES DE ACCIÓN
