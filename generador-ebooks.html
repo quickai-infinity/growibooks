@@ -880,7 +880,7 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
     const controller = new AbortController();
     const coverTimeout = setTimeout(() => controller.abort(), 240000); 
 
-  const response = await fetch(CONFIG.webhooks.cover, {
+  const response = await fetch(CONFIG.webhooks.previewCover, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
