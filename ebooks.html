@@ -563,7 +563,7 @@ async function renderPage() {
         const btnAudio = document.createElement('button');
         btnAudio.className = 'btn btn-audio';
         btnAudio.innerHTML = '🎧 Escuchar Audiolibro';
-        btnAudio.onclick = () => playAudio(ebook.title, ebook.audio_url);
+        btnAudio.onclick = () => playAudio(ebook);
         actionsContainer.appendChild(btnAudio);
       }
       if (isDid) {
