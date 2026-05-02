@@ -460,12 +460,15 @@ body{
     <p id="paintModalStatus">Cargando páginas...</p>
 
     <!-- Visor de Imágenes (Carrusel) -->
-    <div class="book-viewer" id="paintViewer">
-      <button class="nav-arrow left" onclick="prevPaintSlide()">◀</button>
-      <div id="paintSlidesContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; overflow: hidden; z-index: 5;">
-        <!-- Las imágenes se insertarán aquí -->
+    <!-- Visor de Imágenes del Libro (Corregido con ID único para audio) -->
+    <div class="book-viewer" id="bookViewer">
+      <button class="nav-arrow left" onclick="prevSlide()">◀</button>
+      
+      <div id="audioSlidesContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; overflow: hidden; z-index: 5;">
+        <!-- Las imágenes se insertarán aquí con JavaScript -->
       </div>
-      <button class="nav-arrow right" onclick="nextPaintSlide()">▶</button>
+      
+      <button class="nav-arrow right" onclick="nextSlide()">▶</button>
     </div>
 
     <!-- Controles -->
@@ -623,8 +626,8 @@ function playAudio(ebook) {
   player.src = ebook.audio_url;
   document.getElementById('audioModal').style.display = 'flex';
   
-  // 2. Preparar el Carrusel de Imágenes
- const slidesContainer = document.getElementById('slidesContainer');
+ // 2. Preparar el Carrusel de Imágenes (Actualizado para usar el nuevo ID)
+  const slidesContainer = document.getElementById('audioSlidesContainer'); // <-- ID CORREGIDO
   slidesContainer.innerHTML = ''; // Limpiar libro anterior
   currentSlideIndex = 0;
   
@@ -684,8 +687,8 @@ function showSlide(index) {
   else if (index < 0) currentSlideIndex = totalSlides - 1;
   else currentSlideIndex = index;
 
-  // Ocultar todas
-  document.querySelectorAll('.book-slide').forEach(img => img.classList.remove('active'));
+  // Ocultar todas las de audio (Actualizado para usar selectores específicos)
+  document.querySelectorAll('#audioSlidesContainer .book-slide').forEach(img => img.classList.remove('active')); // <-- SELECTOR CORREGIDO
   // Mostrar la actual
   document.getElementById(`slide-${currentSlideIndex}`).classList.add('active');
   
