@@ -452,6 +452,28 @@ body{
   </div>
 </div>
 
+<!-- Modal para Audiolibro -->
+<div class="success-modal" id="audioModal" style="display:none;">
+  <div class="success-modal-content">
+    
+    <!-- Visor de Imágenes del Audio -->
+    <div class="book-viewer" id="audioViewer">
+      <button class="nav-arrow left" onclick="prevSlide()">◀</button>
+      <div id="audioSlidesContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; overflow: hidden; z-index: 5;">
+      </div>
+      <button class="nav-arrow right" onclick="nextSlide()">▶</button>
+    </div>
+
+    <!-- Controles de Audio -->
+    <div class="audio-controls">
+      <h3 id="audioModalTitle">Audiolibro Interactivo</h3>
+      <p id="audioModalStatus">Cargando la magia...</p>
+      <audio id="audioPlayerUi" controls style="width: 100%; margin-bottom: 20px; outline: none; border-radius: 30px;"></audio>
+      <button class="btn-close-modal" onclick="closeAudioModal()">Cerrar Libro</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal para Elegir Página a Pintar -->
 <div class="success-modal" id="paintModal" style="display:none;">
   <div class="success-modal-content">
@@ -459,16 +481,12 @@ body{
     <h3 id="paintModalTitle">Elige qué página quieres pintar</h3>
     <p id="paintModalStatus">Cargando páginas...</p>
 
-    <!-- Visor de Imágenes (Carrusel) -->
-    <!-- Visor de Imágenes del Libro (Corregido con ID único para audio) -->
-    <div class="book-viewer" id="bookViewer">
-      <button class="nav-arrow left" onclick="prevSlide()">◀</button>
-      
-      <div id="audioSlidesContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; overflow: hidden; z-index: 5;">
-        <!-- Las imágenes se insertarán aquí con JavaScript -->
+    <!-- Visor de Imágenes para Pintar -->
+    <div class="book-viewer" id="paintViewer">
+      <button class="nav-arrow left" onclick="prevPaintSlide()">◀</button>
+      <div id="paintSlidesContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; overflow: hidden; z-index: 5;">
       </div>
-      
-      <button class="nav-arrow right" onclick="nextSlide()">▶</button>
+      <button class="nav-arrow right" onclick="nextPaintSlide()">▶</button>
     </div>
 
     <!-- Controles -->
