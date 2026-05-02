@@ -452,20 +452,29 @@ body{
   </div>
 </div>
 
-<div class="success-modal" id="audioModal">
+<!-- Modal para Elegir Página a Pintar -->
+<div class="success-modal" id="paintModal" style="display:none;">
   <div class="success-modal-content">
-    
-    <!-- Visor de Imágenes del Libro -->
-    <div class="book-viewer" id="bookViewer">
-      <button class="nav-arrow left" onclick="prevSlide()">◀</button>
-      
-      <!-- EL SECRETO ESTÁ EN EL POSITION: ABSOLUTE DE ESTE DIV -->
-      <div id="slidesContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; overflow: hidden; z-index: 5;">
-        <!-- Las imágenes se insertarán aquí con JavaScript -->
+    <div class="icon">🎨</div>
+    <h3 id="paintModalTitle">Elige qué página quieres pintar</h3>
+    <p id="paintModalStatus">Cargando páginas...</p>
+
+    <!-- Visor de Imágenes (Carrusel) -->
+    <div class="book-viewer" id="paintViewer">
+      <button class="nav-arrow left" onclick="prevPaintSlide()">◀</button>
+      <div id="paintSlidesContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px; overflow: hidden; z-index: 5;">
+        <!-- Las imágenes se insertarán aquí -->
       </div>
-      
-      <button class="nav-arrow right" onclick="nextSlide()">▶</button>
+      <button class="nav-arrow right" onclick="nextPaintSlide()">▶</button>
     </div>
+
+    <!-- Controles -->
+    <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+        <button class="btn-close-modal" style="background: var(--gold); color: #fff; width: 100%; max-width: 300px;" onclick="goToPaint()">🖌️ Pintar esta página</button>
+        <button class="btn-close-modal" style="background: transparent; border: 2px solid var(--bg5); color: var(--text2); width: 100%; max-width: 300px;" onclick="closePaintModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
 
     <!-- Controles de Audio -->
     <div class="audio-controls">
@@ -580,18 +589,13 @@ async function renderPage() {
         btnAudio.onclick = () => playAudio(ebook);
         actionsContainer.appendChild(btnAudio);
       }
-      if (isDid) {
+   if (isDid) {
         const btnPlay = document.createElement('button');
         btnPlay.className = 'btn btn-play'; 
         btnPlay.innerHTML = '✏️Pintar';
         
         btnPlay.onclick = () => {
-          // Buscamos la primera página de actividad (ignorando la portada)
-          // Si por alguna razón no encuentra 'page', usa la imagen 0 por defecto
-          const firstPage = ebook.images.find(img => img.type === 'page') || ebook.images[0];
-          
-          // Enviamos la URL de esa imagen al nuevo panel de juego
-          window.location.href = `jugar.html?img=${encodeURIComponent(firstPage.url)}`;
+          openPaintModal(ebook); // <-- Ahora abre el carrusel de selección
         };
         
         actionsContainer.appendChild(btnPlay);
@@ -697,6 +701,71 @@ function closeAudioModal() {
   player.src = "";  
   clearInterval(autoSlideInterval); // Detener el paso automático
   document.getElementById('audioModal').style.display = 'none';
+}
+// --- LÓGICA DEL SELECTOR DE PÁGINAS PARA PINTAR ---
+let paintImages = [];
+let currentPaintIndex = 0;
+
+function openPaintModal(ebook) {
+  paintImages = [];
+  
+  // 1. Añadimos la PORTADA (Solucionando tu error principal)
+  if (ebook.cover_url) {
+    paintImages.push(ebook.cover_url.replace(/=/g, ''));
+  }
+  
+  // 2. Añadimos TODAS las páginas en orden
+  if (ebook.images && Array.isArray(ebook.images)) {
+    const pages = ebook.images.filter(img => img.type === 'page').sort((a,b) => a.pageNumber - b.pageNumber);
+    pages.forEach(p => {
+      if (p.url) paintImages.push(p.url.replace(/=/g, ''));
+    });
+  }
+
+  if (paintImages.length === 0) {
+    showError("No hay imágenes en este cuaderno.");
+    return;
+  }
+
+  // Preparamos el contenedor visual
+  const container = document.getElementById('paintSlidesContainer');
+  container.innerHTML = '';
+  currentPaintIndex = 0;
+
+  paintImages.forEach((url, index) => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.className = `book-slide ${index === 0 ? 'active' : ''}`;
+    img.id = `paint-slide-${index}`;
+    container.appendChild(img);
+  });
+
+  document.getElementById('paintModalTitle').textContent = ebook.title || "Cuaderno";
+  document.getElementById('paintModalStatus').textContent = `Página 1 de ${paintImages.length} (Portada)`;
+  document.getElementById('paintModal').style.display = 'flex';
+}
+
+function showPaintSlide(index) {
+  if (index >= paintImages.length) currentPaintIndex = 0;
+  else if (index < 0) currentPaintIndex = paintImages.length - 1;
+  else currentPaintIndex = index;
+
+  document.querySelectorAll('#paintSlidesContainer .book-slide').forEach(img => img.classList.remove('active'));
+  document.getElementById(`paint-slide-${currentPaintIndex}`).classList.add('active');
+
+  const isCover = currentPaintIndex === 0 ? "(Portada)" : "";
+  document.getElementById('paintModalStatus').textContent = `Página ${currentPaintIndex + 1} de ${paintImages.length} ${isCover}`;
+}
+
+function nextPaintSlide() { showPaintSlide(currentPaintIndex + 1); }
+function prevPaintSlide() { showPaintSlide(currentPaintIndex - 1); }
+function closePaintModal() { document.getElementById('paintModal').style.display = 'none'; }
+
+// Esta función se ejecuta al darle "Pintar esta página"
+function goToPaint() {
+  const selectedUrl = paintImages[currentPaintIndex];
+  // Envía la imagen exacta que el usuario está viendo al panel de juego
+  window.location.href = `jugar.html?img=${encodeURIComponent(selectedUrl)}`;
 }
 // 4. FUNCIONES DE ACCIÓN
 async function deleteEbook(id) {
