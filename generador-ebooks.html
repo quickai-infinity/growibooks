@@ -900,7 +900,8 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
         protagonist: document.getElementById('protagonistName').value.trim() || 'el protagonista',
         style: state.ebook.style,
         description: document.getElementById('storyDescription').value.trim(),
-        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null // <--- ¡AQUÍ ESTÁ LA FOTO!
+        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null, // <--- ¡AQUÍ ESTÁ LA FOTO!
+        language: document.getElementById('storyLanguage').value
       })
     });
     clearTimeout(coverTimeout);
@@ -1070,6 +1071,7 @@ try {
         voiceId: idDeVozParaN8n, // <--- AQUÍ MANDAMOS EL ID DE LA VOZ ELEGIDA
         coverUrl: state.ebook.coverUrl,
         protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null,
+        language: document.getElementById('storyLanguage').value, // <--- ¡NUEVA LÍNEA!
         user_id: userId 
       })
     });
@@ -1135,6 +1137,7 @@ document.getElementById('btnMagicDesc').addEventListener('click', async () => {
         style: state.ebook.style,
         description: document.getElementById('storyDescription').value.trim(),
         activityType: "", // Cadena vacía para evitar el error 400
+        language: document.getElementById('storyLanguage').value, // <--- ¡NUEVA LÍNEA!
         user_id: userId
       })
     });
