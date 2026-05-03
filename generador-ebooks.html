@@ -359,6 +359,14 @@ select{cursor:pointer}
         </div>
 
         <div class="input-group">
+  <label for="protagonistGender">Sexo del Protagonista:</label>
+  <select id="protagonistGender" class="form-control">
+    <option value="Masculino">Niño (Masculino)</option>
+    <option value="Femenino">Niña (Femenina)</option>
+  </select>
+</div>
+
+        <div class="input-group">
            <label>📸 Foto del Protagonista ( Para personalizar su rostro)</label>
            <input type="file" id="protagonistPhoto" accept="image/png, image/jpeg, image/jpg" style="padding: 8px; background: var(--bg); border: 2px dashed var(--lime20); border-radius: var(--rs); color: var(--text2); cursor: pointer; width: 100%; font-family: var(--fb); font-size: 12px;">
            <p style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight:600;">Sube una foto clara donde se vea bien el rostro (Máximo 2MB).</p>
@@ -903,6 +911,7 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
         protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null, // <--- ¡AQUÍ ESTÁ LA FOTO!
         language: document.getElementById('storyLanguage').value,
         age: document.getElementById('childAge').value, // <--- AÑADE ESTO AL PREVIEW
+        gender: document.getElementById('protagonistGender').value // <--- ESTA ES LA LÍNEA NUEVA
       })
     });
     clearTimeout(coverTimeout);
