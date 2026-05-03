@@ -901,11 +901,12 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
         style: state.ebook.style,
         description: document.getElementById('storyDescription').value.trim(),
         protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null, // <--- ¡AQUÍ ESTÁ LA FOTO!
-        language: document.getElementById('storyLanguage').value
+        language: document.getElementById('storyLanguage').value,
+        age: document.getElementById('childAge').value, // <--- AÑADE ESTO AL PREVIEW
       })
     });
     clearTimeout(coverTimeout);
-    
+    S
     if (!response.ok) {
       throw new Error('Error del servidor (HTTP ' + response.status + ')');
     }
