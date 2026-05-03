@@ -923,28 +923,29 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
 const rawText = await response.text();
     let imgUrl = null;
 
+ // --- NEW, CLEANER CODE ---
     try {
       const data = JSON.parse(rawText);
-      if (Array.isArray(data)) {
-        imgUrl = data[0].coverUrl || data[0].url || data[0].imageUrl || data[0].Key || null;
-      } else {
-        imgUrl = data.coverUrl || data.url || data.imageUrl || data.Key || null;
+      // Extrae directamente el coverUrl enviado por el nodo 4d de n8n
+      imgUrl = Array.isArray(data) ? data[0].coverUrl : data.coverUrl;
+      
+      // Fallback por si n8n envía solo el Key o url
+      if(!imgUrl) {
+          const rawKey = Array.isArray(data) ? (data[0].Key || data[0].url) : (data.Key || data.url);
+          if (rawKey && !rawKey.startsWith('http')) {
+              imgUrl = 'https://rtjgcpklpyolzsdjjtdb.supabase.co/storage/v1/object/public/' + rawKey;
+          } else {
+              imgUrl = rawKey;
+          }
       }
     } catch (parseErr) {
-      const txt = rawText.trim();
-      if (txt.startsWith('http')) {
-        imgUrl = txt;
-      } else if (txt.length > 1000 && !txt.includes('<')) {
-        imgUrl = txt.startsWith('data:image') ? txt : ('data:image/png;base64,' + txt);
-      }
-    }
-
-    if (imgUrl && imgUrl.startsWith('ebooks/')) {
-       imgUrl = 'https://rtjgcpklpyolzsdjjtdb.supabase.co/storage/v1/object/public/' + imgUrl;
+       showError("Error leyendo la respuesta de la IA.");
+       console.error("Error parseando respuesta de n8n:", rawText);
+       return;
     }
 
     if (!imgUrl || imgUrl === "undefined" || imgUrl === "null") {
-      throw new Error('No se pudo extraer la imagen. Respuesta de n8n: ' + rawText);
+      throw new Error('La IA no devolvió una imagen válida.');
     }
 
     state.ebook.coverUrl = imgUrl;
