@@ -965,17 +965,21 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
     let attempts = 0;
     const maxAttempts = 120; 
     
+    // Escudo: Limpiamos la URL por si n8n mandó un espacio invisible al final
+    const cleanUrl = imgUrl.trim();
+    
     const interval = setInterval(async () => {
         attempts++;
         try {
-            // Preguntamos si la foto ya llegó
-            const res = await fetch(imgUrl, { method: 'HEAD', cache: 'no-cache' });
+            // EL FIX AQUÍ: Usamos GET en lugar de HEAD para evitar el error 400 de Supabase
+            const checkUrl = cleanUrl + "?ping=" + Date.now();
+            const res = await fetch(checkUrl, { method: 'GET' });
 
             if (res.ok) { 
                 clearInterval(interval); // Apagamos el radar
                 
                 // --- TU LÓGICA DE VISUALIZACIÓN Y AUTO-CORRECTOR INTACTA ---
-                state.ebook.coverUrl = imgUrl;
+                state.ebook.coverUrl = cleanUrl;
 
                 const coverEl = document.getElementById('miniBookCover');
                 const img = document.createElement('img');
@@ -997,23 +1001,23 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
                 img.onerror = (e) => {
                   if (intento === 0) {
                     intento++;
-                    if (imgUrl.includes('.png')) {
-                      img.src = imgUrl.replace('.png', '.jpg');
-                    } else if (imgUrl.includes('.jpg')) {
-                      img.src = imgUrl.replace('.jpg', '.png');
+                    if (cleanUrl.includes('.png')) {
+                      img.src = cleanUrl.replace('.png', '.jpg');
+                    } else if (cleanUrl.includes('.jpg')) {
+                      img.src = cleanUrl.replace('.jpg', '.png');
                     } else {
-                      coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error final ruta: ' + imgUrl + '</span>';
+                      coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error final ruta: ' + cleanUrl + '</span>';
                       hideLoading();
                       document.getElementById('btnPreviewCover').disabled = false;
                     }
                   } else {
-                    coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">No encontrada en Supabase: ' + imgUrl + '</span>';
+                    coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">No encontrada en Supabase: ' + cleanUrl + '</span>';
                     hideLoading();
                     document.getElementById('btnPreviewCover').disabled = false;
                   }
                 };
                 
-                img.src = imgUrl + "?t=" + Date.now();
+                img.src = cleanUrl + "?t=" + Date.now();
                 // -------------------------------------------------------------
 
             } else if (attempts >= maxAttempts) {
