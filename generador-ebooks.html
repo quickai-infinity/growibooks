@@ -887,7 +887,8 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
         title: title,
         protagonist: document.getElementById('protagonistName').value.trim() || 'el protagonista',
         style: state.ebook.style,
-        description: document.getElementById('storyDescription').value.trim() // <--- ¡ESTA ES LA LÍNEA MÁGICA QUE FALTABA!
+        description: document.getElementById('storyDescription').value.trim(),
+        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null // <--- ¡AQUÍ ESTÁ LA FOTO!
       })
     });
     clearTimeout(coverTimeout);
