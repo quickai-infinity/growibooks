@@ -893,7 +893,8 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
 
   const btnPreview = document.getElementById('btnPreviewCover');
   btnPreview.disabled = true;
-  showLoading('Generando portada mágica...', 'Atlas Cloud está pintando tu portada. Puede tomar 1-2 minutos.');
+  showLoading('Generando portada mágica...', 'Atlas Cloud está pintando tu portada. Puede tomar hasta 10 minutos para estilos complejos.');
+  
   // --- TRUCO PARA FORZAR LA LECTURA DE LA FOTO ---
   const fileInput = document.getElementById('protagonistPhoto');
   if (fileInput.files && fileInput.files[0]) {
@@ -907,7 +908,8 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
   // -----------------------------------------------
   
   try {
-  const payload = {
+    // --- TU CONST PAYLOAD INTACTO ---
+    const payload = {
       title: title,
       protagonist: protagonist || 'el protagonista',
       description: description,
@@ -916,10 +918,9 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
       protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null
     };
 
-    const controller = new AbortController();
-    const coverTimeout = setTimeout(() => controller.abort(), 240000); 
+    // ELIMINADO SOLO EL AbortController PARA QUE NO CORTE A LOS 4 MINUTOS
 
-  const response = await fetch(CONFIG.webhooks.previewCover, {
+    const response = await fetch(CONFIG.webhooks.previewCover, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -933,81 +934,105 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
         gender: document.getElementById('protagonistGender').value // <--- ESTA ES LA LÍNEA NUEVA
       })
     });
-    clearTimeout(coverTimeout);
+    
     if (!response.ok) {
       throw new Error('Error del servidor (HTTP ' + response.status + ')');
     }
 
-const rawText = await response.text();
+    // Leemos el JSON en lugar del rawText para el nuevo sistema
+    const data = await response.json();
     let imgUrl = null;
 
- // --- NEW, CLEANER CODE ---
-    try {
-      const data = JSON.parse(rawText);
-      // Extrae directamente el coverUrl enviado por el nodo 4d de n8n
-      imgUrl = Array.isArray(data) ? data[0].coverUrl : data.coverUrl;
-      
-      // Fallback por si n8n envía solo el Key o url
-      if(!imgUrl) {
-          const rawKey = Array.isArray(data) ? (data[0].Key || data[0].url) : (data.Key || data.url);
-          if (rawKey && !rawKey.startsWith('http')) {
-              imgUrl = 'https://rtjgcpklpyolzsdjjtdb.supabase.co/storage/v1/object/public/' + rawKey;
-          } else {
-              imgUrl = rawKey;
-          }
-      }
-    } catch (parseErr) {
-       showError("Error leyendo la respuesta de la IA.");
-       console.error("Error parseando respuesta de n8n:", rawText);
-       return;
+    // --- TU LÓGICA INTACTA DE EXTRACCIÓN DE URL ---
+    imgUrl = data.expectedUrl || (Array.isArray(data) ? data[0].coverUrl : data.coverUrl);
+    
+    if(!imgUrl) {
+        const rawKey = Array.isArray(data) ? (data[0].Key || data[0].url) : (data.Key || data.url);
+        if (rawKey && !rawKey.startsWith('http')) {
+            imgUrl = 'https://rtjgcpklpyolzsdjjtdb.supabase.co/storage/v1/object/public/' + rawKey;
+        } else {
+            imgUrl = rawKey;
+        }
     }
 
     if (!imgUrl || imgUrl === "undefined" || imgUrl === "null") {
-      throw new Error('La IA no devolvió una imagen válida.');
+      throw new Error('La IA no devolvió una ruta válida.');
     }
 
-    state.ebook.coverUrl = imgUrl;
-
-    const coverEl = document.getElementById('miniBookCover');
-    const img = document.createElement('img');
-    img.alt = 'Portada';
-    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0';
+    // =====================================================================
+    // EL RADAR: ESPERARÁ HASTA 10 MINUTOS (120 intentos de 5s)
+    // =====================================================================
+    let attempts = 0;
+    const maxAttempts = 120; 
     
-    let intento = 0; // Control para el auto-corrector
+    const interval = setInterval(async () => {
+        attempts++;
+        try {
+            // Preguntamos si la foto ya llegó
+            const res = await fetch(imgUrl, { method: 'HEAD', cache: 'no-cache' });
 
-    img.onload = () => {
-      coverEl.innerHTML = '';
-      coverEl.appendChild(img);
-      state.ebook.coverUrl = img.src; // Actualiza el botón de descarga con la ruta correcta
-      document.getElementById('btnDownloadCover').style.display = 'block'; 
-    };
-    
-    img.onerror = (e) => {
-      // EL AUTO-CORRECTOR: Si falla .png prueba .jpg y viceversa
-      if (intento === 0) {
-        intento++;
-        if (imgUrl.includes('.png')) {
-          img.src = imgUrl.replace('.png', '.jpg');
-        } else if (imgUrl.includes('.jpg')) {
-          img.src = imgUrl.replace('.jpg', '.png');
-        } else {
-          coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error final ruta: ' + imgUrl + '</span>';
+            if (res.ok) { 
+                clearInterval(interval); // Apagamos el radar
+                
+                // --- TU LÓGICA DE VISUALIZACIÓN Y AUTO-CORRECTOR INTACTA ---
+                state.ebook.coverUrl = imgUrl;
+
+                const coverEl = document.getElementById('miniBookCover');
+                const img = document.createElement('img');
+                img.alt = 'Portada';
+                img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0';
+                
+                let intento = 0; // Control para el auto-corrector
+
+                img.onload = () => {
+                  coverEl.innerHTML = '';
+                  coverEl.appendChild(img);
+                  state.ebook.coverUrl = img.src; // Actualiza el botón de descarga con la ruta correcta
+                  document.getElementById('btnDownloadCover').style.display = 'block'; 
+                  
+                  hideLoading();
+                  document.getElementById('btnPreviewCover').disabled = false;
+                };
+                
+                img.onerror = (e) => {
+                  if (intento === 0) {
+                    intento++;
+                    if (imgUrl.includes('.png')) {
+                      img.src = imgUrl.replace('.png', '.jpg');
+                    } else if (imgUrl.includes('.jpg')) {
+                      img.src = imgUrl.replace('.jpg', '.png');
+                    } else {
+                      coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error final ruta: ' + imgUrl + '</span>';
+                      hideLoading();
+                      document.getElementById('btnPreviewCover').disabled = false;
+                    }
+                  } else {
+                    coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">No encontrada en Supabase: ' + imgUrl + '</span>';
+                    hideLoading();
+                    document.getElementById('btnPreviewCover').disabled = false;
+                  }
+                };
+                
+                img.src = imgUrl + "?t=" + Date.now();
+                // -------------------------------------------------------------
+
+            } else if (attempts >= maxAttempts) {
+                clearInterval(interval);
+                hideLoading();
+                document.getElementById('btnPreviewCover').disabled = false;
+                showError("El tiempo de espera de 10 minutos se agotó. Intenta de nuevo.");
+            }
+        } catch (e) {
+            // Mientras no exista (404), ignoramos el error y seguimos preguntando
         }
-      } else {
-        coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">No encontrada en Supabase: ' + imgUrl + '</span>';
-      }
-    };
-    
-    img.src = imgUrl;
-    
+    }, 5000);
+
   } catch (error) {
-    showError(error.message || 'Error al generar la portada. Intenta de nuevo.');
-  } finally {
     hideLoading();
     document.getElementById('btnPreviewCover').disabled = false;
+    showError(error.message || 'Error al conectar con el servidor.');
   }
 });
-
 // ═══════════════════════════════════════════════════════════════
 // PANEL 1: CREAR EBOOK COMPLETO
 // ═══════════════════════════════════════════════════════════════
