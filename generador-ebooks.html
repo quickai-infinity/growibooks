@@ -886,6 +886,17 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
   const btnPreview = document.getElementById('btnPreviewCover');
   btnPreview.disabled = true;
   showLoading('Generando portada mágica...', 'Atlas Cloud está pintando tu portada. Puede tomar 1-2 minutos.');
+  // --- TRUCO PARA FORZAR LA LECTURA DE LA FOTO ---
+  const fileInput = document.getElementById('protagonistPhoto');
+  if (fileInput.files && fileInput.files[0]) {
+     const photoBase64 = await new Promise(resolve => {
+         const reader = new FileReader();
+         reader.onload = (e) => resolve(e.target.result);
+         reader.readAsDataURL(fileInput.files[0]);
+     });
+     state.ebook.protagonistPhotoBase64 = photoBase64;
+  }
+  // -----------------------------------------------
   
   try {
   const payload = {
