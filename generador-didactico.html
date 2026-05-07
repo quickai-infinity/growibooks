@@ -847,21 +847,41 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
 // ═══════════════════════════════════════════════════════════════
 // ENVÍO DE DATOS CON PROMPT INYECTADO PARA ACTIVIDADES
 // ═══════════════════════════════════════════════════════════════
+
 document.getElementById('btnGenerateEbook').addEventListener('click', () => {
-  const title = document.getElementById('storyTitle').value.trim();
-  const desc = document.getElementById('storyDescription').value.trim();
-  if (!title || !desc) { showError('Completa temática y descripción.'); return; }
+  const modeEl = document.getElementById('photoUsageMode');
+  const isConvertMode = modeEl && modeEl.value === 'convert_activity';
+
+  // Si NO es modo convertir foto, exigimos título y descripción
+  if (!isConvertMode) {
+    const title = document.getElementById('storyTitle').value.trim();
+    const desc = document.getElementById('storyDescription').value.trim();
+    if (!title || !desc) { 
+      showError('Completa temática y descripción.'); 
+      return; 
+    }
+  } else {
+    // Si ES modo convertir, exigimos que haya una foto subida
+    if (!state.ebook.protagonistPhotoBase64) {
+      showError('¡Ups! Sube una foto primero para poder convertirla en ejercicio.'); 
+      return;
+    }
+  }
   goToStep(2);
 });
 
 document.getElementById('btnFormat').addEventListener('click', async () => {
+  const modeEl = document.getElementById('photoUsageMode');
+  const isConvertMode = modeEl && modeEl.value === 'convert_activity';
+  
   const baseTitle = document.getElementById('storyTitle').value.trim();
   const baseDesc = document.getElementById('storyDescription').value.trim();
   const activitySelect = document.getElementById('activityType');
-  const activityType = activitySelect.options[activitySelect.selectedIndex].text;
-  const activityValue = activitySelect.value;
+  const activityType = activitySelect ? activitySelect.options[activitySelect.selectedIndex].text : '';
+  const activityValue = activitySelect ? activitySelect.value : '';
   
-  if (!baseTitle || !baseDesc) { 
+  // Validamos de nuevo por seguridad (solo si no es modo convertir)
+  if (!isConvertMode && (!baseTitle || !baseDesc)) { 
     showError('Completa temática y descripción en el paso 1.'); 
     goToStep(1); 
     return; 
@@ -871,77 +891,51 @@ document.getElementById('btnFormat').addEventListener('click', async () => {
   const { data: { session } } = await window.supabaseClient.auth.getSession();
   const userId = session ? session.user.id : null;
 
-  // LÓGICA DE DIRECTIVAS DIDÁCTICAS Y NARRATIVAS (VERSION DETALLADA)
-  let specificDirective = "";
+  // Variables por defecto (Si es Convertir Foto, se usan estas para no dar error)
+  let finalTitle = "Dibujo para Colorear";
+  let finalDescription = "Convertir foto a ejercicio";
+  let finalActivityValue = "convert_activity";
+  let finalAge = "6-8";
+  let finalPages = 2;
 
-  if (activityValue.includes("laberintos")) {
-    specificDirective = `MANDATO CRÍTICO DE LABERINTOS:
-    La narrativa debe ser una mini-historia de exploración. En cada página, el protagonista enfrenta un obstáculo que solo se supera cruzando un camino enredado.
-    - Burbujas de diálogo: Los personajes DEBEN hablar en cada página dando pistas ("¡Mira, el camino correcto está por las rocas amarillas!", "¿Por dónde debemos ir ahora?").
-    - Diseño Visual (sceneDescription): Exige explícitamente que se dibuje un LABERINTO FÍSICO Y CLARO en la escena (ej. un laberinto de setos, un camino de baldosas flotantes, pasillos en una cueva). El laberinto debe ser visible desde una perspectiva que permita al lector trazar la salida con un lápiz. REGLA DE ORO: El suelo del laberinto debe ser liso, ancho y 100% LIBRE DE OBSTÁCULOS.`;
-  
-  } else if (activityValue.includes("figuras") || activityValue.includes("colorear")) {
-    specificDirective = `MANDATO CRÍTICO DE CONTEO Y FIGURAS:
-    La narrativa es una mini-historia de recolección o descubrimiento. El protagonista necesita encontrar elementos específicos para avanzar.
-    - Burbujas de diálogo: Los personajes interactúan contando o preguntando cantidades ("¡Necesitamos encontrar 5 estrellas brillantes!", "¿Cuántas manzanas ves en el árbol?").
-    - Diseño Visual (sceneDescription): Exige que se dibujen múltiples elementos idénticos dispersos por la escena para que el niño los cuente. Incluye también figuras delineadas (con contornos claros) integradas en el entorno, pensadas para que el niño las coloree o rellene posteriormente.`;
-  
-  } else if (activityValue.includes("letras") || activityValue.includes("punto a punto")) {
-    specificDirective = `MANDATO CRÍTICO DE TRAZO DE LETRAS Y DIBUJOS:
-    La narrativa se centra en la magia de las palabras y las formas. El protagonista descubre letras gigantes, runas antiguas o constelaciones en su entorno.
-    - Burbujas de diálogo: Los personajes deben mencionar la letra o forma de la que trata la página ("¡Mira, una enorme letra 'A' de árbol!", "Ayúdame a seguir las líneas de esta figura mágica").
-    - Diseño Visual (sceneDescription): Exige que el elemento central de la imagen sea una LETRA GIGANTE o figura dibujada con líneas punteadas gruesas o como un surco brillante en el suelo/pared, diseñada específicamente para que el niño siga el trazo con un lápiz.`;
-  
-  } else if (activityValue.includes("matematicos")) {
-    specificDirective = `MANDATO CRÍTICO DE MATEMÁTICAS BÁSICAS:
-    La narrativa plantea pequeños dilemas cotidianos o mágicos que requieren sumar o restar elementos visuales.
-    - Burbujas de diálogo: Los personajes plantean el problema directamente al lector ("Si tenemos 3 pociones y encontramos 2 más, ¿cuántas tenemos?", "¡Ayuda! Necesitamos dividir estas monedas").
-    - Diseño Visual (sceneDescription): Exige agrupaciones claras de objetos. Si el problema es de suma, dibuja un grupo de objetos separados de another grupo. Debe haber espacios visuales claros o pizarras en el fondo de la imagen con números físicos o símbolos matemáticos (+, -, =) integrados en la arquitectura o el paisaje.`;
-  
-  } else if (activityValue.includes("vehiculos") || activityValue.includes("aviacion") || activityValue.includes("barcos")) {
-    specificDirective = `MANDATO CRÍTICO DE INGENIERÍA Y VEHÍCULOS ÉPICOS:
-    La narrativa es una aventura de alta velocidad, ingeniería avanzada o exploración a gran escala.
-    - Burbujas de diálogo: Los personajes comentan sobre la potencia, el diseño o la misión ("¡Sujétate, los motores de este jet son increíbles!", "Mira la maquinaria y el tamaño de este barco").
-    - Diseño Visual (sceneDescription): Exige detallar visualmente los vehículos de forma espectacular (autos icónicos, yates, aviones, submarinos). La escena debe enfocarse en la maquinaria, los reflejos metálicos, texturas fotorrealistas y la escala épica del medio de transporte en su entorno.`;
-  
-  } else if (activityValue.includes("universo")) {
-    specificDirective = `MANDATO CRÍTICO DE ESPACIO Y UNIVERSO:
-    La narrativa es un viaje cósmico asombroso a través de la galaxia.
-    - Burbujas de diálogo: Los personajes comparten datos fascinantes o expresan asombro ("¡Ese planeta tiene anillos de hielo brillante!", "Preparando la nave para el salto hiperespacial").
-    - Diseño Visual (sceneDescription): Exige vistas masivas del espacio profundo, estrellas brillantes, planetas detallados, cráteres lunares y naves espaciales con iluminación cinematográfica. El entorno debe sentirse vasto, majestuoso y con calidad de render espacial 3D.`;
-  
-  } else if (activityValue.includes("fauna")) {
-    specificDirective = `MANDATO CRÍTICO DE NATURALEZA Y FAUNA:
-    La narrativa es un documental inmersivo y mágico sobre el mundo natural.
-    - Burbujas de diálogo: Los personajes expresan asombro y respeto por los animales ("¡Mira qué majestuosa es esa ballena saltando!", "Hagamos silencio para no asustar al tigre").
-    - Diseño Visual (sceneDescription): Exige escenas de naturaleza vibrante (océanos profundos, selvas densas, cielos abiertos) enfocadas en la belleza orgánica de los animales. Se debe exigir a la IA que resalte la textura del pelaje, escamas o plumas, con una iluminación natural, cinematográfica e hiperrealista.`;
-  
-  } else {
-    specificDirective = `MANDATO CRÍTICO DE DINÁMICA MIXTA:
-    La narrativa es una aventura épica con múltiples fases. Cada página alterna entre buscar objetos ocultos, seguir caminos (laberintos) y seguir patrones.
-    - Burbujas de diálogo: Los personajes deben romper la cuarta pared y pedir ayuda directa al lector ("¡Encuentra la llave escondida en esta página!", "Cuidado, guíanos por el laberinto seguro").
-    - Diseño Visual (sceneDescription): Alterna los retos por página. Página 1: Escena muy densa con objetos camuflados. Página 2: Un laberinto claro trazado en el suelo. Página 3: Patrones o formas punteadas para seguir. La calidad de imagen debe ser fotorrealista/3D, pero con zonas claramente definidas para la interacción del niño.`;
+  if (!isConvertMode) {
+      // LÓGICA DE DIRECTIVAS DIDÁCTICAS Y NARRATIVAS (VERSION DETALLADA)
+      let specificDirective = "";
+
+      if (activityValue.includes("laberintos")) {
+        specificDirective = `MANDATO CRÍTICO DE LABERINTOS:\nLa narrativa debe ser una mini-historia de exploración. En cada página, el protagonista enfrenta un obstáculo que solo se supera cruzando un camino enredado.\n- Burbujas de diálogo: Los personajes DEBEN hablar en cada página dando pistas ("¡Mira, el camino correcto está por las rocas amarillas!", "¿Por dónde debemos ir ahora?").\n- Diseño Visual (sceneDescription): Exige explícitamente que se dibuje un LABERINTO FÍSICO Y CLARO en la escena (ej. un laberinto de setos, un camino de baldosas flotantes, pasillos en una cueva). El laberinto debe ser visible desde una perspectiva que permita al lector trazar la salida con un lápiz. REGLA DE ORO: El suelo del laberinto debe ser liso, ancho y 100% LIBRE DE OBSTÁCULOS.`;
+      } else if (activityValue.includes("figuras") || activityValue.includes("colorear")) {
+        specificDirective = `MANDATO CRÍTICO DE CONTEO Y FIGURAS:\nLa narrativa es una mini-historia de recolección o descubrimiento. El protagonista necesita encontrar elementos específicos para avanzar.\n- Burbujas de diálogo: Los personajes interactúan contando o preguntando cantidades ("¡Necesitamos encontrar 5 estrellas brillantes!", "¿Cuántas manzanas ves en el árbol?").\n- Diseño Visual (sceneDescription): Exige que se dibujen múltiples elementos idénticos dispersos por la escena para que el niño los cuente. Incluye también figuras delineadas (con contornos claros) integradas en el entorno, pensadas para que el niño las coloree o rellene posteriormente.`;
+      } else if (activityValue.includes("letras") || activityValue.includes("punto a punto")) {
+        specificDirective = `MANDATO CRÍTICO DE TRAZO DE LETRAS Y DIBUJOS:\nLa narrativa se centra en la magia de las palabras y las formas. El protagonista descubre letras gigantes, runas antiguas o constelaciones en su entorno.\n- Burbujas de diálogo: Los personajes deben mencionar la letra o forma de la que trata la página ("¡Mira, una enorme letra 'A' de árbol!", "Ayúdame a seguir las líneas de esta figura mágica").\n- Diseño Visual (sceneDescription): Exige que el elemento central de la imagen sea una LETRA GIGANTE o figura dibujada con líneas punteadas gruesas o como un surco brillante en el suelo/pared, diseñada específicamente para que el niño siga el trazo con un lápiz.`;
+      } else if (activityValue.includes("matematicos")) {
+        specificDirective = `MANDATO CRÍTICO DE MATEMÁTICAS BÁSICAS:\nLa narrativa plantea pequeños dilemas cotidianos o mágicos que requieren sumar o restar elementos visuales.\n- Burbujas de diálogo: Los personajes plantean el problema directamente al lector ("Si tenemos 3 pociones y encontramos 2 más, ¿cuántas tenemos?", "¡Ayuda! Necesitamos dividir estas monedas").\n- Diseño Visual (sceneDescription): Exige agrupaciones claras de objetos. Si el problema es de suma, dibuja un grupo de objetos separados de another grupo. Debe haber espacios visuales claros o pizarras en el fondo de la imagen con números físicos o símbolos matemáticos (+, -, =) integrados en la arquitectura o el paisaje.`;
+      } else if (activityValue.includes("vehiculos") || activityValue.includes("aviacion") || activityValue.includes("barcos")) {
+        specificDirective = `MANDATO CRÍTICO DE INGENIERÍA Y VEHÍCULOS ÉPICOS:\nLa narrativa es una aventura de alta velocidad, ingeniería avanzada o exploración a gran escala.\n- Burbujas de diálogo: Los personajes comentan sobre la potencia, el diseño o la misión ("¡Sujétate, los motores de este jet son increíbles!", "Mira la maquinaria y el tamaño de este barco").\n- Diseño Visual (sceneDescription): Exige detallar visualmente los vehículos de forma espectacular (autos icónicos, yates, aviones, submarinos). La escena debe enfocarse en la maquinaria, los reflejos metálicos, texturas fotorrealistas y la escala épica del medio de transporte en su entorno.`;
+      } else if (activityValue.includes("universo")) {
+        specificDirective = `MANDATO CRÍTICO DE ESPACIO Y UNIVERSO:\nLa narrativa es un viaje cósmico asombroso a través de la galaxia.\n- Burbujas de diálogo: Los personajes comparten datos fascinantes o expresan asombro ("¡Ese planeta tiene anillos de hielo brillante!", "Preparando la nave para el salto hiperespacial").\n- Diseño Visual (sceneDescription): Exige vistas masivas del espacio profundo, estrellas brillantes, planetas detallados, cráteres lunares y naves espaciales con iluminación cinematográfica. El entorno debe sentirse vasto, majestuoso y con calidad de render espacial 3D.`;
+      } else if (activityValue.includes("fauna")) {
+        specificDirective = `MANDATO CRÍTICO DE NATURALEZA Y FAUNA:\nLa narrativa es un documental inmersivo y mágico sobre el mundo natural.\n- Burbujas de diálogo: Los personajes expresan asombro y respeto por los animales ("¡Mira qué majestuosa es esa ballena saltando!", "Hagamos silencio para no asustar al tigre").\n- Diseño Visual (sceneDescription): Exige escenas de naturaleza vibrante (océanos profundos, selvas densas, cielos abiertos) enfocadas en la belleza orgánica de los animales. Se debe exigir a la IA que resalte la textura del pelaje, escamas o plumas, con una iluminación natural, cinematográfica e hiperrealista.`;
+      } else {
+        specificDirective = `MANDATO CRÍTICO DE DINÁMICA MIXTA:\nLa narrativa es una aventura épica con múltiples fases. Cada página alterna entre buscar objetos ocultos, seguir caminos (laberintos) y seguir patrones.\n- Burbujas de diálogo: Los personajes deben romper la cuarta pared y pedir ayuda directa al lector ("¡Encuentra la llave escondida en esta página!", "Cuidado, guíanos por el laberinto seguro").\n- Diseño Visual (sceneDescription): Alterna los retos por página. Página 1: Escena muy densa con objetos camuflados. Página 2: Un laberinto claro trazado en el suelo. Página 3: Patrones o formas punteadas para seguir. La calidad de imagen debe ser fotorrealista/3D, pero con zonas claramente definidas para la interacción del niño.`;
+      }
+
+      finalDescription = `\n${baseDesc}\n\n[INSTRUCCIONES DE SISTEMA - LIBRO DIDÁCTICO]\nNo escribas un cuento de lectura pasiva. Este es un CUADERNO DE ACTIVIDADES/EXPLORACIÓN INTERACTIVO. \nCategoría seleccionada: ${activityType}.\n\n${specificDirective}\n\nREGLA ABSOLUTA: Las descripciones de escena generadas DEBEN respetar el estilo visual solicitado a TODO COLOR, pero la composición de la imagen DEBE integrar el reto o la exhibición visual de forma clara para que el libro sea utilizable al imprimirse.`;
+
+      finalTitle = "Cuaderno Didáctico: " + baseTitle;
+      finalActivityValue = activityValue;
+      finalAge = document.getElementById('childAge').value;
+      finalPages = parseInt(document.getElementById('pageCount').value);
   }
 
-  const finalDescription = `
-${baseDesc}
-
-[INSTRUCCIONES DE SISTEMA - LIBRO DIDÁCTICO]
-No escribas un cuento de lectura pasiva. Este es un CUADERNO DE ACTIVIDADES/EXPLORACIÓN INTERACTIVO. 
-Categoría seleccionada: ${activityType}.
-
-${specificDirective}
-
-REGLA ABSOLUTA: Las descripciones de escena generadas DEBEN respetar el estilo visual solicitado (Pixar, Cómic, Fotorrealista, etc.) a TODO COLOR, pero la composición de la imagen DEBE integrar el reto o la exhibición visual de forma clara para que el libro sea utilizable al imprimirse.`;
-
-  state.ebook.title = "Cuaderno Didáctico: " + baseTitle;
+  state.ebook.title = finalTitle;
   state.ebook.protagonist = document.getElementById('protagonistName').value.trim() || 'Lector';
   state.ebook.description = finalDescription;
-  state.ebook.pages = parseInt(document.getElementById('pageCount').value);
-  state.ebook.age = document.getElementById('childAge').value;
+  state.ebook.pages = finalPages;
+  state.ebook.age = finalAge;
 
-  document.getElementById('loadingText').textContent = 'Estructurando los ejercicios...';
-  document.getElementById('loadingSub').textContent = 'Calculando trayectorias y gráficos en Atlas...';
+  document.getElementById('loadingText').textContent = isConvertMode ? 'Transformando tu foto...' : 'Estructurando los ejercicios...';
+  document.getElementById('loadingSub').textContent = isConvertMode ? 'Enviando foto a Atlas Cloud...' : 'Calculando trayectorias y gráficos en Atlas...';
   document.getElementById('loadingOverlay').classList.add('active');
   document.getElementById('progressContainer').style.display = 'block';
   
@@ -960,7 +954,7 @@ REGLA ABSOLUTA: Las descripciones de escena generadas DEBEN respetar el estilo v
     }
   }, 25000);
   
-try {
+  try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 300000); 
     
@@ -972,15 +966,15 @@ try {
         title: state.ebook.title,
         protagonist: state.ebook.protagonist,
         description: state.ebook.description,
-        activityType: activityValue, // <-- AQUÍ ENVIAMOS LAS PALABRAS CLAVE AL NODO 6
-        styleDescription: styleDescriptions[state.ebook.style],
+        activityType: finalActivityValue,
+        styleDescription: styleDescriptions[state.ebook.style] || 'lineart',
         style: state.ebook.style,
         age: state.ebook.age,
         pages: state.ebook.pages,
-       coverUrl: state.ebook.coverUrl || null,
+        coverUrl: state.ebook.coverUrl || null,
         protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null,
-        photoUsageMode: document.getElementById('photoUsageMode') ? document.getElementById('photoUsageMode').value : 'face_swap', // <--- NUEVO
-        photoActivityType: document.getElementById('photoActivityType') ? document.getElementById('photoActivityType').value : null, // <--- NUEVO
+        photoUsageMode: isConvertMode ? 'convert_activity' : 'face_swap',
+        photoActivityType: isConvertMode ? (document.getElementById('photoActivityType') ? document.getElementById('photoActivityType').value : 'photo_coloring') : null,
         user_id: userId
       })
     });
