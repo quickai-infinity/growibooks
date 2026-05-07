@@ -610,7 +610,7 @@ async function renderPage() {
         btnAudio.onclick = () => playAudio(ebook);
         actionsContainer.appendChild(btnAudio);
       }
-   if (isDid) {
+   if (isDid || ebook.style === 'lineart') {
         const btnPlay = document.createElement('button');
         btnPlay.className = 'btn btn-play'; 
         btnPlay.innerHTML = '✏️Pintar';
