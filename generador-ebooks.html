@@ -960,26 +960,24 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
     }
 
 // =====================================================================
-    // EL RADAR: ESPERARÁ HASTA 10 MINUTOS (120 intentos de 5s)
+    // EL RADAR (VERSIÓN DEFINITIVA - SIN INTERFERIR CON SUPABASE)
     // =====================================================================
     let attempts = 0;
     const maxAttempts = 120; 
     
-    // Escudo: Limpiamos la URL por si n8n mandó un espacio invisible al final
     const cleanUrl = imgUrl.trim();
     
     const interval = setInterval(async () => {
         attempts++;
         try {
-            // 🚀 EL FIX PARA ELIMINAR EL ERROR 400 Y EL GIRO INFINITO:
-            // 1. Usamos 'GET' en lugar de 'HEAD' (Supabase prefiere GET para enlaces públicos).
-            // 2. Usamos '?t=' para forzar al navegador a ignorar la caché y preguntar de verdad.
-            const res = await fetch(cleanUrl + "?t=" + Date.now(), { method: 'GET' });
+            // 🚀 EL FIX: Pedimos la URL totalmente limpia. 
+            // Usamos cache: 'no-store' para que el navegador no se confunda, sin alterar la URL.
+            const res = await fetch(cleanUrl, { method: 'GET', cache: 'no-store' });
 
             if (res.ok) { 
-                clearInterval(interval); // Apagamos el radar
+                clearInterval(interval); // ¡La imagen ya existe! Apagamos el radar
                 
-                // --- TU LÓGICA DE VISUALIZACIÓN Y AUTO-CORRECTOR INTACTA ---
+                // --- TU LÓGICA DE VISUALIZACIÓN INTACTA ---
                 state.ebook.coverUrl = cleanUrl;
 
                 const coverEl = document.getElementById('miniBookCover');
@@ -987,12 +985,12 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
                 img.alt = 'Portada';
                 img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0';
                 
-                let intento = 0; // Control para el auto-corrector
+                let intento = 0; 
 
                 img.onload = () => {
                   coverEl.innerHTML = '';
                   coverEl.appendChild(img);
-                  state.ebook.coverUrl = img.src; // Actualiza el botón de descarga con la ruta correcta
+                  state.ebook.coverUrl = img.src; 
                   document.getElementById('btnDownloadCover').style.display = 'block'; 
                   
                   hideLoading();
@@ -1002,6 +1000,7 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
                 img.onerror = (e) => {
                   if (intento === 0) {
                     intento++;
+                    // Tu auto-corrector
                     if (cleanUrl.includes('.png')) {
                       img.src = cleanUrl.replace('.png', '.jpg');
                     } else if (cleanUrl.includes('.jpg')) {
@@ -1018,8 +1017,8 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
                   }
                 };
                 
-                // Cargamos la imagen final usando la URL limpia + timestamp
-                img.src = cleanUrl + "?t=" + Date.now();
+                // 🚀 FIX 2: Quitamos el "?t=" de aquí también.
+                img.src = cleanUrl;
                 // -------------------------------------------------------------
 
             } else if (attempts >= maxAttempts) {
@@ -1029,10 +1028,9 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
                 showError("El tiempo de espera de 10 minutos se agotó. Intenta de nuevo.");
             }
         } catch (e) {
-            // Ignoramos errores de red temporales y seguimos intentando
+            // Mientras no exista (Saldrá un 404 temporal), ignoramos el error y seguimos preguntando
         }
-    }, 5000); // Mantenemos tus 5 segundos de espera
-
+    }, 5000);
   } catch (error) {
     hideLoading();
     document.getElementById('btnPreviewCover').disabled = false;
