@@ -959,7 +959,7 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
       throw new Error('La IA no devolvió una ruta válida.');
     }
 
-    // =====================================================================
+// =====================================================================
     // EL RADAR: ESPERARÁ HASTA 10 MINUTOS (120 intentos de 5s)
     // =====================================================================
     let attempts = 0;
@@ -971,9 +971,10 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
     const interval = setInterval(async () => {
         attempts++;
         try {
-            // EL FIX AQUÍ: Usamos GET en lugar de HEAD para evitar el error 400 de Supabase
-            const checkUrl = cleanUrl + "?ping=" + Date.now();
-            const res = await fetch(checkUrl, { method: 'GET' });
+            // 🚀 EL FIX PARA ELIMINAR EL ERROR 400 Y EL GIRO INFINITO:
+            // 1. Usamos 'GET' en lugar de 'HEAD' (Supabase prefiere GET para enlaces públicos).
+            // 2. Usamos '?t=' para forzar al navegador a ignorar la caché y preguntar de verdad.
+            const res = await fetch(cleanUrl + "?t=" + Date.now(), { method: 'GET' });
 
             if (res.ok) { 
                 clearInterval(interval); // Apagamos el radar
@@ -1017,6 +1018,7 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
                   }
                 };
                 
+                // Cargamos la imagen final usando la URL limpia + timestamp
                 img.src = cleanUrl + "?t=" + Date.now();
                 // -------------------------------------------------------------
 
@@ -1027,9 +1029,9 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
                 showError("El tiempo de espera de 10 minutos se agotó. Intenta de nuevo.");
             }
         } catch (e) {
-            // Mientras no exista (404), ignoramos el error y seguimos preguntando
+            // Ignoramos errores de red temporales y seguimos intentando
         }
-    }, 5000);
+    }, 5000); // Mantenemos tus 5 segundos de espera
 
   } catch (error) {
     hideLoading();
