@@ -960,75 +960,66 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
     }
 
 // =====================================================================
-    // EL RADAR (VERSIÓN DEFINITIVA - SIN INTERFERIR CON SUPABASE)
+    // EL RADAR (VERSIÓN ANTI-BUCLES - BUSCA .JPG Y .PNG SIMULTÁNEAMENTE)
     // =====================================================================
     let attempts = 0;
     const maxAttempts = 120; 
     
     const cleanUrl = imgUrl.trim();
+    // Aquí sacamos tu auto-corrector al frente para que el radar lo use:
+    const altUrl = cleanUrl.includes('.png') ? cleanUrl.replace('.png', '.jpg') : cleanUrl.replace('.jpg', '.png');
     
     const interval = setInterval(async () => {
         attempts++;
         try {
-            // 🚀 EL FIX: Pedimos la URL totalmente limpia. 
-            // Usamos cache: 'no-store' para que el navegador no se confunda, sin alterar la URL.
-            const res = await fetch(cleanUrl, { method: 'GET', cache: 'no-store' });
+            // 1. Preguntamos por la URL original (ej. .jpg)
+            let res = await fetch(cleanUrl, { method: 'GET', cache: 'no-store' });
+            let urlFinal = cleanUrl;
 
+            // 2. Si Supabase lanza el error 400 (no la encuentra), buscamos la otra (ej. .png)
+            if (!res.ok) {
+                res = await fetch(altUrl, { method: 'GET', cache: 'no-store' });
+                urlFinal = altUrl;
+            }
+
+            // 3. Si encuentra CUALQUIERA de las dos, detenemos el bucle
             if (res.ok) { 
-                clearInterval(interval); // ¡La imagen ya existe! Apagamos el radar
+                clearInterval(interval); 
                 
-                // --- TU LÓGICA DE VISUALIZACIÓN INTACTA ---
-                state.ebook.coverUrl = cleanUrl;
+                state.ebook.coverUrl = urlFinal;
 
                 const coverEl = document.getElementById('miniBookCover');
                 const img = document.createElement('img');
                 img.alt = 'Portada';
                 img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:0 8px 8px 0';
-                
-                let intento = 0; 
 
                 img.onload = () => {
                   coverEl.innerHTML = '';
                   coverEl.appendChild(img);
-                  state.ebook.coverUrl = img.src; 
                   document.getElementById('btnDownloadCover').style.display = 'block'; 
                   
                   hideLoading();
                   document.getElementById('btnPreviewCover').disabled = false;
                 };
                 
-                img.onerror = (e) => {
-                  if (intento === 0) {
-                    intento++;
-                    // Tu auto-corrector
-                    if (cleanUrl.includes('.png')) {
-                      img.src = cleanUrl.replace('.png', '.jpg');
-                    } else if (cleanUrl.includes('.jpg')) {
-                      img.src = cleanUrl.replace('.jpg', '.png');
-                    } else {
-                      coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error final ruta: ' + cleanUrl + '</span>';
-                      hideLoading();
-                      document.getElementById('btnPreviewCover').disabled = false;
-                    }
-                  } else {
-                    coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">No encontrada en Supabase: ' + cleanUrl + '</span>';
-                    hideLoading();
-                    document.getElementById('btnPreviewCover').disabled = false;
-                  }
+                img.onerror = () => {
+                  coverEl.innerHTML = '<span style="color:#ff6b6b;font-size:11px;padding:10px">Error mostrando imagen.</span>';
+                  hideLoading();
+                  document.getElementById('btnPreviewCover').disabled = false;
                 };
                 
-                // 🚀 FIX 2: Quitamos el "?t=" de aquí también.
-                img.src = cleanUrl;
+                // Cargamos la URL ganadora en la pantalla
+                img.src = urlFinal;
                 // -------------------------------------------------------------
 
             } else if (attempts >= maxAttempts) {
                 clearInterval(interval);
                 hideLoading();
                 document.getElementById('btnPreviewCover').disabled = false;
-                showError("El tiempo de espera de 10 minutos se agotó. Intenta de nuevo.");
+                showError("El tiempo de espera se agotó. Reintenta.");
             }
         } catch (e) {
-            // Mientras no exista (Saldrá un 404 temporal), ignoramos el error y seguimos preguntando
+            // Mientras Atlas la sigue dibujando, ignoramos los fallos y continuamos
         }
     }, 5000);
   } catch (error) {
