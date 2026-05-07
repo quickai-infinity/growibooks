@@ -277,9 +277,25 @@ select{cursor:pointer}
         </div>
 
         <div class="input-group">
-           <label>📸 Foto del Protagonista (Para personalizar su rostro)</label>
+           <label>📸 Sube una Foto Mágica</label>
            <input type="file" id="protagonistPhoto" accept="image/png, image/jpeg, image/jpg" style="padding: 8px; background: var(--bg); border: 2px dashed var(--purple10); border-radius: var(--rs); color: var(--text2); cursor: pointer; width: 100%; font-family: var(--fb); font-size: 12px;">
-           <p style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight:600;">Sube una foto clara. Máximo 2MB.</p>
+           <p style="font-size: 10px; color: var(--text3); margin-top: 6px; font-weight:600;">Sube una foto clara (Máximo 2MB).</p>
+           
+           <div id="photoOptionsBox" style="display:none; margin-top:12px; padding:12px; background:var(--purple10); border:1px dashed var(--purple); border-radius:var(--rs);">
+               <label style="color:var(--purple); margin-bottom:8px; font-size:12px;">✨ ¿Qué hacemos con esta foto?</label>
+               <select id="photoUsageMode" style="margin-bottom:10px;">
+                   <option value="face_swap">👤 Usar este rostro para el protagonista</option>
+                   <option value="convert_activity">🎨 Convertir la propia foto en un ejercicio</option>
+               </select>
+               
+               <div id="photoActivityOptions" style="display:none;">
+                   <label style="color:var(--text2);">Tipo de ejercicio con la foto</label>
+                   <select id="photoActivityType">
+                       <option value="photo_coloring">🖍️ Dibujo para colorear (Foto original de guía)</option>
+                       <option value="photo_tracing">✏️ Convertir a líneas para trazar</option>
+                   </select>
+               </div>
+           </div>
         </div>
 
         <div class="input-group">
@@ -581,17 +597,41 @@ zoomOverlay.addEventListener('click', (e) => {
   if (e.target === zoomOverlay || e.target.id === 'zoomClose') zoomOverlay.classList.remove('active');
 });
 
-// LECTOR DE FOTO
+// ═══════════════════════════════════════════════════════════════
+// LECTOR DE FOTO Y CONTROL DE OPCIONES (NUEVO PLUS)
+// ═══════════════════════════════════════════════════════════════
 document.getElementById('protagonistPhoto').addEventListener('change', function(event) {
   const file = event.target.files[0];
-  if (!file) return;
+  const optionsBox = document.getElementById('photoOptionsBox');
+  
+  if (!file) {
+    optionsBox.style.display = 'none'; // Ocultar si cancela
+    return;
+  }
+  
   if (file.size > 2 * 1024 * 1024) {
     showError('La foto es muy pesada. Máximo 2MB.');
-    this.value = ''; return;
+    this.value = ''; 
+    optionsBox.style.display = 'none';
+    return;
   }
+  
+  // Mostrar la caja de magia cuando sube la foto
+  optionsBox.style.display = 'block';
+
   const reader = new FileReader();
   reader.onload = function(e) { state.ebook.protagonistPhotoBase64 = e.target.result; };
   reader.readAsDataURL(file);
+});
+
+// Lógica para mostrar/ocultar el selector de ejercicios de foto
+document.getElementById('photoUsageMode').addEventListener('change', function() {
+  const activityOptions = document.getElementById('photoActivityOptions');
+  if (this.value === 'convert_activity') {
+    activityOptions.style.display = 'block';
+  } else {
+    activityOptions.style.display = 'none';
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -888,8 +928,10 @@ try {
         style: state.ebook.style,
         age: state.ebook.age,
         pages: state.ebook.pages,
-        coverUrl: state.ebook.coverUrl || null,
+       coverUrl: state.ebook.coverUrl || null,
         protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null,
+        photoUsageMode: document.getElementById('photoUsageMode') ? document.getElementById('photoUsageMode').value : 'face_swap', // <--- NUEVO
+        photoActivityType: document.getElementById('photoActivityType') ? document.getElementById('photoActivityType').value : null, // <--- NUEVO
         user_id: userId
       })
     });
