@@ -624,13 +624,62 @@ document.getElementById('protagonistPhoto').addEventListener('change', function(
   reader.readAsDataURL(file);
 });
 
-// Lógica para mostrar/ocultar el selector de ejercicios de foto
+// Lógica para mostrar/ocultar y BLOQUEAR opciones según el uso de la foto
 document.getElementById('photoUsageMode').addEventListener('change', function() {
   const activityOptions = document.getElementById('photoActivityOptions');
+  const btnPreview = document.getElementById('btnPreviewCover');
+  const styleGrid = document.querySelector('.style-grid');
+  
+  // Lista de elementos que no sirven en el modo "Convertir Foto"
+  const elementsToDisable = [
+    document.getElementById('activityType'),
+    document.getElementById('storyDescription'),
+    document.getElementById('btnMagicDesc'),
+    document.getElementById('childAge'),
+    document.getElementById('pageCount'),
+    document.getElementById('storyLanguage')
+  ];
+
   if (this.value === 'convert_activity') {
+    // 1. Mostrar opciones de foto
     activityOptions.style.display = 'block';
+    
+    // 2. Apagar y bloquear los elementos narrativos
+    elementsToDisable.forEach(el => {
+      if(el) { 
+        el.disabled = true; 
+        el.style.opacity = '0.3'; 
+        el.style.cursor = 'not-allowed';
+      }
+    });
+    
+    // 3. Oscurecer el selector de estilos
+    if(styleGrid) {
+      styleGrid.style.opacity = '0.3';
+      styleGrid.style.pointerEvents = 'none'; // Evita que le den clic
+    }
+    
+    // 4. Ocultar el botón de preview de portada
+    if(btnPreview) btnPreview.style.display = 'none';
+
   } else {
+    // --- RESTAURAR TODO AL MODO NORMAL (FACE SWAP) ---
     activityOptions.style.display = 'none';
+    
+    elementsToDisable.forEach(el => {
+      if(el) { 
+        el.disabled = false; 
+        el.style.opacity = '1'; 
+        el.style.cursor = 'auto';
+      }
+    });
+    
+    if(styleGrid) {
+      styleGrid.style.opacity = '1';
+      styleGrid.style.pointerEvents = 'auto';
+    }
+    
+    if(btnPreview) btnPreview.style.display = 'block';
   }
 });
 
