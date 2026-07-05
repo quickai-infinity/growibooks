@@ -648,6 +648,8 @@ document.getElementById('photoUsageMode').addEventListener('change', function() 
         el.disabled = true; 
         el.style.opacity = '0.3'; 
         el.style.cursor = 'not-allowed';
+        // FORZAR VISUALMENTE LAS 2 PÁGINAS AL SELECCIONAR ESTE MODO
+        if(el.id === 'pageCount') el.value = "2";
       }
     });
     
