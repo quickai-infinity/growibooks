@@ -797,7 +797,7 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
     }
 
     if (imgUrl && imgUrl.startsWith('ebooks/')) {
-       imgUrl = 'https://rtjgcpklpyolzsdjjtdb.supabase.co/storage/v1/object/public/' + imgUrl;
+       imgUrl = 'https://wsoqjaynqeoejmwwwsyo.supabase.co/storage/v1/object/public/' + imgUrl;
     }
 
     if (!imgUrl || imgUrl === "undefined" || imgUrl === "null") {
@@ -992,9 +992,8 @@ document.getElementById('btnFormat').addEventListener('click', async () => {
 
 <script>
   // 2. INICIALIZAMOS EL CLIENTE INMEDIATAMENTE
-  const DB_URL = 'https://rtjgcpklpyolzsdjjtdb.supabase.co';
-  const DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0amdjcGtscHlvbHpzZGpqdGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NjI5NzMsImV4cCI6MjA4OTQzODk3M30.cXX0916XOXbe3DsR-rBV__9Boi4Pyh30z1g5LsJGpeY';
-  
+  const DB_URL = 'https://wsoqjaynqeoejmwwwsyo.supabase.co';
+  const DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzb3FqYXlucWVvZWptd3d3c3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NDc3NDgsImV4cCI6MjA5ODMyMzc0OH0.99-PAaaJoowd63I5FS_IGvQNY4rMg5Yn9TQM21rXDac';
   var supabase = window.supabase.createClient(DB_URL, DB_KEY);
   window.supabaseClient = supabase;
 
