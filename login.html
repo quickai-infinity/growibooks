@@ -36,8 +36,8 @@
   
   const SUPABASE_URL = 'https://wsoqjaynqeoejmwwwsyo.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzb3FqYXlucWVvZWptd3d3c3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NDc3NDgsImV4cCI6MjA5ODMyMzc0OH0.99-PAaaJoowd63I5FS_IGvQNY4rMg5Yn9TQM21rXDac'; 
-  const supabase = createClient(DB_URL, DB_KEY);
-
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  
   let isLogin = true;
   const btnAuth = document.getElementById('btnAuth');
   const btnToggle = document.getElementById('btnToggle');
