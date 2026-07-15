@@ -6,6 +6,7 @@
 <title>GrowiBooks — Mi Biblioteca</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="theme.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -331,6 +332,22 @@ body{
   object-fit:contain;border-radius:16px;
   box-shadow:0 30px 80px rgba(0,0,0,.4);
 }
+/* VARIABLES UNIVERSALES PARA MODO OSCURO */
+body.dark-mode {
+    --bg: #121212 !important;
+    --bg2: #1e1e1e !important;
+    --bg3: #1e1e1e !important;
+    --bg4: #2d2d2d !important;
+    --bg5: #333333 !important;
+    --text: #e0e0e0 !important;
+    --text2: #aaaaaa !important;
+    --text3: #888888 !important;
+}
+body.dark-mode .nav { background: rgba(18, 18, 18, 0.95) !important; border-bottom-color: var(--bg5) !important; }
+body.dark-mode .form-section, body.dark-mode .book-preview-card, body.dark-mode .auth-card { background: #1e1e1e !important; border-color: #333 !important; }
+body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #2d2d2d !important; color: #fff !important; border-color: #444 !important; }
+body.dark-mode label { color: var(--text2) !important; }
+body.dark-mode .toolbar { background: #1e1e1e !important; }
 </style>
 <style>
   /* --- ESTILOS UNIVERSALES DEL NAV --- */
@@ -398,6 +415,8 @@ body{
     <a href="generador-ebooks.html">📖 Cuentos</a>
     <a href="generador-didactico.html">✏️ Cuadernos</a>
     <a href="ebooks.html" id="linkBiblioteca" style="display:none;">Mi Biblioteca</a>
+    <a href="suscripciones.html" style="color:var(--green); font-weight: 900;">💎 Planes</a>
+    <button id="themeToggle" class="btn-nav" onclick="toggleTema()" style="background: transparent; border: 2px solid var(--bg5); font-size: 14px; cursor: pointer;">🌙 Oscuro</button>
 
     <div id="userDashboardNav" class="user-dashboard-nav" style="display:none;">
       <div class="credits-pill" title="Tus créditos mágicos disponibles">
@@ -491,8 +510,8 @@ body{
 
     <!-- Controles -->
     <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
-        <button class="btn-close-modal" style="background: var(--gold); color: #fff; width: 100%; max-width: 300px;" onclick="goToPaint()">🖌️ Pintar esta página</button>
-        <button class="btn-close-modal" style="background: transparent; border: 2px solid var(--bg5); color: var(--text2); width: 100%; max-width: 300px;" onclick="closePaintModal()">Cancelar</button>
+       <button onclick="goToPaint()" style="background: var(--gold, #ff7b2c); color: white; border: none; padding: 12px 24px; border-radius: 20px; font-weight: 800; font-size: 14px; cursor: pointer; box-shadow: var(--shadow);">🖌️ Pintar esta página</button> 
+       <button class="btn-close-modal" style="background: transparent; border: 2px solid var(--bg5); color: var(--text2); width: 100%; max-width: 300px;" onclick="closePaintModal()">Cancelar</button>
     </div>
   </div>
 </div>

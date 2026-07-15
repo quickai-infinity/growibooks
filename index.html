@@ -6,6 +6,7 @@
 <title>GrowiBooks — Creación de Cuentos y Cuadernos Educativos</title>
 <meta name="description" content="Plataforma líder en creación de cuentos mágicos y cuadernos didácticos personalizados con IA para niños, padres y educadores.">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="theme.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -114,6 +115,22 @@ body{
 .deco-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* VARIABLES UNIVERSALES PARA MODO OSCURO */
+body.dark-mode {
+    --bg: #121212 !important;
+    --bg2: #1e1e1e !important;
+    --bg3: #1e1e1e !important;
+    --bg4: #2d2d2d !important;
+    --bg5: #333333 !important;
+    --text: #e0e0e0 !important;
+    --text2: #aaaaaa !important;
+    --text3: #888888 !important;
+}
+body.dark-mode .nav { background: rgba(18, 18, 18, 0.95) !important; border-bottom-color: var(--bg5) !important; }
+body.dark-mode .form-section, body.dark-mode .book-preview-card, body.dark-mode .auth-card { background: #1e1e1e !important; border-color: #333 !important; }
+body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #2d2d2d !important; color: #fff !important; border-color: #444 !important; }
+body.dark-mode label { color: var(--text2) !important; }
+body.dark-mode .toolbar { background: #1e1e1e !important; }
 </style>
 <style>
   /* --- ESTILOS UNIVERSALES DEL NAV --- */
@@ -168,6 +185,8 @@ body{
   <div class="nav-links" id="navLinks">
     <a href="index.html">Inicio</a>
     <a href="ebooks.html" id="linkBiblioteca" style="display:none;">Mi Biblioteca</a>
+    <a href="suscripciones.html" style="color:var(--green); font-weight: 900;">💎 Planes</a>
+    <button id="themeToggle" class="btn-nav" onclick="toggleTema()" style="background: transparent; border: 2px solid var(--bg5); font-size: 14px; cursor: pointer;">🌙 Oscuro</button>
     
     <button id="btnLogin" class="btn-nav btn-login" onclick="window.location.href='login.html'">Ingresar</button>
 

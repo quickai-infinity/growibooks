@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GrowiBooks — Crea tu Cuento Mágico</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="theme.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -258,6 +259,52 @@ select{cursor:pointer}
 .zoom-close:hover{background:var(--green);color:#fff;transform:scale(1.1)}
 .zoom-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;font-family:var(--fd);font-weight:600}
 .mini-book-cover{cursor:pointer}
+/* VARIABLES UNIVERSALES PARA MODO OSCURO */
+body.dark-mode {
+    --bg: #121212 !important;
+    --bg2: #1e1e1e !important;
+    --bg3: #1e1e1e !important;
+    --bg4: #2d2d2d !important;
+    --bg5: #333333 !important;
+    --text: #e0e0e0 !important;
+    --text2: #aaaaaa !important;
+    --text3: #888888 !important;
+}
+body.dark-mode .nav { background: rgba(18, 18, 18, 0.95) !important; border-bottom-color: var(--bg5) !important; }
+body.dark-mode .form-section, body.dark-mode .book-preview-card, body.dark-mode .auth-card { background: #1e1e1e !important; border-color: #333 !important; }
+body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #2d2d2d !important; color: #fff !important; border-color: #444 !important; }
+body.dark-mode label { color: var(--text2) !important; }
+body.dark-mode .toolbar { background: #1e1e1e !important; }
+
+/* Arreglo para la pantalla de carga en modo oscuro */
+body.dark-mode .loading-overlay { 
+  background: rgba(18, 18, 18, 0.98) !important; 
+}
+body.dark-mode .loading-text { 
+  color: #ffffff !important; 
+}
+body.dark-mode .loading-sub { 
+  color: #aaaaaa !important; 
+}
+
+/* REGLAS NUEVAS PARA EL MENÚ MÓVIL EN MODO OSCURO */
+@media (max-width: 768px) {
+  body.dark-mode .nav-links { background-color: rgba(18, 18, 18, 0.98) !important; border-left-color: var(--bg5) !important; }
+  body.dark-mode .nav-links a { color: var(--text) !important; }
+  body.dark-mode .user-dashboard-nav { border-top-color: var(--bg5) !important; }
+}
+body.dark-mode .nav { background: rgba(18, 18, 18, 0.95) !important; border-bottom-color: var(--bg5) !important; }
+body.dark-mode .form-section, body.dark-mode .book-preview-card, body.dark-mode .auth-card { background: #1e1e1e !important; border-color: #333 !important; }
+body.dark-mode input, body.dark-mode select, body.dark-mode textarea { background: #2d2d2d !important; color: #fff !important; border-color: #444 !important; }
+body.dark-mode label { color: var(--text2) !important; }
+body.dark-mode .toolbar { background: #1e1e1e !important; }
+/* FORZAR ESTILOS MÓVILES DEL PANEL EN CUENTOS */
+@media (max-width: 900px) {
+  .create-panel { grid-template-columns: 1fr !important; }
+  .form-section { padding: 20px 15px !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; background: transparent !important; }
+  .preview-section { position: relative !important; top: 0 !important; margin-top: 40px !important; }
+  .main { padding: 80px 0px 40px !important; } /* Empuja el contenido hacia abajo de la Navbar fixed */
+}
 </style>
 <style>
   /* --- ESTILOS UNIVERSALES DEL NAV --- */
@@ -317,6 +364,8 @@ select{cursor:pointer}
     <a href="generador-ebooks.html">📖 Cuentos</a>
     <a href="generador-didactico.html">✏️ Cuadernos</a>
     <a href="ebooks.html" id="linkBiblioteca" style="display:none;">Mi Biblioteca</a>
+    <a href="suscripciones.html" style="color:var(--green); font-weight: 900;">💎 Planes</a>
+    <button id="themeToggle" class="btn-nav" onclick="toggleTema()" style="background: transparent; border: 2px solid var(--bg5); font-size: 14px; cursor: pointer;">🌙 Oscuro</button>
     
 
     <div id="userDashboardNav" class="user-dashboard-nav" style="display:none;">
@@ -895,31 +944,7 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
   btnPreview.disabled = true;
   showLoading('Generando portada mágica...', 'Atlas Cloud está pintando tu portada. Puede tomar hasta 10 minutos para estilos complejos.');
   
-  // --- TRUCO PARA FORZAR LA LECTURA DE LA FOTO ---
-  const fileInput = document.getElementById('protagonistPhoto');
-  if (fileInput.files && fileInput.files[0]) {
-     const photoBase64 = await new Promise(resolve => {
-         const reader = new FileReader();
-         reader.onload = (e) => resolve(e.target.result);
-         reader.readAsDataURL(fileInput.files[0]);
-     });
-     state.ebook.protagonistPhotoBase64 = photoBase64;
-  }
-  // -----------------------------------------------
-  
   try {
-    // --- TU CONST PAYLOAD INTACTO ---
-    const payload = {
-      title: title,
-      protagonist: protagonist || 'el protagonista',
-      description: description,
-      styleDescription: styleDescriptions[state.ebook.style],
-      style: state.ebook.style,
-      protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null
-    };
-
-    // ELIMINADO SOLO EL AbortController PARA QUE NO CORTE A LOS 4 MINUTOS
-
     const response = await fetch(CONFIG.webhooks.previewCover, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -928,10 +953,10 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
         protagonist: document.getElementById('protagonistName').value.trim() || 'el protagonista',
         style: state.ebook.style,
         description: document.getElementById('storyDescription').value.trim(),
-        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null, // <--- ¡AQUÍ ESTÁ LA FOTO!
+        protagonistPhotoBase64: state.ebook.protagonistPhotoBase64 || null, 
         language: document.getElementById('storyLanguage').value,
-        age: document.getElementById('childAge').value, // <--- AÑADE ESTO AL PREVIEW
-        gender: document.getElementById('protagonistGender').value // <--- ESTA ES LA LÍNEA NUEVA
+        age: document.getElementById('childAge').value, 
+        gender: document.getElementById('protagonistGender').value 
       })
     });
     
@@ -939,11 +964,9 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
       throw new Error('Error del servidor (HTTP ' + response.status + ')');
     }
 
-    // Leemos el JSON en lugar del rawText para el nuevo sistema
     const data = await response.json();
     let imgUrl = null;
 
-    // --- TU LÓGICA INTACTA DE EXTRACCIÓN DE URL ---
     imgUrl = data.expectedUrl || (Array.isArray(data) ? data[0].coverUrl : data.coverUrl);
     
     if(!imgUrl) {
@@ -959,30 +982,26 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
       throw new Error('La IA no devolvió una ruta válida.');
     }
 
-// =====================================================================
+    // =====================================================================
     // EL RADAR (VERSIÓN ANTI-BUCLES - BUSCA .JPG Y .PNG SIMULTÁNEAMENTE)
     // =====================================================================
     let attempts = 0;
     const maxAttempts = 360; 
     
     const cleanUrl = imgUrl.trim();
-    // Aquí sacamos tu auto-corrector al frente para que el radar lo use:
     const altUrl = cleanUrl.includes('.png') ? cleanUrl.replace('.png', '.jpg') : cleanUrl.replace('.jpg', '.png');
     
     const interval = setInterval(async () => {
         attempts++;
         try {
-            // 1. Preguntamos por la URL original (ej. .jpg)
             let res = await fetch(cleanUrl, { method: 'GET', cache: 'no-store' });
             let urlFinal = cleanUrl;
 
-            // 2. Si Supabase lanza el error 400 (no la encuentra), buscamos la otra (ej. .png)
             if (!res.ok) {
                 res = await fetch(altUrl, { method: 'GET', cache: 'no-store' });
                 urlFinal = altUrl;
             }
 
-            // 3. Si encuentra CUALQUIERA de las dos, detenemos el bucle
             if (res.ok) { 
                 clearInterval(interval); 
                 
@@ -1008,9 +1027,7 @@ document.getElementById('btnPreviewCover').addEventListener('click', async () =>
                   document.getElementById('btnPreviewCover').disabled = false;
                 };
                 
-                // Cargamos la URL ganadora en la pantalla
                 img.src = urlFinal;
-                // -------------------------------------------------------------
 
             } else if (attempts >= maxAttempts) {
                 clearInterval(interval);
@@ -1512,6 +1529,35 @@ document.getElementById('protagonistPhoto').addEventListener('change', function(
     console.log("✅ Foto procesada correctamente lista para enviar.");
   };
   reader.readAsDataURL(file);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// SISTEMA DE AUTOGUARDADO ANTI-PÉRDIDA DE DATOS
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  const inputsToSave = ['storyTitle', 'protagonistName', 'storyDescription', 'childAge', 'pageCount', 'storyLanguage', 'protagonistGender'];
+  
+  // 1. Cargar los datos si existen al abrir la app
+  inputsToSave.forEach(id => {
+    const el = document.getElementById(id);
+    const savedValue = localStorage.getItem('growibooks_draft_' + id);
+    if (el && savedValue) {
+      el.value = savedValue;
+    }
+  });
+
+  // 2. Guardar en la memoria del teléfono cada vez que se escribe
+  inputsToSave.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        localStorage.setItem('growibooks_draft_' + id, el.value);
+      });
+      el.addEventListener('change', () => {
+        localStorage.setItem('growibooks_draft_' + id, el.value);
+      });
+    }
+  });
 });
 
 // FIN DEL SCRIPT PRINCIPAL

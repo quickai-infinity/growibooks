@@ -6,7 +6,7 @@
     <title>GrowiPlay — ¡A jugar!</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-    
+    <script src="theme.js"></script>
     <style>
         :root {
             --bg: #f7f9f4; --lime: #2daa5f; --gold: #ff7b2c; --text: #1a2e1a;
@@ -23,22 +23,23 @@
             flex-direction: column;
         }
 
-        /* BARRA SUPERIOR (Móvil amigable con scroll horizontal) */
+ /* BARRA SUPERIOR ESTRUCTURADA */
         .toolbar {
             background: white;
             padding: 10px 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            justify-content: space-between;
             box-shadow: var(--shadow);
             z-index: 10;
-            overflow-x: auto; /* Permite deslizar si no cabe en el móvil */
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
+            height: 70px;
         }
 
-        /* Ocultar barra de scroll para que se vea limpio */
-        .toolbar::-webkit-scrollbar { display: none; }
+        .toolbar-main {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
         .tool-group {
             display: flex;
@@ -72,6 +73,58 @@
         }
         input[type="range"] { width: 80px; }
 
+        /* MENÚ DESPLEGABLE MÓVIL (Por defecto oculto en PC/Horizontal) */
+        .btn-menu-toggle { 
+            display: none; 
+            font-size: 13px; 
+            font-weight: 800;
+            background: var(--bg5); 
+            color: var(--text);
+            border: 2px solid #ddd; 
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer; 
+            font-family: 'Nunito', sans-serif;
+        }        
+        .mobile-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* COMPORTAMIENTO VERTICAL (MÓVIL) */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .btn-menu-toggle { display: block; }
+            
+            .mobile-menu {
+                display: none; /* Se oculta por defecto */
+                position: absolute;
+                top: 75px; right: 15px;
+                background: white;
+                border: 2px solid #ddd;
+                border-radius: 12px;
+                padding: 15px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                box-shadow: var(--shadow);
+                z-index: 100;
+            }
+            
+            .mobile-menu.active {
+                display: flex; /* Se muestra al pulsar los puntos */
+            }
+
+            .tool-group {
+                border-right: none;
+                border-bottom: 2px solid #eee;
+                padding-right: 0;
+                padding-bottom: 10px;
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
         /* ÁREA DE JUEGO */
         .game-container {
             flex-grow: 1;
@@ -86,32 +139,38 @@
 <body>
 
 <div class="toolbar">
-    <button class="btn-action" onclick="window.history.back()">⬅️</button>
-    
-    <div class="tool-group">
-        <button class="btn-action" onclick="zoomCanvas(1.1)">🔍+</button>
-        <button class="btn-action" onclick="zoomCanvas(0.9)">🔍-</button>
+    <div class="toolbar-main">
+        <button class="btn-action" onclick="window.history.back()">⬅️</button>
+        
+        <div class="tool-group">
+            <input type="color" id="colorPicker" value="#2daa5f" onchange="setBrushColor(this.value, null)">
+            <div class="pencil active" style="background: #2daa5f;" onclick="setBrushColor('#2daa5f', this)"></div>
+            <div class="pencil" style="background: #ff7b2c;" onclick="setBrushColor('#ff7b2c', this)"></div>
+            <div class="pencil" style="background: #7c4dff;" onclick="setBrushColor('#7c4dff', this)"></div>
+        </div>
     </div>
 
-    <div class="tool-group">
-        <input type="color" id="colorPicker" value="#2daa5f" onchange="setBrushColor(this.value, null)">
-        <div class="pencil active" style="background: #2daa5f;" onclick="setBrushColor('#2daa5f', this)"></div>
-        <div class="pencil" style="background: #ff7b2c;" onclick="setBrushColor('#ff7b2c', this)"></div>
-        <div class="pencil" style="background: #7c4dff;" onclick="setBrushColor('#7c4dff', this)"></div>
-        <div class="pencil" style="background: #ffffff; border: 1px solid #ccc; display:flex; align-items:center; justify-content:center;" onclick="setBrushColor('#ffffff', this)">🧽</div>
-    </div>
+    <button class="btn-menu-toggle" onclick="toggleMobileMenu()">📋 HERRAMIENTAS</button>
+     
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="tool-group">
+            <button class="btn-action" onclick="zoomCanvas(1.1)">🔍+</button>
+            <button class="btn-action" onclick="zoomCanvas(0.9)">🔍-</button>
+            <div class="pencil" style="background: #ffffff; border: 1px solid #ccc; display:flex; align-items:center; justify-content:center;" onclick="setBrushColor('#ffffff', this)">🧽</div>
+        </div>
 
-    <div class="tool-group">
-        <span>🖌️</span>
-        <input type="range" id="brushSize" min="2" max="40" value="8" onchange="setBrushSize(this.value)">
-    </div>
+        <div class="tool-group">
+            <span>🖌️</span>
+            <input type="range" id="brushSize" min="2" max="40" value="8" onchange="setBrushSize(this.value)">
+        </div>
 
-    <div class="tool-group">
-        <button class="btn-action" onclick="addSticker('⭐')">⭐ Sello</button>
-        <button class="btn-action" onclick="addSticker('🚗')">🚗 Auto</button>
-    </div>
+        <div class="tool-group">
+            <button class="btn-action" onclick="addSticker('⭐')">⭐ Sello</button>
+            <button class="btn-action" onclick="addSticker('🚗')">🚗 Auto</button>
+        </div>
 
-    <button class="btn-action primary" onclick="clearCanvas()">✨ Limpiar</button>
+        <button class="btn-action primary" onclick="clearCanvas(); toggleMobileMenu();">✨ Limpiar</button>
+    </div>
 </div>
 
 <div class="game-container" id="container">
@@ -204,6 +263,13 @@
     });
 
     initCanvas();
+
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobileMenu');
+        if (menu) {
+            menu.classList.toggle('active');
+        }
+    }
 </script>
 
 </body>

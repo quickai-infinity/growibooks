@@ -5,16 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GrowiBooks — Ingresar</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+
+<script src="theme.js"></script>
+
 <style>
   :root { --bg:#f7f9f4; --green:#2daa5f; --green-dark:#1d8047; --text:#1a2e1a; --text2:#4a6741; --r:18px; }
-  body { background:var(--bg); font-family:'Quicksand',sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
-  .auth-card { background:#fff; padding:40px; border-radius:var(--r); box-shadow:0 10px 30px rgba(45,170,95,.1); width:100%; max-width:400px; text-align:center; }
+  body { background:var(--bg); font-family:'Quicksand',sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; transition: background 0.3s ease; }
+  .auth-card { background:#fff; padding:40px; border-radius:var(--r); box-shadow:0 10px 30px rgba(45,170,95,.1); width:100%; max-width:400px; text-align:center; transition: all 0.3s ease; }
   .logo { font-family:'Nunito',sans-serif; font-size:24px; font-weight:900; color:var(--text); margin-bottom:30px; text-decoration:none; display:block; }
   h2 { font-family:'Nunito'; color:var(--text); margin-bottom:10px; }
-  input { width:100%; padding:14px; margin-bottom:12px; border:2px solid #e4ecdc; border-radius:12px; outline:none; font-family:inherit; }
+  input { width:100%; padding:14px; margin-bottom:12px; border:2px solid #e4ecdc; border-radius:12px; outline:none; font-family:inherit; transition: all 0.3s ease; }
   input:focus { border-color:var(--green); }
   .btn-auth { width:100%; padding:16px; background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#fff; border:none; border-radius:12px; font-weight:800; cursor:pointer; font-family:'Nunito'; }
   .toggle-auth { margin-top:20px; font-size:13px; color:var(--text2); cursor:pointer; }
+
+  /* 2. ESTILOS DEL MODO OSCURO EXCLUSIVOS PARA EL LOGIN */
+  body.dark-mode {
+      --bg: #121212 !important;
+      --text: #e0e0e0 !important;
+      --text2: #aaaaaa !important;
+  }
+  body.dark-mode .auth-card {
+      background: #1e1e1e !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+  }
+  body.dark-mode input {
+      background: #2d2d2d !important;
+      color: #fff !important;
+      border-color: #444 !important;
+  }
 </style>
 </head>
 <body>
