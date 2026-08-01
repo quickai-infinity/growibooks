@@ -56,7 +56,7 @@
 
   /* NAVBAR UNIVERSAL */
   .nav { position: fixed; top: 0; left: 0; width: 100%; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; background: rgba(247,249,244,.95); backdrop-filter: blur(10px); z-index: 5000; box-shadow: 0 4px 15px rgba(26,46,26,.05); }
-  .logo { font-family: var(--fb); font-size: 22px; font-weight: 900; text-decoration: none; color: var(--text); }
+  .logo { font-family: var(--fb); font-size: 22px; font-weight: 900; text-decoration: none; color: var(--text); display: flex; align-items: center; gap: 8px; }
   
   .hamburger { display: none; background: transparent; border: none; cursor: pointer; padding: 10px; margin-right: 15px; z-index: 5200; }
   .hamburger div { width: 25px; height: 3px; background-color: var(--text2); margin: 5px; transition: all .3s ease; }
@@ -88,13 +88,9 @@
     <span class="growi" style="color:var(--green)">Growi</span>Books
   </a>
   <button class="hamburger" id="hamburger"><div></div><div></div><div></div></button>
+  
   <div class="nav-links" id="navLinks">
-    <a href="index.html">Inicio</a>
-    <a href="generador-ebooks.html">📖 Cuentos</a>
-    <a href="generador-didactico.html">✏️ Cuadernos</a>
-    <a href="ebooks.html" id="linkBiblioteca" style="display:none;">Mi Biblioteca</a>
-    <a href="suscripciones.html" style="color:var(--green);">💎 Planes</a>
-    <button id="themeToggle" class="btn-nav" onclick="toggleTema()">🌙 Oscuro</button>
+    <a href="index.html" class="btn-nav">Inicio</a>
   </div>
 </nav>
 
@@ -104,7 +100,7 @@
     <p>Desbloquea créditos y crea bibliotecas enteras para tus pequeños o tu negocio.</p>
   </div>
 
-<div class="pricing-grid">
+  <div class="pricing-grid">
     <!-- 1. Explorador -->
     <div class="pricing-card">
       <span class="plan-icon">🌱</span>
@@ -118,7 +114,7 @@
         <li class="disabled">Audiolibro con voces IA</li>
         <li class="disabled">Descarga PDF sin marca</li>
       </ul>
-      <button class="btn-buy outline action-plan" data-price="free">Empezar Gratis</button>
+      <button class="btn-buy outline">Empezar Gratis</button>
     </div>
 
     <!-- 2. Estándar -->
@@ -135,7 +131,7 @@
         <li>Descarga de PDF limpia</li>
         <li class="disabled">Historias extendidas de 20 págs</li>
       </ul>
-      <button class="btn-buy solid action-plan" data-price="price_standard_123">Suscribirme Ahora</button>
+      <button class="btn-buy solid">Suscribirme Ahora</button>
     </div>
 
     <!-- 3. PRO -->
@@ -151,7 +147,7 @@
         <li>Voces IA Premium (ElevenLabs)</li>
         <li>Soporte y acceso a novedades</li>
       </ul>
-      <button class="btn-buy outline action-plan" data-price="price_pro_123">Elegir Nivel PRO</button>
+      <button class="btn-buy outline">Elegir Nivel PRO</button>
     </div>
 
     <!-- 4. ENTERPRISE -->
@@ -167,88 +163,23 @@
         <li>Integración vía API / n8n</li>
         <li>Soporte técnico dedicado</li>
       </ul>
-      <button class="btn-buy outline action-plan" data-price="enterprise">Contactar Asesor</button>
+      <button class="btn-buy outline">Contactar Asesor</button>
     </div>
   </div>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // Todo el código JS se ejecuta DESPUÉS de que la página visual se cargó
+  // Lógica visual para el menú de navegación móvil (sin conexiones a base de datos)
   document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. EL MENÚ HAMBURGUESA SE ACTIVA DE INMEDIATO (Cero retrasos)
     const hamburger = document.getElementById('hamburger');
     const navLinks = document.getElementById('navLinks');
+    
     if (hamburger) {
       hamburger.addEventListener('click', () => {
         navLinks.classList.toggle('nav-active');
         hamburger.classList.toggle('toggle');
       });
     }
-
-    // 2. CONFIGURACIÓN DE BASE DE DATOS
-    const SUPABASE_URL = 'https://wsoqjaynqeoejmwwwsyo.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzb3FqYXlucWVvZWptd3d3c3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NDc3NDgsImV4cCI6MjA5ODMyMzc0OH0.99-PAaaJoowd63I5FS_IGvQNY4rMg5Yn9TQM21rXDac'; 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Revisar si mostramos "Mi Biblioteca" en el menú de forma asíncrona (no bloquea)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if(session && document.getElementById('linkBiblioteca')) {
-          document.getElementById('linkBiblioteca').style.display = 'block';
-      }
-    });
-
-    // 3. LÓGICA DE BOTONES ROBUSTA
-    const buttons = document.querySelectorAll('.action-plan');
-    buttons.forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        
-        // Guardamos el texto original y mostramos que está procesando
-        const originalText = btn.innerText;
-        btn.innerText = "Conectando...";
-        
-        const planId = btn.getAttribute('data-price');
-
-        // ====== CASO 1: PLAN ENTERPRISE (WHATSAPP) ======
-        if (planId === 'enterprise') {
-            // Nota: Aquí debes poner tu código de país + tu número sin símbolos (ej: 34600000000)
-            const numeroAgencia = "34677304620"; 
-            const mensajeWa = encodeURIComponent("Hola equipo de GrowiBooks y quickai. Estoy interesado en el Plan Enterprise y me gustaría agendar una reunión.");
-            window.open(`https://wa.me/${numeroAgencia}?text=${mensajeWa}`, '_system');
-            
-            setTimeout(() => btn.innerText = originalText, 1500);
-            return; // Detiene el código aquí, no pide inicio de sesión
-        }
-
-        // ====== CASO 2: PLANES STRIPE Y GRATIS ======
-        // Comprobamos la sesión JUSTO en el momento del clic
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (!session) {
-          // Le pasamos a login.html el plan exacto que el usuario quiere
-          window.location.href = `login.html?plan=${planId}`;
-          return;
-        }
-
-        const stripeParams = `?client_reference_id=${session.user.id}&prefilled_email=${encodeURIComponent(session.user.email)}`;
-
-        if (planId === 'price_standard_123') {
-          const urlEstandar = 'https://buy.stripe.com/dRm00j18jdZe5DKdp6f7i06' + stripeParams;
-          window.open(urlEstandar, '_system');
-          
-        } else if (planId === 'price_pro_123') {
-          const urlPro = 'https://buy.stripe.com/aFa5kD5ozbR60jqbgYf7i07' + stripeParams;
-          window.open(urlPro, '_system');
-          
-        } else if (planId === 'free') {
-           window.location.href = 'dashboard.html';
-        }
-        
-        // Restaurar el botón después de procesar
-        setTimeout(() => btn.innerText = originalText, 2000);
-      });
-    });
   });
 </script>
 </body>
