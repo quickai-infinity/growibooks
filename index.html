@@ -3,48 +3,280 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Términos y Condiciones - GrowiBooks</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+<title>GrowiBooks — Creación de Cuentos y Cuadernos Educativos</title>
+<meta name="description" content="Transforma a los más pequeños en los héroes de sus propias historias. Cuentos mágicos y cuadernos didácticos personalizados para aprender jugando.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="theme.js"></script>
 <style>
-  :root { --bg: #f7f9f4; --text: #1a2e1a; --text2: #4a6741; --green: #2daa5f; --fd: 'Nunito', sans-serif; --fb: 'Quicksand', sans-serif; }
-  body { background: var(--bg); color: var(--text); font-family: var(--fb); line-height: 1.6; padding: 40px 20px; }
-  .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(45,170,95,.08); }
-  h1 { font-family: var(--fd); font-weight: 900; font-size: 32px; color: var(--green); margin-bottom: 20px; }
-  h2 { font-family: var(--fd); font-weight: 700; font-size: 20px; margin-top: 30px; margin-bottom: 10px; }
-  p, li { color: var(--text2); margin-bottom: 15px; }
-  a.back-btn { display: inline-block; margin-bottom: 20px; color: var(--green); text-decoration: none; font-weight: bold; }
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f7f9f4;--bg2:#eef3e8;--bg3:#ffffff;--bg4:#f0f5eb;--bg5:#e4ecdc;
+  --lime:#2daa5f;--lime10:#2daa5f18;--lime20:#2daa5f35;
+  --green:#2daa5f;--green-dark:#1d8047;
+  --gold:#ff7b2c;--gold10:#ff7b2c18;
+  --purple:#7c4dff;--purple10:#7c4dff18;
+  --text:#1a2e1a;--text2:#4a6741;--text3:#8aaa82;
+  --r:24px;--rs:14px;
+  --fd:'Nunito',sans-serif;--fb:'Quicksand',sans-serif;
+  --shadow:0 10px 30px rgba(45,170,95,.08);
+  --shadow-hover:0 20px 40px rgba(45,170,95,.15);
+}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;
+  background-image:
+    radial-gradient(circle at 10% 15%,#2daa5f08 0%,transparent 50%),
+    radial-gradient(circle at 90% 85%,#ff7b2c08 0%,transparent 50%);
+  overflow-x: hidden;
+}
+
+/* NAV & HAMBURGUER */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;
+  background: rgba(247, 249, 244, .92); backdrop-filter: blur(20px);
+  border-bottom: 2px solid var(--lime10); box-shadow: 0 2px 20px rgba(45, 170, 95, .08);
+  height: 70px;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px; z-index: 101;
+  font-family: var(--fd); font-size: 22px; font-weight: 900;
+  text-decoration: none; color: var(--text); letter-spacing: -.5px;
+}
+.logo-icon { width: 36px; height: 36px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); object-fit: cover; }
+.nav-links { display: flex; gap: 15px; align-items: center; transition: all 0.4s ease; }
+.nav-links a {
+  color: var(--text2); text-decoration: none; font-size: 14px; font-weight: 600;
+  padding: 8px 14px; border-radius: 20px; transition: .2s; font-family: var(--fd);
+}
+.nav-links a:hover { background: var(--lime10); color: var(--green); }
+.hamburger { display: none; background: transparent; border: none; cursor: pointer; padding: 8px; z-index: 101; }
+.hamburger div { width: 24px; height: 3px; background: var(--green); margin: 5px 0; border-radius: 3px; transition: all 0.3s ease; }
+
+.btn-nav { padding: 8px 18px; border-radius: 20px; font-family: var(--fb); font-weight: 800; cursor: pointer; font-size: 13px; text-decoration: none; transition: .2s; }
+.btn-primary { background: linear-gradient(135deg,var(--green),var(--green-dark)); color: #fff; border: none; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(45,170,95,.2); color: #fff; }
+
+@media (max-width: 768px) {
+  .hamburger { display: block; }
+  .nav-links {
+    position: fixed; top: 0; right: -100%; height: 100vh; width: 70%; max-width: 300px;
+    background: var(--bg3); flex-direction: column; justify-content: center; align-items: center;
+    gap: 20px; box-shadow: -5px 0 30px rgba(0,0,0,0.1); border-left: 2px solid var(--lime10);
+  }
+  .nav-links.nav-active { right: 0; }
+  .nav-links a { font-size: 18px; width: 80%; text-align: center; }
+  .hamburger.toggle div:nth-child(1) { transform: rotate(-45deg) translate(-5px, 6px); }
+  .hamburger.toggle div:nth-child(2) { opacity: 0; }
+  .hamburger.toggle div:nth-child(3) { transform: rotate(45deg) translate(-5px, -6px); }
+}
+
+/* HERO SECTION */
+.hero{padding:150px 20px 60px;text-align:center;max-width:900px;margin:0 auto;position:relative}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--lime10);color:var(--green-dark);font-family:var(--fd);font-size:13px;font-weight:800;padding:8px 24px;border-radius:30px;margin-bottom:24px;border:1px solid var(--lime20);animation:fadeUp .6s ease both}
+.hero h1{font-family:var(--fd);font-size:clamp(36px, 6vw, 58px);font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:24px;color:var(--text);animation:fadeUp .6s .1s ease both}
+.hero h1 span{color:var(--green)}
+.hero h1 span.magic{color:var(--purple)}
+.hero p{font-size:clamp(16px, 2vw, 19px);color:var(--text2);font-weight:500;line-height:1.6;max-width:700px;margin:0 auto 40px;animation:fadeUp .6s .2s ease both}
+.social-proof { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 30px; animation:fadeUp .6s .3s ease both; font-size: 14px; color: var(--text2); font-weight: 600;}
+.avatars { display: flex; }
+.avatars img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--bg3); margin-left: -10px; background: var(--bg5); object-fit: cover;}
+.avatars img:first-child { margin-left: 0; }
+
+/* MAIN CHOICES */
+.choices-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;max-width:1000px;margin:0 auto 80px;padding:0 20px;animation:fadeUp .6s .4s ease both}
+@media(max-width:768px){.choices-grid{grid-template-columns:1fr}}
+
+.choice-card{background:var(--bg3);border:2px solid var(--bg5);border-radius:var(--r);padding:40px;text-align:center;text-decoration:none;transition:all .3s cubic-bezier(.22,1,.36,1);box-shadow:var(--shadow);position:relative;overflow:hidden; display: flex; flex-direction: column; justify-content: space-between;}
+.choice-card:hover{transform:translateY(-8px);border-color:var(--green);box-shadow:var(--shadow-hover)}
+.choice-card::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;transition:.3s}
+.choice-card.story:hover::before{background:linear-gradient(90deg, var(--green), var(--gold))}
+.choice-card.workbook:hover::before{background:linear-gradient(90deg, var(--purple), var(--green))}
+
+.choice-icon{width:80px;height:80px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 20px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.choice-card.story .choice-icon{background:var(--lime10);border:2px solid var(--lime20)}
+.choice-card.workbook .choice-icon{background:var(--purple10);border:2px solid rgba(124,77,255,.15)}
+
+.choice-card h2{font-family:var(--fd);font-size:24px;font-weight:900;color:var(--text);margin-bottom:12px}
+.choice-card p{color:var(--text2);font-size:15px;line-height:1.6;font-weight:500;margin-bottom:32px; flex-grow: 1;}
+
+.btn-choice{display:inline-block;padding:14px 32px;border-radius:30px;font-family:var(--fd);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:1px;transition:.2s; width: 100%; text-decoration: none;}
+.choice-card.story .btn-choice{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;box-shadow:0 4px 14px rgba(45,170,95,.3)}
+.choice-card.workbook .btn-choice{background:linear-gradient(135deg,var(--purple),#5e35b1);color:#fff;box-shadow:0 4px 14px rgba(124,77,255,.3)}
+.choice-card:hover .btn-choice{transform:scale(1.03)}
+
+/* PASOS */
+.steps-section { background: var(--bg2); padding: 80px 20px; text-align: center; }
+.steps-title { font-family: var(--fd); font-size: 32px; font-weight: 900; color: var(--text); margin-bottom: 50px; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1000px; margin: 0 auto; }
+@media(max-width:768px){.steps-grid{grid-template-columns:1fr}}
+.step-card { position: relative; }
+.step-number { width: 40px; height: 40px; background: var(--green); color: #fff; font-family: var(--fd); font-weight: 900; font-size: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; box-shadow: 0 4px 10px rgba(45,170,95,.3); }
+.step-card h3 { font-family: var(--fd); font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+.step-card p { color: var(--text2); font-size: 15px; line-height: 1.5; font-weight: 500; }
+
+/* FEATURES */
+.features-section{background:var(--bg3);border-top:2px solid var(--bg5);border-bottom:2px solid var(--bg5);padding:80px 20px}
+.features-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:40px;max-width:1100px;margin:0 auto}
+@media(max-width:800px){.features-grid{grid-template-columns:1fr}}
+.feature{text-align:center}
+.feature-icon{font-size:40px;margin-bottom:16px}
+.feature h3{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--text);margin-bottom:12px}
+.feature p{color:var(--text2);font-size:14px;line-height:1.6;font-weight:500}
+
+/* DECO DOTS */
+.deco-dots{position:absolute;top:150px;left:5%;display:grid;grid-template-columns:repeat(3,6px);gap:8px;opacity:.2;pointer-events:none}
+.deco-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* FOOTER */
+.site-footer { background: var(--bg2); padding: 60px 20px 30px; font-family: var(--fb); }
+.footer-content { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px; }
+.footer-logo { font-family: var(--fd); font-size: 24px; font-weight: 900; color: var(--text); display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.footer-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; margin: 20px 0; }
+.footer-links a { color: var(--text2); text-decoration: none; font-weight: 600; font-size: 14px; transition: color 0.2s; }
+.footer-links a:hover { color: var(--green); }
+.footer-legal { border-top: 1px solid var(--bg5); width: 100%; max-width: 800px; padding-top: 20px; color: var(--text3); font-size: 13px; font-weight: 500; display: flex; flex-direction: column; gap: 10px; }
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* MODO OSCURO */
+body.dark-mode {
+  --bg: #121212 !important; --bg2: #1a1a1a !important; --bg3: #1e1e1e !important;
+  --bg4: #2d2d2d !important; --bg5: #333333 !important;
+  --text: #e0e0e0 !important; --text2: #aaaaaa !important; --text3: #888888 !important;
+}
+body.dark-mode .nav { background: rgba(18, 18, 18, 0.95) !important; border-bottom-color: var(--bg5) !important; }
+body.dark-mode .choice-card, body.dark-mode .features-section { background: #1e1e1e !important; border-color: #333 !important; }
+body.dark-mode .avatars img { border-color: #1e1e1e; }
 </style>
 </head>
 <body>
-  <div class="container">
-    <a href="index.html" class="back-btn">← Volver al inicio</a>
-    <h1>Términos y Condiciones</h1>
-    <p><em>Última actualización: Agosto de 2026</em></p>
 
-    <h2>1. Aceptación de los Términos</h2>
-    <p>Al acceder y utilizar la aplicación y sitio web de <strong>GrowiBooks</strong> (en adelante, la "Plataforma"), usted acepta estar sujeto a estos Términos y Condiciones. Si no está de acuerdo con alguna parte de los términos, no podrá utilizar nuestros servicios.</p>
+<nav class="nav">
+  <a href="index.html" class="logo">
+    <img src="icon-96.webp" alt="GrowiBooks" class="logo-icon">
+    <span style="color:var(--green)">Growi</span>Books
+  </a>
+  
+  <button class="hamburger" id="hamburger">
+    <div></div><div></div><div></div>
+  </button>
 
-    <h2>2. Descripción del Servicio</h2>
-    <p>GrowiBooks permite a los usuarios (padres, tutores y educadores) generar cuentos ilustrados y cuadernos didácticos mediante Inteligencia Artificial (IA) basados en las directrices proporcionadas por el usuario. El servicio funciona mediante un sistema de "créditos" o suscripciones de pago.</p>
-
-    <h2>3. Cuentas de Usuario y Responsabilidad</h2>
-    <ul>
-      <li>Para utilizar nuestros servicios, debe registrarse y crear una cuenta.</li>
-      <li><strong>Uso para menores:</strong> La plataforma está diseñada para ser operada por adultos (mayores de 18 años). Los padres o tutores son los únicos responsables de los datos (nombres, descripciones) que introduzcan en los generadores sobre los menores a su cargo.</li>
-      <li>Usted es responsable de mantener la confidencialidad de su cuenta y contraseña.</li>
-    </ul>
-
-    <h2>4. Pagos, Suscripciones y Créditos</h2>
-    <p>Los pagos se procesan a través de las tiendas de aplicaciones (App Store / Google Play) o nuestras pasarelas de pago (Stripe). Los créditos adquiridos no son reembolsables una vez utilizados. Las suscripciones se renuevan automáticamente salvo que se cancelen al menos 24 horas antes de finalizar el periodo actual.</p>
-
-    <h2>5. Propiedad Intelectual</h2>
-    <p>El usuario retiene los derechos de uso personal o educativo sobre los libros generados. Sin embargo, no se permite la reventa comercial masiva del contenido generado por la plataforma sin una licencia comercial explícita. El software, marca y código de GrowiBooks son propiedad exclusiva nuestra.</p>
-
-    <h2>6. Contenido Prohibido</h2>
-    <p>Está estrictamente prohibido utilizar nuestros generadores de IA para crear contenido violento, sexual explícito, discriminatorio o que infrinja las políticas de seguridad infantil de las tiendas de aplicaciones.</p>
-
-    <h2>7. Contacto</h2>
-    <p>Para cualquier duda sobre estos términos, contáctenos en: <strong>[TU CORREO DE SOPORTE]</strong>.</p>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html">Inicio</a>
+    <a href="suscripciones.html" style="color:var(--green); font-weight: 900;">💎 Planes y Precios</a>
+    <button id="themeToggle" class="btn-nav" onclick="toggleTema()" style="background: transparent; border: 2px solid var(--bg5); font-size: 14px; color: var(--text2);">🌙</button>
+    <a href="suscripciones.html" class="btn-nav btn-primary">Obtener Acceso</a>
   </div>
+</nav>
+
+<div class="deco-dots">
+  <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+  <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+  <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+</div>
+
+<section class="hero">
+  <div class="hero-badge">⭐ Fomentando el amor por la lectura</div>
+  <h1>Despierta su imaginación, crea recuerdos <span>inolvidables.</span></h1>
+  <p>Convierte a tus pequeños en los verdaderos protagonistas. Crea cuentos ilustrados mágicos o cuadernos de actividades 100% personalizados que los atraparán desde la primera página.</p>
+  
+  <div class="social-proof">
+    <div class="avatars">
+      <img src="https://i.pravatar.cc/100?img=1" alt="Usuario 1">
+      <img src="https://i.pravatar.cc/100?img=5" alt="Usuario 2">
+      <img src="https://i.pravatar.cc/100?img=9" alt="Usuario 3">
+    </div>
+    <span>Más de <strong>5,000 familias</strong> ya crean magia con nosotros.</span>
+  </div>
+</section>
+
+<section class="choices-grid">
+  <a href="suscripciones.html" class="choice-card story">
+    <div class="choice-icon">📖</div>
+    <h2>Cuentos Mágicos</h2>
+    <p>Dale vida a historias únicas donde tu hijo o alumno es el héroe. Fomenta el hábito de la lectura con aventuras hechas a medida que leerán una y otra vez antes de dormir.</p>
+    <div class="btn-choice">Ver Planes</div>
+  </a>
+
+  <a href="suscripciones.html" class="choice-card workbook">
+    <div class="choice-icon">🎨</div>
+    <h2>Cuadernos Didácticos</h2>
+    <p>Aprender nunca fue tan divertido. Crea laberintos, ejercicios de matemáticas o trazos, integrados en la historia de sus personajes favoritos listos para imprimir.</p>
+    <div class="btn-choice">Ver Planes</div>
+  </a>
+</section>
+
+<section class="steps-section">
+  <h2 class="steps-title">Crear magia es así de fácil</h2>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <h3>Imagina el tema</h3>
+      <p>¿Le gustan los dinosaurios, el espacio o las princesas valientes? Tú eliges de qué tratará la aventura.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <h3>Personaliza al protagonista</h3>
+      <p>Añade el nombre del niño y detalles especiales. Nuestra tecnología tejerá la historia perfecta al instante.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">3</div>
+      <h3>Disfruta y aprende</h3>
+      <p>Lee el cuento en formato digital interactivo o imprime el cuaderno didáctico para una tarde de diversión.</p>
+    </div>
+  </div>
+</section>
+
+<section class="features-section">
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon">🧠</div>
+      <h3>Aprender sin darse cuenta</h3>
+      <p>Narrativas creadas bajo bases de neurociencia educativa. Mantenemos la atención plena de los niños mientras fomentamos valores y empatía.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⏳</div>
+      <h3>Tiempo de calidad al instante</h3>
+      <p>¿Tarde aburrida en casa o clase de repaso? Genera un reto educativo en segundos y regálales un momento de conexión y aprendizaje.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🖼️</div>
+      <h3>Ilustraciones que enamoran</h3>
+      <p>Desde el estilo cálido de las acuarelas hasta el vibrante 3D animado. Cada página es una obra de arte diseñada para asombrar.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-content">
+    <a href="index.html" class="footer-logo">
+      <img src="icon-96.webp" alt="GrowiBooks" style="width:32px; height:32px; border-radius:8px;"> GrowiBooks
+    </a>
+    
+    <div class="footer-links">
+      <a href="terminos.html">Términos y Condiciones</a>
+      <a href="privacidad.html">Política de Privacidad</a>
+      <a href="datos.html">Protección de Datos (RGPD)</a>
+      <a href="mailto:soporte@growibooks.com">Contacto</a>
+    </div>
+
+    <div class="footer-legal">
+      <p>Diseñado con ❤️ para inspirar a la próxima generación.</p>
+      <p>&copy; 2026 GrowiBooks. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Lógica simple de menú móvil
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  if (hamburger) {
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('nav-active');
+      hamburger.classList.toggle('toggle');
+    });
+  }
+</script>
 </body>
 </html>
