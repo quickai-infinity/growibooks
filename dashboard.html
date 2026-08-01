@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowiBooks — Mi Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&family=Quicksand:wght@500;700;800&display=swap" rel="stylesheet">
+<script src="theme.js"></script>
+<style>
+  :root { --bg:#f7f9f4; --bg3:#fff; --green:#2daa5f; --green-dark:#1d8047; --lime10:#edf6e4; --lime20:#dbe8ca; --text:#1a2e1a; --text2:#4a6741; --text3:#7d9472; --bg5:#e4ecdc; --shadow: 0 4px 12px rgba(26,46,26,.05); --shadow-lg: 0 10px 30px rgba(45,170,95,.1); --r: 20px; --fb:'Nunito', sans-serif; --fd:'Quicksand', sans-serif; }
+  body { background:var(--bg); color:var(--text); font-family:var(--fd); margin:0; padding-top:100px; transition: background-color 0.3s, color 0.3s; }
+  h1,h2,h3 { font-family:var(--fb); margin:0; }
+  
+  /* Layout */
+  .container { max-width:1100px; margin:0 auto; padding:0 20px; }
+  .dashboard-grid { display:grid; grid-template-columns: 2fr 1fr; gap:30px; margin-top:40px; }
+  
+  /* Cards */
+  .card { background:var(--bg3); padding:30px; border-radius:var(--r); box-shadow:var(--shadow-lg); border:1px solid var(--bg5); transition: background-color 0.3s, border-color 0.3s; }
+  .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; }
+  .card-header h2 { font-size:20px; font-weight:900; }
+  
+  /* Info Card (Bienvenida y Créditos) */
+  .welcome-pill { background:var(--lime10); border:1px solid var(--lime20); padding:10px 20px; border-radius:var(--r); font-family:var(--fb); font-weight:900; font-size:16px; color:var(--green-dark); display:flex; align-items:center; gap:8px; margin-bottom:20px; transition: background-color 0.3s, border-color 0.3s, color 0.3s; }
+  
+  /* Stats Grid */
+  .stats-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:30px; }
+  .stat-box { background:var(--bg); padding:20px; border-radius:var(--r); text-align:center; border:1px solid var(--bg5); transition: background-color 0.3s, border-color 0.3s; }
+  .stat-box .icon { font-size:32px; margin-bottom:10px; }
+  .stat-box .count { font-size:24px; font-weight:800; color:var(--green-dark); font-family:var(--fb); }
+  .stat-box .label { font-size:12px; color:var(--text3); font-weight:600; margin-top:4px; }
+  
+  /* Botón de recarga */
+  .btn-buy { background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#fff; border:none; padding:16px; border-radius:var(--r); font-weight:800; font-family:var(--fb); cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:10px; font-size:15px; text-decoration:none; }
+  .btn-buy:hover { transform:translateY(-1px); box-shadow: 0 4px 15px rgba(45,170,95,.3); }
+
+  /* Lista de accesos */
+  .action-list { display:flex; flex-direction:column; gap:15px; }
+  .action-item { background:var(--bg); padding:15px 20px; border-radius:15px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--bg5); text-decoration:none; color:inherit; transition:.2s; }
+  .action-item:hover { border-color:var(--green); background:var(--bg3); }
+  .action-item .title { font-weight:700; font-size:14px; }
+  .action-item .arrow { font-size:12px; color:var(--text3); }
+
+  /* --- ESTILOS UNIVERSALES DEL NAV --- */
+  .nav { position: fixed; top: 0; left: 0; width: 100%; height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; background: rgba(247,249,244,.95); backdrop-filter: blur(10px); z-index: 5000; box-shadow: 0 4px 15px rgba(26,46,26,.05); transition: background-color 0.3s; }
+  .logo { z-index: 5100; position: relative; text-decoration: none; font-family:'Nunito', sans-serif; font-weight: 900; font-size: 22px; color: var(--text); }
+  
+  .hamburger { display: none; background: transparent; border: none; cursor: pointer; padding: 10px; }
+  .hamburger div { width: 25px; height: 3px; background-color: var(--text2); margin: 5px; transition: all .3s ease; }
+
+  .nav-links { display: flex; align-items: center; gap: 20px; }
+  .nav-links a { text-decoration: none; font-family:'Quicksand', sans-serif; color: var(--text2); font-weight: 700; font-size: 14px; transition: color 0.3s; }
+  .user-dashboard-nav { display: none; align-items: center; gap: 10px; margin-left: 10px; }
+  .credits-pill { background: var(--lime10); border: 1px solid var(--lime20); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-family:'Nunito', sans-serif; font-weight: 900; color: var(--green-dark); display: flex; align-items: center; gap: 6px; cursor: help; transition: background-color 0.3s, border-color 0.3s, color 0.3s; }
+  .btn-nav { padding: 8px 18px; border-radius: 20px; font-family:'Nunito', sans-serif; font-weight: 800; cursor: pointer; font-size: 13px; text-decoration: none; transition: .2s; }
+  .btn-logout { background: transparent; border: 2px solid var(--bg5); color: var(--text2); transition: border-color 0.3s, color 0.3s; }
+
+  /* MÓVIL */
+  @media (max-width: 768px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .hamburger { display: block; position: relative; z-index: 5200; margin-right: 15px; }
+    .nav-links { position: fixed; right: -100%; top: 0; height: 100vh; background-color: rgba(247,249,244,.98); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70%; max-width: 300px; transition: right .4s ease; padding: 40px 0; gap: 25px; box-shadow: -10px 0 20px rgba(0,0,0,.1); z-index: 5100; border-left: 2px solid var(--lime10); }
+    .nav-links.nav-active { right: 0; }
+    .hamburger.toggle div:nth-child(1) { transform: rotate(-45deg) translate(-5px, 6px); }
+    .hamburger.toggle div:nth-child(2) { opacity: 0; }
+    .hamburger.toggle div:nth-child(3) { transform: rotate(45deg) translate(-5px, -6px); }
+    .user-dashboard-nav { flex-direction: column; width: 100%; align-items: center; gap: 15px; border-top: 1px solid var(--bg5); padding-top: 20px; }
+    .credits-pill { width: 80%; justify-content: center; }
+    .btn-nav { width: 80%; text-align: center; }
+  }
+
+  /* VARIABLES UNIVERSALES PARA MODO OSCURO */
+  body.dark-mode {
+    --bg: #121212;
+    --bg3: #1e1e1e;
+    --bg5: #333333;
+    --text: #e0e0e0;
+    --text2: #aaaaaa;
+    --text3: #888888;
+    --lime10: #2daa5f18;
+    --lime20: #2daa5f35;
+    --green-dark: #2daa5f;
+  }
+  body.dark-mode .nav { background: rgba(18, 18, 18, 0.95); }
+  @media (max-width: 768px) {
+    body.dark-mode .nav-links { background-color: rgba(18, 18, 18, 0.98); border-left-color: var(--bg5); }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="logo">
+    <img src="icon-96.webp" alt="GrowiBooks" style="width: 36px; height: 36px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); object-fit: cover;">
+    <span class="growi" style="color:var(--green)">Growi</span>Books
+  </a>
+  <button class="hamburger" id="hamburger">
+    <div></div><div></div><div></div>
+  </button>
+
+  <div class="nav-links" id="navLinks">
+    <a href="index.html">Inicio</a>
+    <a href="generador-ebooks.html">📖 Cuentos</a>
+    <a href="generador-didactico.html">✏️ Cuadernos</a>
+    <a href="ebooks.html">Mi Biblioteca</a>
+    <button id="themeToggle" class="btn-nav" onclick="toggleTema()" style="background: transparent; border: 2px solid var(--bg5); font-size: 14px; cursor: pointer; color: var(--text2);">🌙 Oscuro</button>
+    <div class="user-dashboard-nav" id="userDashboardNav" style="display: none;">
+      <div class="credits-pill">🪙 <span id="creditCount">0</span></div>
+      <button class="btn-nav btn-logout" onclick="signOut()">Salir</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Saludos,<span id="welcomeUser" style="color:var(--green)">...</span>🌱</h1>
+  <p style="color:var(--text2); margin-top:6px; margin-bottom:30px;">Aquí tienes tu panel personal para gestionar tu cuenta y contenidos.</p>
+  
+  <div class="dashboard-grid">
+    <div class="card">
+      <div class="card-header">
+        <h2>🪙 Tus Créditos Mágicos</h2>
+        <div class="credits-pill" style="margin-bottom:0; font-size:24px; padding:12px 24px;">
+          🪙 <span id="bigCreditCount" style="font-weight:900;">0</span>
+        </div>
+      </div>
+      
+      <p style="color:var(--text2); font-size:14px; line-height:1.6; margin-bottom:25px;">Cada libro o cuaderno didáctico que generas consume **1 crédito mágico**. ¿Te quedas sin magia? No te preocupes, recarga cuando quieras.</p>
+      
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="icon">📖</div>
+          <div class="count" id="countStories">0</div>
+          <div class="label">Cuentos creados</div>
+        </div>
+        <div class="stat-box">
+          <div class="icon">✏️</div>
+          <div class="count" id="countWorkbooks">0</div>
+          <div class="label">Cuadernos creados</div>
+        </div>
+        <div class="stat-box">
+          <div class="icon">🖨️</div>
+          <div class="count">0</div>
+          <div class="label">Impresiones pedidas</div>
+        </div>
+      </div>
+      
+      <a href="suscripciones.html" class="btn-buy" id="btnBuyCredits">Recargar Créditos ✨</a> 
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h2>🚀 Accesos Rápidos</h2>
+      </div>
+      <div class="action-list">
+        <a href="generador-ebooks.html" class="action-item">
+          <span class="title">Generar Nuevo Cuento</span>
+          <span class="arrow">→</span>
+        </a>
+        <a href="generador-didactico.html" class="action-item">
+          <span class="title">Generar Nuevo Cuaderno</span>
+          <span class="arrow">→</span>
+        </a>
+        <a href="ebooks.html" class="action-item">
+          <span class="title">Ver Mi Biblioteca</span>
+          <span class="arrow">→</span>
+        </a>
+        <a href="index.html#dossier" class="action-item">
+          <span class="title">Descargar Dossier de Ventas</span>
+          <span class="arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Inicialización del menú hamburguesa
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('nav-active');
+        hamburger.classList.toggle('toggle');
+      });
+    }
+
+    // 🚨 SOLUCIÓN 2: URL de Supabase y configuración de sesión conectada al login
+  const SUPABASE_URL = 'https://wsoqjaynqeoejmwwwsyo.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzb3FqYXlucWVvZWptd3d3c3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NDc3NDgsImV4cCI6MjA5ODMyMzc0OH0.99-PAaaJoowd63I5FS_IGvQNY4rMg5Yn9TQM21rXDac'; 
+  
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+      persistSession: true,
+      storageKey: 'growibooks-auth-token'
+    }
+  });
+
+    async function loadDashboard() {
+      // 1. Obtener Sesión
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) { 
+          window.location.href = 'login.html'; 
+          return; 
+      }
+
+      // 2. Mostrar Menú de Usuario y Nombre
+      const navUser = document.getElementById('userDashboardNav');
+      if (navUser) navUser.style.display = 'flex';
+
+      const userEmail = session.user?.email || 'Aventurero';
+      const userName = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
+      document.getElementById('welcomeUser').textContent = ' ' + userName;
+
+      // ---> SOLUCIÓN: CONSULTAR LOS CRÉDITOS REALES <---
+      try {
+        const { data: perfil, error: perfilError } = await supabase
+          .from('perfiles_growibooks')
+          .select('creditos')
+          .eq('id', session.user.id)
+          .single();
+
+        if (perfil) {
+          // Pintamos los créditos en la píldora del menú y en el número gigante
+          document.getElementById('creditCount').textContent = perfil.creditos;
+          document.getElementById('bigCreditCount').textContent = perfil.creditos;
+        }
+      } catch(err) {
+        console.error('Error cargando los créditos del perfil', err);
+      }
+      // ---> FIN DE SOLUCIÓN <---
+
+     // 4. Cargar Libros y Cuadernos REALES del usuario
+      try {
+        const { data: ebooks, error } = await supabase
+          .from('ebooks')
+          .select('title')
+          .eq('user_id', session.user.id); // <-- EL FILTRO CLAVE
+          
+        if (error) throw error;
+          
+        if (ebooks) {
+          let stories = 0; let workbooks = 0;
+          ebooks.forEach(e => {
+            if (e.title && e.title.toLowerCase().includes('didáctico')) workbooks++;
+            else stories++;
+          });
+          document.getElementById('countStories').textContent = stories;
+          document.getElementById('countWorkbooks').textContent = workbooks;
+        }
+      } catch(err) { 
+          console.error('Error cargando conteos', err);
+      }
+    }
+
+    loadDashboard();
+  });
+
+  // Función global para salir de la sesión
+ // Función global para salir de la sesión (Ahora sí borrará el token correcto)
+  async function signOut() {
+    const SUPABASE_URL = 'https://wsoqjaynqeoejmwwwsyo.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzb3FqYXlucWVvZWptd3d3c3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3NDc3NDgsImV4cCI6MjA5ODMyMzc0OH0.99-PAaaJoowd63I5FS_IGvQNY4rMg5Yn9TQM21rXDac'; 
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        storageKey: 'growibooks-auth-token'
+      }
+    });
+    
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>
